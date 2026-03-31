@@ -1,0 +1,331 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.controls {
+    background: #f5f5f5;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.date-range, .add-vehicle, .add-reservation {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.date-range h3, .add-vehicle h3, .add-reservation h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.date-range label {
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="datetime-local"],
+select {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #764ba2;
+}
+
+.btn-danger {
+    background: #e74c3c;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.gantt-section {
+    padding: 20px;
+}
+
+.gantt-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.gantt-container {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.gantt-left {
+    width: 200px;
+    border-right: 2px solid #667eea;
+    background: #f9f9f9;
+}
+
+.gantt-header {
+    padding: 15px;
+    font-weight: 600;
+    background: #667eea;
+    color: white;
+    text-align: center;
+}
+
+.vehicles-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.vehicle-item {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+    font-weight: 500;
+    color: #333;
+}
+
+.vehicle-item:hover {
+    background: #f0f0f0;
+}
+
+.gantt-right {
+    flex: 1;
+    overflow-x: auto;
+    min-height: 600px;
+}
+
+.gantt-chart {
+    position: relative;
+    padding: 15px;
+}
+
+.gantt-row {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    margin-bottom: 10px;
+    position: relative;
+    background: #fafafa;
+    border-radius: 5px;
+}
+
+.gantt-bars {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 1px, transparent 1px);
+    background-size: 100px 100%;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.gantt-bar {
+    position: absolute;
+    height: 40px;
+    top: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: white;
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.gantt-bar:hover {
+    border-color: #333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.reservations-list {
+    padding: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.reservations-list h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.reservation-item {
+    background: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #667eea;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reservation-info {
+    flex: 1;
+}
+
+.reservation-item h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.reservation-item p {
+    color: #666;
+    font-size: 0.95em;
+}
+
+.reservation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.reservation-actions button {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.modal-content input {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.modal-content button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@media (max-width: 768px) {
+    .gantt-container {
+        flex-direction: column;
+    }
+
+    .gantt-left {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #667eea;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+}

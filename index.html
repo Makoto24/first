@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>レンタカー車両管理 - ガントチャート</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 レンタカー車両管理システム</h1>
+            <p>ガントチャート形式で予約状況を管理</p>
+        </header>
+
+        <div class="controls">
+            <div class="date-range">
+                <label for="startDate">開始日:</label>
+                <input type="date" id="startDate">
+                <label for="endDate">終了日:</label>
+                <input type="date" id="endDate">
+                <button id="updateBtn">表示更新</button>
+            </div>
+
+            <div class="add-vehicle">
+                <h3>新しい車を追加</h3>
+                <input type="text" id="vehicleName" placeholder="車名（例：トヨタ プリウス 001）">
+                <button id="addVehicleBtn">車を追加</button>
+            </div>
+
+            <div class="add-reservation">
+                <h3>予約を追加</h3>
+                <select id="vehicleSelect">
+                    <option value="">車を選択...</option>
+                </select>
+                <input type="text" id="customerName" placeholder="顧客名">
+                <input type="datetime-local" id="reservationStart">
+                <input type="datetime-local" id="reservationEnd">
+                <button id="addReservationBtn">予約を追加</button>
+            </div>
+        </div>
+
+        <div class="gantt-section">
+            <h2>予約状況</h2>
+            <div class="gantt-container">
+                <div class="gantt-left">
+                    <div class="gantt-header">車両</div>
+                    <div id="vehiclesList" class="vehicles-list"></div>
+                </div>
+                <div class="gantt-right">
+                    <div id="ganttChart" class="gantt-chart"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reservations-list">
+            <h2>予約一覧</h2>
+            <div id="reservationsList"></div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>予約を編集</h2>
+            <input type="text" id="editCustomerName" placeholder="顧客名">
+            <input type="datetime-local" id="editStart">
+            <input type="datetime-local" id="editEnd">
+            <button id="saveEditBtn">保存</button>
+            <button id="deleteReservationBtn" class="btn-danger">削除</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
