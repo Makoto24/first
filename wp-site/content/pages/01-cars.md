@@ -26,6 +26,20 @@ menu_order: 1
 </div>
 <!-- /wp:group -->
 
+<!-- wp:group -->
+<div class="wp-block-group">
+<!-- wp:heading {"level":3} -->
+<h3>🎓 学割実施中 — 学生証のご提示で軽自動車が1日5,500円</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>学生証をご提示いただくと、軽自動車を <strong>1日（24時間）5,500円</strong> でご利用いただけます。通学・帰省・サークルやゼミのお出かけにぜひご利用ください。</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size">※ ご利用時に有効な学生証の原本をご提示ください。他の割引・キャンペーンとの併用はできません。</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+
 <!-- wp:heading {"level":3} -->
 <h3>軽自動車</h3>
 <!-- /wp:heading -->
