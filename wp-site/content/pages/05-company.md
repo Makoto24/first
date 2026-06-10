@@ -2,7 +2,7 @@
 title: 会社概要
 slug: company
 status: publish
-menu_order: 5
+menu_order: 6
 ---
 <!-- wp:heading -->
 <h2>会社概要</h2>

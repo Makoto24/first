@@ -2,7 +2,7 @@
 title: お問い合わせ
 slug: contact
 status: publish
-menu_order: 6
+menu_order: 7
 ---
 <!-- wp:heading -->
 <h2>お問い合わせ</h2>
