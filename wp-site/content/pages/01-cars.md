@@ -12,6 +12,10 @@ menu_order: 1
 <p>料金はすべて税込・基本補償込みの目安です。シーズンやキャンペーンにより変動する場合があります。最新の空車状況・正確な料金は予約フォームでご確認ください。</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size">※ 下記の車種・料金は仮の値です。正式な料金表に差し替えてください（料金内容をご連携いただければ反映します）。</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:table -->
 <figure class="wp-block-table"><table>
 <thead>

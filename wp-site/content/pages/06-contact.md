@@ -14,8 +14,8 @@ menu_order: 6
 
 <!-- wp:list -->
 <ul>
-<li><strong>お電話</strong>：000-000-0000（受付 8:00〜20:00）</li>
-<li><strong>メール</strong>：info@example.com</li>
+<li><strong>お電話</strong>：050-1793-0205（受付 8:00〜18:00）</li>
+<li><strong>メール</strong>：info@matsumotorentacar.com</li>
 </ul>
 <!-- /wp:list -->
 
@@ -24,9 +24,5 @@ menu_order: 6
 <!-- /wp:paragraph -->
 
 <!-- wp:shortcode -->
-[contact-form-7 id="0" title="お問い合わせ"]
+[contact-form-7 id="0fac026" title="toiawase"]
 <!-- /wp:shortcode -->
-
-<!-- wp:paragraph {"fontSize":"small"} -->
-<p class="has-small-font-size">※ 上記は Contact Form 7 のショートコード例です。お使いのフォームプラグインのショートコードに置き換えてください。</p>
-<!-- /wp:paragraph -->
