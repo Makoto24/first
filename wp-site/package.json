@@ -1,0 +1,16 @@
+{
+  "name": "wp-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "WordPress(レンタカー店舗サイト)のコンテンツをREST API経由で投稿・更新するツールキット",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "list": "node scripts/list.js",
+    "deploy:pages": "node scripts/deploy-pages.js",
+    "publish:posts": "node scripts/publish-posts.js",
+    "deploy:all": "node scripts/deploy-pages.js && node scripts/publish-posts.js"
+  }
+}

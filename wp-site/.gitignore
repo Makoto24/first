@@ -1,0 +1,5 @@
+# 認証情報は絶対にコミットしない
+.env
+.env.local
+
+node_modules/
