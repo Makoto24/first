@@ -23,6 +23,17 @@ menu_order: 0
 </div>
 <!-- /wp:buttons -->
 
+<!-- wp:group -->
+<div class="wp-block-group">
+<!-- wp:heading {"level":2} -->
+<h2>🎓 学割実施中</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>学生証のご提示で、<strong>軽自動車が1日（24時間）5,500円</strong>！通学・帰省・サークルやゼミのお出かけにぜひご利用ください。詳しくは<a href="/cars/">車種・料金ページ</a>をご覧ください。</p>
+<!-- /wp:paragraph -->
+</div>
+<!-- /wp:group -->
+
 <!-- wp:heading -->
 <h2>当店が選ばれる3つの理由</h2>
 <!-- /wp:heading -->
@@ -71,9 +82,5 @@ menu_order: 0
 <!-- /wp:paragraph -->
 
 <!-- wp:shortcode -->
-[reservation_form]
+[xrb_remote_booking]
 <!-- /wp:shortcode -->
-
-<!-- wp:paragraph {"fontSize":"small"} -->
-<p class="has-small-font-size">※ 上記の <code>[reservation_form]</code> は予約プラグイン用のショートコードです。プラグイン導入後、実際のショートコードに置き換えてください。</p>
-<!-- /wp:paragraph -->

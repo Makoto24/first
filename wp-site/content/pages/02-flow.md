@@ -36,9 +36,5 @@ menu_order: 2
 <!-- /wp:heading -->
 
 <!-- wp:shortcode -->
-[reservation_form]
+[xrb_remote_booking]
 <!-- /wp:shortcode -->
-
-<!-- wp:paragraph {"fontSize":"small"} -->
-<p class="has-small-font-size">※ <code>[reservation_form]</code> は予約プラグイン用のショートコードです。プラグイン導入後、実際のショートコードに置き換えてください。</p>
-<!-- /wp:paragraph -->
