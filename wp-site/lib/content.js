@@ -10,7 +10,7 @@
 //   <本文 HTML>
 //
 // 本文は WordPress がそのまま受け付ける HTML として扱う。
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 
 export function parseFrontmatter(raw) {
@@ -38,6 +38,19 @@ export function parseFrontmatter(raw) {
   return { meta, body: match[2].trim() };
 }
 
+// 本文中の @@include:名前@@ を content/partials/名前.html の中身に置き換える。
+// 共通のデザインCSS（mrc-style）などを各ページで使い回すための仕組み。
+export function applyIncludes(body, dir) {
+  return body.replace(/@@include:([a-zA-Z0-9_\-/]+)@@/g, (match, name) => {
+    const partialPath = join(dir, '..', 'partials', `${name}.html`);
+    if (existsSync(partialPath)) {
+      return readFileSync(partialPath, 'utf8').trim();
+    }
+    console.warn(`  パーシャルが見つかりません: ${name}`);
+    return match;
+  });
+}
+
 export function loadContentDir(dir) {
   const files = readdirSync(dir)
     .filter((f) => f.endsWith('.md') || f.endsWith('.html'))
@@ -49,7 +62,7 @@ export function loadContentDir(dir) {
     return {
       file: basename(file),
       meta,
-      body,
+      body: applyIncludes(body, dir),
     };
   });
 }

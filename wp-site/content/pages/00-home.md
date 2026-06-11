@@ -1,9 +1,12 @@
 ---
 title: ホーム
 slug: home
-status: publish
+status: draft
 menu_order: 0
 ---
+<!-- このページ（/home/）はデザイン版トップ（フロントページ）と重複するため下書き(draft)にしています。
+     次回 deploy 時に自動で非公開（下書き）になります。実際のトップは既存のフロントページをご利用ください。 -->
+
 <!-- wp:heading {"level":1} -->
 <h1>車があれば、信州はもっと近くなる。</h1>
 <!-- /wp:heading -->
