@@ -3,6 +3,9 @@ title: 店舗案内・アクセス
 slug: access
 status: publish
 menu_order: 3
+seo_title: 店舗案内・アクセス｜松本レンタカー（島内店・信州大学前店）
+meta_description: 松本レンタカーは松本市内に2店舗（島内店・信州大学前店）。住所・電話・営業時間・地図をご案内します。松本城や上高地・安曇野観光の拠点に便利です。
+focus_keyword: 松本 レンタカー 店舗
 ---
 <!-- wp:html -->
 @@include:mrc-style@@
@@ -40,4 +43,10 @@ menu_order: 3
     </div>
   </section>
 </div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"AutoRental","name":"松本レンタカー 島内店","parentOrganization":{"@type":"Organization","name":"Be Village株式会社"},"url":"https://matsumotorentacar.com/access/","telephone":"+81-50-1793-0205","email":"info@matsumotorentacar.com","priceRange":"¥6,600〜¥24,000","openingHours":"Mo-Su 08:00-18:00","address":{"@type":"PostalAddress","postalCode":"390-0851","streetAddress":"島内4710","addressLocality":"松本市","addressRegion":"長野県","addressCountry":"JP"},"geo":{"@type":"GeoCoordinates","latitude":36.2480,"longitude":137.9461}},{"@type":"AutoRental","name":"松本レンタカー 信州大学前店","parentOrganization":{"@type":"Organization","name":"Be Village株式会社"},"url":"https://matsumotorentacar.com/access/","telephone":"+81-50-1793-0205","email":"info@matsumotorentacar.com","priceRange":"¥6,600〜¥24,000","openingHours":"Mo-Su 08:00-18:00","address":{"@type":"PostalAddress","postalCode":"390-0871","streetAddress":"桐2-1-15","addressLocality":"松本市","addressRegion":"長野県","addressCountry":"JP"},"geo":{"@type":"GeoCoordinates","latitude":36.2525,"longitude":137.9587}}]}
+</script>
 <!-- /wp:html -->

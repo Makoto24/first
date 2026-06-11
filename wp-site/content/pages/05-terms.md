@@ -3,6 +3,9 @@ title: 利用規約・ご予約ポリシー
 slug: terms
 status: publish
 menu_order: 5
+seo_title: 利用規約・ご予約ポリシー｜松本レンタカー
+meta_description: 松本レンタカーの利用規約。運転免許・利用資格、キャンセルポリシー（48時間前まで無料）、保険補償・NOC、満タン返しなどご利用ルールをまとめています。
+focus_keyword: 松本 レンタカー 利用規約
 ---
 <!-- wp:html -->
 @@include:mrc-style@@

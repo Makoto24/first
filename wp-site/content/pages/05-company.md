@@ -3,6 +3,9 @@ title: 会社概要
 slug: company
 status: publish
 menu_order: 6
+seo_title: 会社概要｜松本レンタカー（Be Village株式会社）
+meta_description: 松本レンタカーを運営するBe Village株式会社の会社概要。所在地・代表者・許可番号・2店舗のご案内。信州のお出かけを安全・快適にサポートします。
+focus_keyword: 松本レンタカー 会社概要
 ---
 <!-- wp:html -->
 @@include:mrc-style@@

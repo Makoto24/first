@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { WpClient } from '../lib/wpClient.js';
 import { loadContentDir } from '../lib/content.js';
+import { buildSeoMeta, getSeoPlugin } from '../lib/seo.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pagesDir = join(__dirname, '..', 'content', 'pages');
@@ -19,7 +20,7 @@ async function main() {
 
   // dry-run は認証情報なしでも内容確認できるよう、クライアントを作らない
   const wp = dryRun ? null : new WpClient();
-  console.log(`接続先: ${dryRun ? '（DRY RUN）' : wp.baseUrl}\n`);
+  console.log(`接続先: ${dryRun ? '（DRY RUN）' : wp.baseUrl}　SEO: ${getSeoPlugin()}\n`);
 
   for (const { file, meta, body } of items) {
     if (!meta.slug || !meta.title) {
@@ -36,8 +37,14 @@ async function main() {
     if (meta.menu_order) payload.menu_order = Number(meta.menu_order);
     if (meta.template) payload.template = meta.template;
 
+    // SEO: 抜粋（メタディスクリプションのフォールバック）と SEO プラグインのメタ
+    if (meta.meta_description) payload.excerpt = meta.meta_description;
+    const seoMeta = buildSeoMeta(meta);
+    if (Object.keys(seoMeta).length) payload.meta = seoMeta;
+
     if (dryRun) {
-      console.log(`  [dry-run] ${meta.title}  /${meta.slug}  (${body.length}文字)`);
+      const seo = meta.meta_description ? ' +SEO' : '';
+      console.log(`  [dry-run] ${meta.title}  /${meta.slug}  (${body.length}文字)${seo}`);
       continue;
     }
 

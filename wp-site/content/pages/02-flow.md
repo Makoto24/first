@@ -3,6 +3,9 @@ title: ご利用の流れ
 slug: flow
 status: publish
 menu_order: 2
+seo_title: ご利用の流れ｜松本レンタカー（予約から返却まで）
+meta_description: 松本レンタカーのご利用方法。Web予約→確認メール→ご来店→お支払い→ご出発→満タン返却の6ステップ。必要書類やご予約方法をわかりやすく解説します。
+focus_keyword: 松本 レンタカー 予約 流れ
 ---
 <!-- wp:html -->
 @@include:mrc-style@@
@@ -45,3 +48,9 @@ menu_order: 2
 <!-- wp:shortcode -->
 [xrb_remote_booking]
 <!-- /wp:shortcode -->
+
+<!-- wp:html -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"松本レンタカーのご利用の流れ","description":"松本レンタカーで車を借りる手順。予約から返却まで6ステップ。","totalTime":"PT15M","step":[{"@type":"HowToStep","position":1,"name":"空車検索・ご予約","text":"予約フォームから、ご希望の日時・車種を選択してお申し込みください。"},{"@type":"HowToStep","position":2,"name":"予約確認メール","text":"ご登録のメールアドレスに予約内容が届きます。"},{"@type":"HowToStep","position":3,"name":"ご来店・受付","text":"ご予約時間に店舗へお越しください。運転免許証をご提示いただきます。"},{"@type":"HowToStep","position":4,"name":"お支払い・車両の確認","text":"料金のお支払い後、スタッフと一緒に車両の状態を確認します。"},{"@type":"HowToStep","position":5,"name":"ご出発","text":"そのままご出発いただけます。"},{"@type":"HowToStep","position":6,"name":"ご返却","text":"満タン返却にてご返却ください。傷・忘れ物の確認をして完了です。"}]}
+</script>
+<!-- /wp:html -->

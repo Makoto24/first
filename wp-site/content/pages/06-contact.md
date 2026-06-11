@@ -3,6 +3,9 @@ title: お問い合わせ
 slug: contact
 status: publish
 menu_order: 7
+seo_title: お問い合わせ｜松本レンタカー
+meta_description: 松本レンタカーへのお問い合わせ。ご予約・車種のご相談・団体/法人でのご利用など。電話050-1793-0205、メール・フォームで受付。英語対応も歓迎です。
+focus_keyword: 松本 レンタカー 問い合わせ
 ---
 <!-- wp:html -->
 @@include:mrc-style@@

@@ -3,6 +3,9 @@ title: 車種・料金
 slug: cars
 status: publish
 menu_order: 1
+seo_title: 車種・料金｜松本レンタカー（全車4WD・1日6,600円〜）
+meta_description: 松本レンタカーの車種と料金。軽自動車・コンパクトカー・ミニバンを全車4WDでご用意。グリーンシーズンは全車40%OFF、学生証提示で軽自動車が1日5,500円。
+focus_keyword: 松本 レンタカー 料金
 ---
 <!-- wp:html -->
 @@include:mrc-style@@
@@ -106,4 +109,10 @@ menu_order: 1
     </div>
   </section>
 </div>
+<!-- /wp:html -->
+
+<!-- wp:html -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","serviceType":"レンタカー","provider":{"@type":"AutoRental","name":"松本レンタカー","url":"https://matsumotorentacar.com/","telephone":"+81-50-1793-0205"},"areaServed":[{"@type":"City","name":"松本市"},{"@type":"City","name":"安曇野市"},{"@type":"City","name":"塩尻市"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"車種・料金（グリーンシーズン価格）","itemListElement":[{"@type":"Offer","priceCurrency":"JPY","price":"6600","name":"軽自動車（24時間・グリーンシーズン）","itemOffered":{"@type":"Car","name":"軽自動車","vehicleConfiguration":"4WD","seatingCapacity":4}},{"@type":"Offer","priceCurrency":"JPY","price":"7800","name":"コンパクトカー（24時間・グリーンシーズン）","itemOffered":{"@type":"Car","name":"コンパクトカー","vehicleConfiguration":"4WD","seatingCapacity":5}},{"@type":"Offer","priceCurrency":"JPY","price":"14400","name":"ワンボックス・ミニバン（24時間・グリーンシーズン）","itemOffered":{"@type":"Car","name":"ワンボックス・ミニバン","vehicleConfiguration":"4WD","seatingCapacity":8}}]}}
+</script>
 <!-- /wp:html -->

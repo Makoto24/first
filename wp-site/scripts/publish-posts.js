@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { WpClient } from '../lib/wpClient.js';
 import { loadContentDir } from '../lib/content.js';
+import { buildSeoMeta } from '../lib/seo.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const postsDir = join(__dirname, '..', 'content', 'posts');
@@ -45,11 +46,16 @@ async function main() {
       status: meta.status || 'publish',
       content: body,
     };
-    if (meta.excerpt) payload.excerpt = meta.excerpt;
+    // SEO: 抜粋（メタディスクリプション）と SEO プラグインのメタ
+    if (meta.meta_description) payload.excerpt = meta.meta_description;
+    else if (meta.excerpt) payload.excerpt = meta.excerpt;
     if (meta.date) payload.date = meta.date; // 予約投稿は status: future + 未来日時
+    const seoMeta = buildSeoMeta(meta);
+    if (Object.keys(seoMeta).length) payload.meta = seoMeta;
 
     if (dryRun) {
-      console.log(`  [dry-run] ${meta.title}  /${meta.slug}  (${body.length}文字)`);
+      const seo = meta.meta_description ? ' +SEO' : '';
+      console.log(`  [dry-run] ${meta.title}  /${meta.slug}  (${body.length}文字)${seo}`);
       continue;
     }
 
