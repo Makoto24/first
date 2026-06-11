@@ -166,6 +166,28 @@
   #toast.show { opacity:1; }
   .profit { color:#26a69a; } .loss { color:#f23645; }
   .t-buy { color:#2196f3; } .t-sell { color:#f23645; }
+  /* ===== チュートリアル ===== */
+  #tut { position:fixed; inset:0; z-index:70; display:none; }
+  #tut.show { display:block; }
+  #tutHl {
+    position:absolute; border-radius:10px; box-shadow:0 0 0 9999px rgba(0,0,0,.74);
+    border:2px solid #2196f3; transition:all .3s ease; pointer-events:none;
+  }
+  #tutCard {
+    position:absolute; left:50%; transform:translateX(-50%); width:min(90vw,350px);
+    background:#1c2230; border:1px solid #2a3142; border-radius:14px; padding:18px 16px;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  #tutCard .tc-step { font-size:11px; color:#2196f3; font-weight:700; margin-bottom:4px; }
+  #tutCard .tc-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:8px; }
+  #tutCard .tc-text { font-size:13px; line-height:1.7; color:#d1d4dc; }
+  #tutCard .tc-dots { display:flex; gap:5px; justify-content:center; margin:14px 0 12px; }
+  #tutCard .tc-dots span { width:7px; height:7px; border-radius:50%; background:#2a3142; }
+  #tutCard .tc-dots span.on { background:#2196f3; }
+  #tutCard .tc-btns { display:flex; gap:10px; }
+  #tutCard .tc-skip { flex:1; background:none; border:1px solid #2a3142; border-radius:8px; color:#787b86; padding:11px; font-size:14px; cursor:pointer; }
+  #tutCard .tc-next { flex:2; background:#2196f3; border:none; border-radius:8px; color:#fff; padding:11px; font-size:14px; font-weight:700; cursor:pointer; }
+  #tutCard .tc-next:active { background:#1976d2; }
 </style>
 </head>
 <body>
@@ -248,6 +270,7 @@
         </select>
       </div>
       <button class="btn-primary" id="btnReset">この残高でリセットして開始</button>
+      <button class="btn-primary" id="btnTutorial" style="background:#2a3142;">📖 チュートリアルをもう一度見る</button>
       <div class="note">リセットすると、ポジション・予約注文・履歴はすべて消去され、選択した残高で再スタートします。通貨ペアの切り替えは「気配値」タブから行えます。</div>
     </div>
   </section>
@@ -338,6 +361,21 @@
     <div class="s-pl" id="csPl"></div>
     <button class="btn-close-pos" id="csClose"></button>
     <button class="btn-cancel" id="csCancel">キャンセル</button>
+  </div>
+</div>
+
+<!-- チュートリアル -->
+<div id="tut">
+  <div id="tutHl"></div>
+  <div id="tutCard">
+    <div class="tc-step" id="tutStep"></div>
+    <div class="tc-title" id="tutTitle"></div>
+    <div class="tc-text" id="tutText"></div>
+    <div class="tc-dots" id="tutDots"></div>
+    <div class="tc-btns">
+      <button class="tc-skip" id="tutSkip">スキップ</button>
+      <button class="tc-next" id="tutNext">次へ</button>
+    </div>
   </div>
 </div>
 
@@ -1057,6 +1095,97 @@ $('lotPlus').addEventListener('click', () => {
   renderOneClick();
 });
 
+/* ================= チュートリアル ================= */
+const TUT_STEPS = [
+  { title: 'ようこそ！🎉',
+    text: 'これはFX（為替取引）をリスクゼロで体験できるデモアプリです。<br><b>「安いときに買って、高くなったら売る」</b>（またはその逆）で利益が出ます。<br>使い方を順番にご案内します！' },
+  { tab: 'quotes', target: '.quote-row',
+    title: '① 通貨ペアを選ぶ',
+    text: 'ここに取引できる銘柄が並んでいます。<b>タップするとチャートが開きます。</b><br><span class="dn">Bid＝あなたが売るときの価格</span>、<span class="up">Ask＝買うときの価格</span>です。その差（スプレッド）が取引コストになります。' },
+  { tab: 'chart', target: '#chartWrap',
+    title: '② チャートを見る',
+    text: '価格の動きを「ローソク足」で表示します。<b><span class="profit">緑＝値上がり</span>、<span class="loss">赤＝値下がり</span></b>。<br>左右にドラッグすると過去が見られて、上のM1〜D1ボタンで時間の幅を変えられます。' },
+  { tab: 'chart', target: '.oneclick',
+    title: '③ 注文してみる',
+    text: '「これから上がる！」と思ったら<b class="t-buy">買 (BUY)</b>、「下がる！」と思ったら<b class="t-sell">売 (SELL)</b>をタップするだけで注文完了。<br>真ん中の数字は<b>ロット（取引量）</b>。最初は0.01〜0.10の少なめがおすすめです。' },
+  { tab: 'trade', target: '#acctBox',
+    title: '④ 損益をチェック',
+    text: '注文すると「トレード」タブに持ち高（ポジション）と<b>損益がリアルタイム</b>で表示されます。<br><b>ポジションをタップすると決済</b>（利益・損失の確定）ができます。' },
+  { target: '#btnNewOrder',
+    title: '⑤ 予約注文・損切りも',
+    text: '右上の「＋」からは、<b>指定した価格になったら自動で売買する「予約注文」</b>や、損切り（S/L）・利益確定（T/P）付きの注文もできます。慣れてきたら試してみましょう。' },
+  { title: '準備完了！🚀',
+    text: 'お金は仮想なので、<b>失敗しても大丈夫</b>。まずは気配値から好きな銘柄を選んで、1回取引してみましょう！<br><span style="color:#787b86;font-size:12px;">このチュートリアルは「設定」タブからいつでも見直せます。</span>' },
+];
+let tutIdx = -1;
+function tutDone() { try { return localStorage.getItem('fxTutoDone') === '1'; } catch (e) { return false; } }
+function setTutDone() { try { localStorage.setItem('fxTutoDone', '1'); } catch (e) {} }
+function startTutorial() {
+  $('tutDots').innerHTML = TUT_STEPS.map(() => '<span></span>').join('');
+  $('tut').classList.add('show');
+  showTutStep(0);
+}
+function showTutStep(i) {
+  tutIdx = i;
+  const s = TUT_STEPS[i];
+  if (s.tab) switchTab(s.tab);
+  $('tutStep').textContent = `ステップ ${i + 1} / ${TUT_STEPS.length}`;
+  $('tutTitle').innerHTML = s.title;
+  $('tutText').innerHTML = s.text;
+  $('tutDots').querySelectorAll('span').forEach((d, j) => d.classList.toggle('on', j === i));
+  $('tutNext').textContent = i === TUT_STEPS.length - 1 ? 'はじめる！' : '次へ';
+  $('tutSkip').style.display = i === TUT_STEPS.length - 1 ? 'none' : 'block';
+  // タブ切替後のレイアウト確定を待ってから配置する
+  requestAnimationFrame(() => requestAnimationFrame(placeTut));
+}
+function placeTut() {
+  if (tutIdx < 0) return;
+  const s = TUT_STEPS[tutIdx];
+  const hl = $('tutHl'), card = $('tutCard');
+  let r = null;
+  if (s.target) {
+    const el = document.querySelector(s.target);
+    if (el) r = el.getBoundingClientRect();
+  }
+  const H = window.innerHeight;
+  if (r) {
+    hl.style.left = (r.left - 5) + 'px';
+    hl.style.top = (r.top - 5) + 'px';
+    hl.style.width = (r.width + 10) + 'px';
+    hl.style.height = (r.height + 10) + 'px';
+    // ハイライトと重ならない側にカードを置く
+    if (r.top + r.height / 2 > H / 2) {
+      card.style.top = '';
+      card.style.bottom = (H - r.top + 16) + 'px';
+    } else {
+      card.style.bottom = '';
+      card.style.top = (r.bottom + 16) + 'px';
+    }
+  } else {
+    // 対象なし＝全体を暗くして中央にカード
+    hl.style.left = '50%'; hl.style.top = '-30px';
+    hl.style.width = '0px'; hl.style.height = '0px';
+    card.style.bottom = '';
+    card.style.top = Math.max(40, H / 2 - 140) + 'px';
+  }
+}
+function endTutorial(finished) {
+  $('tut').classList.remove('show');
+  tutIdx = -1;
+  setTutDone();
+  if (finished) {
+    switchTab('quotes');
+    toast('💰 さあ体験スタート！銘柄をタップしてチャートを開きましょう');
+  }
+}
+$('tutNext').addEventListener('click', () => {
+  if (tutIdx >= TUT_STEPS.length - 1) endTutorial(true);
+  else showTutStep(tutIdx + 1);
+});
+$('tutSkip').addEventListener('click', () => endTutorial(false));
+window.addEventListener('resize', placeTut);
+$('btnTutorial').addEventListener('click', startTutorial);
+
 /* ================= 設定・リセット ================= */
 function resetAccount(pair, balance) {
   state.pair = pair;
@@ -1076,7 +1205,11 @@ $('setupStart').addEventListener('click', () => {
   $('setup').style.display = 'none';
   state.started = true;
   switchTab('quotes');
-  toast(`💰 残高 ${yen(state.balance)} 円でスタート！取引したい通貨ペアをタップしてください`);
+  if (!tutDone()) {
+    startTutorial();  // 初回のみチュートリアルを表示
+  } else {
+    toast(`💰 残高 ${yen(state.balance)} 円でスタート！取引したい通貨ペアをタップしてください`);
+  }
 });
 $('btnReset').addEventListener('click', () => {
   if (!confirm('リセットしますか？ポジション・履歴はすべて消去されます。')) return;
