@@ -59,7 +59,7 @@
   .oc-btn {
     flex:1; border:none; cursor:pointer; padding:6px 4px; text-align:center; color:#fff;
   }
-  .oc-btn .lbl { font-size:10px; opacity:.85; display:block; }
+  .oc-btn .lbl { font-size:12px; font-weight:700; opacity:.95; display:block; }
   .oc-btn .val { font-size:15px; font-variant-numeric:tabular-nums; }
   .oc-btn .val .big { font-size:22px; font-weight:700; }
   .oc-sell { background:#a02633; } .oc-buy { background:#1565c0; }
@@ -176,11 +176,7 @@
   <div class="tag">デモ取引でFXを体験しよう（MT5スタイル）</div>
   <div class="form">
     <div>
-      <label>通貨ペア</label>
-      <select id="setupPair"></select>
-    </div>
-    <div>
-      <label>初期残高（円）</label>
+      <label>初期残高（円）を選んでください</label>
       <select id="setupBalance">
         <option value="100000">100,000 円</option>
         <option value="300000">300,000 円</option>
@@ -191,7 +187,7 @@
       </select>
     </div>
     <button class="btn-primary" id="setupStart">取引を開始する</button>
-    <div class="note">※ 本アプリは学習用シミュレーターです。価格は擬似的に生成されたものであり、実際の市場レートではありません。レバレッジ25倍・1ロット=10万通貨で計算します。</div>
+    <div class="note">通貨ペア（ドル円・ゴールド・ビットコインなど）は、開始後に「気配値」タブから選べます。<br>※ 本アプリは学習用シミュレーターです。価格は擬似的に生成されたものであり、実際の市場レートではありません。レバレッジ25倍で計算します。</div>
   </div>
 </div>
 
@@ -210,13 +206,13 @@
   <!-- チャート -->
   <section class="tab active" id="tab-chart">
     <div class="oneclick">
-      <button class="oc-btn oc-sell" id="ocSell"><span class="lbl">SELL</span><span class="val" id="ocSellP">-</span></button>
+      <button class="oc-btn oc-sell" id="ocSell"><span class="lbl">売 (SELL)</span><span class="val" id="ocSellP">-</span></button>
       <div class="oc-lot">
         <button id="lotMinus">−</button>
         <span class="lot-v" id="lotVal">0.10</span>
         <button id="lotPlus">＋</button>
       </div>
-      <button class="oc-btn oc-buy" id="ocBuy"><span class="lbl">BUY</span><span class="val" id="ocBuyP">-</span></button>
+      <button class="oc-btn oc-buy" id="ocBuy"><span class="lbl">買 (BUY)</span><span class="val" id="ocBuyP">-</span></button>
     </div>
     <div class="tf-bar" id="tfBar"></div>
     <div id="chartWrap"><canvas id="chart"></canvas></div>
@@ -241,10 +237,6 @@
   <section class="tab" id="tab-settings">
     <div class="form">
       <div>
-        <label>通貨ペア</label>
-        <select id="setPair"></select>
-      </div>
-      <div>
         <label>初期残高（円）</label>
         <select id="setBalance">
           <option value="100000">100,000 円</option>
@@ -255,8 +247,8 @@
           <option value="10000000">10,000,000 円</option>
         </select>
       </div>
-      <button class="btn-primary" id="btnReset">この設定でリセットして開始</button>
-      <div class="note">リセットすると、ポジション・予約注文・履歴はすべて消去され、選択した残高で再スタートします。</div>
+      <button class="btn-primary" id="btnReset">この残高でリセットして開始</button>
+      <div class="note">リセットすると、ポジション・予約注文・履歴はすべて消去され、選択した残高で再スタートします。通貨ペアの切り替えは「気配値」タブから行えます。</div>
     </div>
   </section>
 </main>
@@ -295,7 +287,7 @@
       </select>
     </div>
     <div>
-      <div class="field-lbl" style="margin-bottom:6px;">ロット数（1ロット = 100,000通貨）</div>
+      <div class="field-lbl" style="margin-bottom:6px;" id="ordLotLbl">ロット数</div>
       <div class="stepper">
         <button id="ordLotM">−</button>
         <input id="ordLot" inputmode="decimal" value="0.10">
@@ -328,8 +320,8 @@
     </div>
     <div class="note" id="ordMarginNote"></div>
     <div class="ord-actions" id="ordMarketBtns">
-      <button class="btn-sell" id="ordSellBtn"><span class="a">成行売り</span><span class="b" id="ordSellBtnP">-</span></button>
-      <button class="btn-buy" id="ordBuyBtn"><span class="a">成行買い</span><span class="b" id="ordBuyBtnP">-</span></button>
+      <button class="btn-sell" id="ordSellBtn"><span class="a">売 (SELL)</span><span class="b" id="ordSellBtnP">-</span></button>
+      <button class="btn-buy" id="ordBuyBtn"><span class="a">買 (BUY)</span><span class="b" id="ordBuyBtnP">-</span></button>
     </div>
     <div class="ord-actions" id="ordPendingBtns" style="display:none;">
       <button class="btn-place" id="ordPlaceBtn"><span class="a">予約注文を発注</span></button>
@@ -355,15 +347,13 @@
 'use strict';
 /* ================= 通貨ペア定義 ================= */
 const PAIRS = {
-  USDJPY: { name:'USD/JPY', desc:'米ドル / 日本円',       base:155.20,  digits:3, spread:0.003,   vol:0.010   },
-  EURJPY: { name:'EUR/JPY', desc:'ユーロ / 日本円',       base:168.45,  digits:3, spread:0.005,   vol:0.012   },
-  GBPJPY: { name:'GBP/JPY', desc:'英ポンド / 日本円',     base:196.80,  digits:3, spread:0.009,   vol:0.016   },
-  AUDJPY: { name:'AUD/JPY', desc:'豪ドル / 日本円',       base:102.35,  digits:3, spread:0.006,   vol:0.010   },
-  EURUSD: { name:'EUR/USD', desc:'ユーロ / 米ドル',       base:1.08550, digits:5, spread:0.00006, vol:0.00008 },
-  GBPUSD: { name:'GBP/USD', desc:'英ポンド / 米ドル',     base:1.26800, digits:5, spread:0.00009, vol:0.00010 },
+  USDJPY: { name:'USD/JPY', desc:'米ドル / 日本円',         base:155.20,  digits:3, spread:0.003,   vol:0.010,   contract:100000, pip:0.01,   unit:'通貨' },
+  EURJPY: { name:'EUR/JPY', desc:'ユーロ / 日本円',         base:168.45,  digits:3, spread:0.005,   vol:0.012,   contract:100000, pip:0.01,   unit:'通貨' },
+  EURUSD: { name:'EUR/USD', desc:'ユーロ / 米ドル',         base:1.08550, digits:5, spread:0.00006, vol:0.00008, contract:100000, pip:0.0001, unit:'通貨' },
+  XAUUSD: { name:'XAU/USD', desc:'ゴールド / 米ドル',       base:3320.00, digits:2, spread:0.35,    vol:0.50,    contract:100,    pip:0.1,    unit:'オンス' },
+  BTCUSD: { name:'BTC/USD', desc:'ビットコイン / 米ドル',   base:96000.0, digits:2, spread:30,      vol:18,      contract:1,      pip:10,     unit:'BTC' },
 };
 const LEVERAGE = 25;
-const UNITS = 100000;
 const TFS = { M1:60, M5:300, M15:900, M30:1800, H1:3600, H4:14400, D1:86400 };
 const TICK_MS = 400;
 
@@ -395,7 +385,9 @@ function fmt(sym, p) { return p.toFixed(PAIRS[sym].digits); }
 function fmtBig(sym, p) {
   // MT5風：pip部分を大きく表示（例 155.1|23 → 23が大）
   const s = p.toFixed(PAIRS[sym].digits);
-  const d = PAIRS[sym].digits;
+  if (PAIRS[sym].digits <= 2) {
+    return `${s.slice(0, -2)}<span class="big">${s.slice(-2)}</span>`;
+  }
   const head = s.slice(0, s.length - 3);
   const big = s.slice(s.length - 3, s.length - 1);
   const tail = s.slice(s.length - 1);
@@ -457,13 +449,13 @@ function posPnl(pos) {
   const q = prices[pos.sym];
   const cur = pos.type === 'buy' ? q.bid : q.ask;
   const diff = pos.type === 'buy' ? cur - pos.openPrice : pos.openPrice - cur;
-  return diff * pos.lots * UNITS * jpyPerQuoteUnit(pos.sym);
+  return diff * pos.lots * PAIRS[pos.sym].contract * jpyPerQuoteUnit(pos.sym);
 }
 function posMargin(pos) {
-  return pos.lots * UNITS * jpyPerBaseUnit(pos.sym) / LEVERAGE;
+  return pos.lots * PAIRS[pos.sym].contract * jpyPerBaseUnit(pos.sym) / LEVERAGE;
 }
 function requiredMargin(sym, lots) {
-  return lots * UNITS * jpyPerBaseUnit(sym) / LEVERAGE;
+  return lots * PAIRS[sym].contract * jpyPerBaseUnit(sym) / LEVERAGE;
 }
 function equity() { return state.balance + state.positions.reduce((s, p) => s + posPnl(p), 0); }
 function usedMargin() { return state.positions.reduce((s, p) => s + posMargin(p), 0); }
@@ -777,7 +769,7 @@ function renderQuotes() {
   for (const sym in PAIRS) {
     const p = PAIRS[sym], q = prices[sym];
     const cls = q.dir > 0 ? 'up' : (q.dir < 0 ? 'dn' : 'fl');
-    const spreadPips = ((q.ask - q.bid) / (p.digits === 3 ? 0.001 : 0.00001)).toFixed(0);
+    const spreadPips = ((q.ask - q.bid) / Math.pow(10, -p.digits)).toFixed(0);
     html += `<div class="quote-row ${sym === state.pair ? 'sel' : ''}" data-sym="${sym}">
       <div class="quote-left">
         <div class="quote-sym">${p.name}</div>
@@ -919,9 +911,11 @@ $('csCancel').addEventListener('click', () => { closeTarget = null; $('closeShee
 $('closeSheetBg').addEventListener('click', () => { closeTarget = null; $('closeSheet').classList.remove('show'); });
 
 /* ================= 注文画面 ================= */
-function pipSize(sym) { return PAIRS[sym].digits === 3 ? 0.01 : 0.0001; }
+function pipSize(sym) { return PAIRS[sym].pip; }
 function openOrderScreen() {
-  $('ordPair').textContent = PAIRS[state.pair].name;
+  const p = PAIRS[state.pair];
+  $('ordPair').textContent = p.name;
+  $('ordLotLbl').textContent = `ロット数（1ロット = ${p.contract.toLocaleString('ja-JP')} ${p.unit}）`;
   $('ordLot').value = state.lot.toFixed(2);
   $('ordType').value = 'market';
   const q = prices[state.pair];
@@ -942,14 +936,14 @@ function renderOrderScreen() {
   const sym = state.pair, q = prices[sym];
   $('ordBid').textContent = fmt(sym, q.bid);
   $('ordAsk').textContent = fmt(sym, q.ask);
-  const spreadPips = ((q.ask - q.bid) / (pipSize(sym) / 10)).toFixed(0);
+  const spreadPips = ((q.ask - q.bid) / Math.pow(10, -PAIRS[sym].digits)).toFixed(0);
   $('ordSpread').textContent = spreadPips + ' ポイント';
   $('ordSellBtnP').textContent = fmt(sym, q.bid);
   $('ordBuyBtnP').textContent = fmt(sym, q.ask);
   const lots = parseFloat($('ordLot').value) || 0;
   const need = lots > 0 ? requiredMargin(sym, lots) : 0;
   $('ordMarginNote').textContent =
-    `必要証拠金（目安）: ${yen(need)} 円 ／ 余剰証拠金: ${yen(freeMargin())} 円 ／ 1pipsの損益: 約 ${yen(lots * UNITS * pipSize(sym) * jpyPerQuoteUnit(sym))} 円`;
+    `必要証拠金（目安）: ${yen(need)} 円 ／ 余剰証拠金: ${yen(freeMargin())} 円 ／ 1pipsの損益: 約 ${yen(lots * PAIRS[sym].contract * pipSize(sym) * jpyPerQuoteUnit(sym))} 円`;
 }
 function stepInput(id, delta, decimals) {
   const el = $(id);
@@ -1030,7 +1024,6 @@ function selectPair(sym) {
   genHistory(sym, state.tf);
   view.offset = 0;
   renderHeader(); renderOneClick(); drawChart();
-  $('setPair').value = sym;
 }
 
 /* 時間足バー */
@@ -1065,17 +1058,6 @@ $('lotPlus').addEventListener('click', () => {
 });
 
 /* ================= 設定・リセット ================= */
-(function buildPairSelects() {
-  for (const id of ['setupPair', 'setPair']) {
-    const sel = $(id);
-    for (const sym in PAIRS) {
-      const o = document.createElement('option');
-      o.value = sym;
-      o.textContent = `${PAIRS[sym].name}（${PAIRS[sym].desc}）`;
-      sel.appendChild(o);
-    }
-  }
-})();
 function resetAccount(pair, balance) {
   state.pair = pair;
   state.initialBalance = balance;
@@ -1089,17 +1071,16 @@ function resetAccount(pair, balance) {
   renderHeader(); renderOneClick(); renderTrade(); renderHistory(); drawChart();
 }
 $('setupStart').addEventListener('click', () => {
-  resetAccount($('setupPair').value, +$('setupBalance').value);
+  resetAccount(state.pair, +$('setupBalance').value);
   $('setBalance').value = $('setupBalance').value;
-  $('setPair').value = $('setupPair').value;
   $('setup').style.display = 'none';
   state.started = true;
-  switchTab('chart');
-  toast(`💰 残高 ${yen(state.balance)} 円でスタート！チャート上のSELL/BUYですぐ取引できます`);
+  switchTab('quotes');
+  toast(`💰 残高 ${yen(state.balance)} 円でスタート！取引したい通貨ペアをタップしてください`);
 });
 $('btnReset').addEventListener('click', () => {
   if (!confirm('リセットしますか？ポジション・履歴はすべて消去されます。')) return;
-  resetAccount($('setPair').value, +$('setBalance').value);
+  resetAccount(state.pair, +$('setBalance').value);
   switchTab('chart');
   toast('リセットしました');
 });
