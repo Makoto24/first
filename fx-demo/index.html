@@ -188,6 +188,29 @@
   #tutCard .tc-skip { flex:1; background:none; border:1px solid #2a3142; border-radius:8px; color:#787b86; padding:11px; font-size:14px; cursor:pointer; }
   #tutCard .tc-next { flex:2; background:#2196f3; border:none; border-radius:8px; color:#fff; padding:11px; font-size:14px; font-weight:700; cursor:pointer; }
   #tutCard .tc-next:active { background:#1976d2; }
+  /* ===== 広告 ===== */
+  .ad-box { background:#1c2230; border:1px solid #2a3142; border-radius:12px; overflow:hidden; }
+  .ad-label { font-size:10px; color:#565b68; padding:6px 10px 0; }
+  .ad-box a.ad-banner { display:block; text-decoration:none; }
+  .ad-box img { display:block; width:100%; height:auto; }
+  .ad-fallback {
+    display:none; padding:18px 14px; text-align:center; color:#fff;
+    background:linear-gradient(160deg,#3db6d6 0%,#7fd8e8 45%,#cfeef2 70%,#fdf0da 100%);
+  }
+  .ad-fallback .af-1 { font-size:13px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.35); }
+  .ad-fallback .af-2 { font-size:19px; font-weight:900; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.35); margin:2px 0 10px; }
+  .ad-fallback .af-2 em { font-style:normal; color:#ffd54f; }
+  .ad-fallback .af-pill {
+    display:inline-block; background:linear-gradient(#ffd54f,#f5a623); color:#5b3a00;
+    font-size:11px; font-weight:700; border-radius:999px; padding:6px 12px; margin:2px;
+  }
+  .ad-body { padding:12px 14px 14px; }
+  .ad-text { font-size:13px; line-height:1.7; color:#d1d4dc; margin-bottom:12px; }
+  .ad-btn {
+    display:block; background:#06c755; color:#fff; text-decoration:none; text-align:center;
+    border-radius:8px; padding:13px; font-size:15px; font-weight:800;
+  }
+  .ad-btn:active { background:#05b34c; }
 </style>
 </head>
 <body>
@@ -271,6 +294,24 @@
       </div>
       <button class="btn-primary" id="btnReset">この残高でリセットして開始</button>
       <button class="btn-primary" id="btnTutorial" style="background:#2a3142;">📖 チュートリアルをもう一度見る</button>
+      <div class="ad-box">
+        <div class="ad-label">PR</div>
+        <a class="ad-banner" href="https://lin.ee/8ZY07Tn" target="_blank" rel="noopener">
+          <img src="banner.png" alt="元英語教師の“毎日が夏休み”トレード塾"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <div class="ad-fallback">
+            <div class="af-1">元英語教師の</div>
+            <div class="af-2"><em>“毎日が夏休み”</em>トレード塾</div>
+            <span class="af-pill">公務員もできる副収入の作り方</span>
+            <span class="af-pill">忙しくてもできる時短トレード勉強術</span>
+            <span class="af-pill">2年でFIRE 毎日を“夏休み”に</span>
+          </div>
+        </a>
+        <div class="ad-body">
+          <div class="ad-text">元教師による<b>トレード塾の公式LINE</b>を友だち追加して、FXトレードの勉強をスタートしてみよう！未経験者のための「始め方がわかるロードマップ」をプレゼント中です。</div>
+          <a class="ad-btn" href="https://lin.ee/8ZY07Tn" target="_blank" rel="noopener">📱 公式LINEを友だち追加する</a>
+        </div>
+      </div>
       <div class="note">リセットすると、ポジション・予約注文・履歴はすべて消去され、選択した残高で再スタートします。通貨ペアの切り替えは「気配値」タブから行えます。</div>
     </div>
   </section>
