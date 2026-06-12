@@ -1153,14 +1153,13 @@ function placeTut() {
     hl.style.top = (r.top - 5) + 'px';
     hl.style.width = (r.width + 10) + 'px';
     hl.style.height = (r.height + 10) + 'px';
-    // ハイライトと重ならない側にカードを置く
-    if (r.top + r.height / 2 > H / 2) {
-      card.style.top = '';
-      card.style.bottom = (H - r.top + 16) + 'px';
-    } else {
-      card.style.bottom = '';
-      card.style.top = (r.bottom + 16) + 'px';
-    }
+    // 空きが広い側にカードを置き、必ず画面内に収まるようクランプする
+    card.style.bottom = '';
+    const ch = card.offsetHeight;
+    const spaceBelow = H - r.bottom;
+    let top = (spaceBelow >= ch + 24 || spaceBelow >= r.top) ? r.bottom + 16 : r.top - ch - 16;
+    top = Math.min(Math.max(8, top), H - ch - 8);
+    card.style.top = top + 'px';
   } else {
     // 対象なし＝全体を暗くして中央にカード
     hl.style.left = '50%'; hl.style.top = '-30px';
