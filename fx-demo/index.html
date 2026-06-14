@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#131722">
+<title>FX Trade Trainer</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overflow:hidden; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    background:#131722; color:#d1d4dc; user-select:none; -webkit-user-select:none;
+    display:flex; flex-direction:column;
+  }
+  /* ===== ヘッダー ===== */
+  header {
+    background:#1c2230; height:48px; flex:0 0 48px; display:flex; align-items:center;
+    padding:0 12px; border-bottom:1px solid #2a3142; gap:10px;
+  }
+  header .h-title { font-size:16px; font-weight:600; color:#fff; flex:1; }
+  header .h-sub { font-size:11px; color:#787b86; }
+  header button {
+    background:none; border:none; color:#d1d4dc; font-size:22px; padding:6px 10px; cursor:pointer;
+  }
+  /* ===== タブ本体 ===== */
+  main { flex:1; position:relative; overflow:hidden; }
+  .tab { position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; }
+  .tab.active { display:flex; }
+  /* ===== 下部ナビ ===== */
+  nav {
+    flex:0 0 56px; background:#1c2230; border-top:1px solid #2a3142;
+    display:flex; padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav button {
+    flex:1; background:none; border:none; color:#787b86; font-size:10px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  }
+  nav button .ic { font-size:20px; line-height:1; }
+  nav button.active { color:#2196f3; }
+  /* ===== 気配値 ===== */
+  .quote-row {
+    display:flex; align-items:center; padding:10px 14px; border-bottom:1px solid #1e2433; cursor:pointer;
+  }
+  .quote-row.sel { background:#1a2030; }
+  .quote-left { flex:1; }
+  .quote-sym { font-size:16px; font-weight:600; color:#fff; }
+  .quote-info { font-size:10px; color:#787b86; margin-top:2px; }
+  .quote-prices { display:flex; gap:18px; text-align:right; }
+  .qp { min-width:86px; }
+  .qp .lbl { font-size:9px; color:#787b86; }
+  .qp .val { font-size:15px; font-variant-numeric:tabular-nums; }
+  .qp .val .big { font-size:21px; font-weight:700; }
+  .up { color:#2196f3; } .dn { color:#f23645; } .fl { color:#d1d4dc; }
+  /* ===== チャート ===== */
+  #tab-chart { overflow:hidden; }
+  .oneclick { display:flex; gap:1px; background:#2a3142; flex:0 0 auto; }
+  .oc-btn {
+    flex:1; border:none; cursor:pointer; padding:6px 4px; text-align:center; color:#fff;
+  }
+  .oc-btn .lbl { font-size:12px; font-weight:700; opacity:.95; display:block; }
+  .oc-btn .val { font-size:15px; font-variant-numeric:tabular-nums; }
+  .oc-btn .val .big { font-size:22px; font-weight:700; }
+  .oc-sell { background:#a02633; } .oc-buy { background:#1565c0; }
+  .oc-sell:active { background:#c22b3b; } .oc-buy:active { background:#1976d2; }
+  .oc-lot {
+    flex:0 0 110px; background:#1c2230; display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .oc-lot button { background:none; border:none; color:#787b86; font-size:20px; width:30px; padding:8px 0; cursor:pointer; }
+  .oc-lot .lot-v { font-size:15px; font-weight:600; min-width:40px; text-align:center; }
+  .tf-bar { display:flex; background:#161b27; border-bottom:1px solid #2a3142; flex:0 0 auto; overflow-x:auto; }
+  .tf-bar button {
+    background:none; border:none; color:#787b86; font-size:12px; font-weight:600;
+    padding:7px 13px; cursor:pointer; flex:0 0 auto;
+  }
+  .tf-bar button.active { color:#2196f3; border-bottom:2px solid #2196f3; }
+  .tf-bar .spacer { flex:1; }
+  #chartWrap { flex:1; position:relative; min-height:0; }
+  #chart { position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
+  /* ===== トレード ===== */
+  .acct {
+    background:#1c2230; padding:12px 14px; border-bottom:1px solid #2a3142;
+  }
+  .acct-row { display:flex; justify-content:space-between; padding:3px 0; font-size:13px; }
+  .acct-row .k { color:#787b86; }
+  .acct-row .v { font-variant-numeric:tabular-nums; font-weight:600; color:#fff; }
+  .sec-h {
+    padding:8px 14px; font-size:11px; color:#787b86; background:#161b27; border-bottom:1px solid #1e2433;
+    display:flex; justify-content:space-between;
+  }
+  .pos-row { padding:10px 14px; border-bottom:1px solid #1e2433; cursor:pointer; }
+  .pos-line1 { display:flex; justify-content:space-between; align-items:baseline; }
+  .pos-sym { font-size:15px; font-weight:600; color:#fff; }
+  .pos-type { font-size:12px; font-weight:600; margin-left:6px; }
+  .pos-pl { font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .pos-line2 { display:flex; justify-content:space-between; font-size:11px; color:#787b86; margin-top:3px; font-variant-numeric:tabular-nums; }
+  .empty { padding:30px 14px; text-align:center; color:#565b68; font-size:13px; }
+  /* ===== 設定/セットアップ ===== */
+  .form { padding:18px 16px; display:flex; flex-direction:column; gap:16px; }
+  .form label { font-size:12px; color:#787b86; display:block; margin-bottom:6px; }
+  .form select, .form input {
+    width:100%; background:#1c2230; color:#fff; border:1px solid #2a3142; border-radius:8px;
+    padding:12px; font-size:16px; appearance:auto;
+  }
+  .btn-primary {
+    background:#2196f3; color:#fff; border:none; border-radius:8px; padding:14px;
+    font-size:16px; font-weight:700; cursor:pointer; width:100%;
+  }
+  .btn-primary:active { background:#1976d2; }
+  .note { font-size:11px; color:#565b68; line-height:1.6; }
+  /* ===== セットアップ画面 ===== */
+  #setup {
+    position:fixed; inset:0; background:#131722; z-index:50; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:24px;
+  }
+  #setup .logo { font-size:26px; font-weight:800; color:#fff; margin-bottom:4px; }
+  #setup .logo span { color:#2196f3; }
+  #setup .tag { font-size:12px; color:#787b86; margin-bottom:30px; }
+  #setup .form { width:100%; max-width:360px; padding:0; }
+  /* ===== 注文画面 ===== */
+  .overlay {
+    position:fixed; inset:0; background:#131722; z-index:60; display:none; flex-direction:column;
+  }
+  .overlay.show { display:flex; }
+  .ov-head {
+    height:48px; background:#1c2230; display:flex; align-items:center; padding:0 6px;
+    border-bottom:1px solid #2a3142; flex:0 0 48px;
+  }
+  .ov-head button { background:none; border:none; color:#d1d4dc; font-size:24px; padding:6px 12px; cursor:pointer; }
+  .ov-head .t { font-size:16px; font-weight:600; color:#fff; }
+  .ov-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:14px; }
+  .ord-quote { display:flex; justify-content:space-around; padding:10px; background:#1c2230; border-radius:8px; }
+  .ord-quote .q { text-align:center; }
+  .ord-quote .q .lbl { font-size:10px; color:#787b86; }
+  .ord-quote .q .val { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .stepper { display:flex; align-items:center; background:#1c2230; border:1px solid #2a3142; border-radius:8px; }
+  .stepper button { background:none; border:none; color:#2196f3; font-size:22px; width:52px; padding:10px 0; cursor:pointer; }
+  .stepper input {
+    flex:1; background:none; border:none; color:#fff; font-size:18px; text-align:center;
+    font-variant-numeric:tabular-nums; padding:10px 0;
+  }
+  .field-lbl { font-size:12px; color:#787b86; }
+  .ord-actions { display:flex; gap:10px; }
+  .btn-sell, .btn-buy, .btn-place {
+    flex:1; border:none; border-radius:8px; padding:14px 8px; color:#fff; cursor:pointer; text-align:center;
+  }
+  .btn-sell { background:#f23645; } .btn-buy { background:#2196f3; } .btn-place { background:#ff9800; }
+  .btn-sell:active { background:#c22b3b; } .btn-buy:active { background:#1976d2; }
+  .btn-sell .a, .btn-buy .a, .btn-place .a { font-size:15px; font-weight:800; display:block; }
+  .btn-sell .b, .btn-buy .b { font-size:12px; opacity:.85; font-variant-numeric:tabular-nums; }
+  /* ===== 決済シート ===== */
+  #closeSheet { background:rgba(0,0,0,.55); justify-content:flex-end; }
+  .sheet { background:#1c2230; border-radius:16px 16px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .sheet .s-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:4px; }
+  .sheet .s-sub { font-size:12px; color:#787b86; margin-bottom:14px; font-variant-numeric:tabular-nums; }
+  .sheet .s-pl { font-size:22px; font-weight:800; text-align:center; margin-bottom:14px; font-variant-numeric:tabular-nums; }
+  .btn-close-pos { background:#f5b942; color:#1a1a1a; border:none; border-radius:8px; padding:14px; font-size:15px; font-weight:800; width:100%; cursor:pointer; }
+  .btn-cancel { background:none; color:#787b86; border:none; padding:12px; font-size:14px; width:100%; cursor:pointer; }
+  /* ===== トースト ===== */
+  #toast {
+    position:fixed; left:50%; bottom:80px; transform:translateX(-50%); z-index:100;
+    background:#2a3142; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px;
+    opacity:0; transition:opacity .25s; pointer-events:none; max-width:90%; text-align:center;
+  }
+  #toast.show { opacity:1; }
+  .profit { color:#26a69a; } .loss { color:#f23645; }
+  .t-buy { color:#2196f3; } .t-sell { color:#f23645; }
+  /* ===== チュートリアル ===== */
+  #tut { position:fixed; inset:0; z-index:70; display:none; }
+  #tut.show { display:block; }
+  #tutHl {
+    position:absolute; border-radius:10px; box-shadow:0 0 0 9999px rgba(0,0,0,.74);
+    border:2px solid #2196f3; transition:all .3s ease; pointer-events:none;
+  }
+  #tutCard {
+    position:absolute; left:50%; transform:translateX(-50%); width:min(90vw,350px);
+    background:#1c2230; border:1px solid #2a3142; border-radius:14px; padding:18px 16px;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  #tutCard .tc-step { font-size:11px; color:#2196f3; font-weight:700; margin-bottom:4px; }
+  #tutCard .tc-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:8px; }
+  #tutCard .tc-text { font-size:13px; line-height:1.7; color:#d1d4dc; }
+  #tutCard .tc-dots { display:flex; gap:5px; justify-content:center; margin:14px 0 12px; }
+  #tutCard .tc-dots span { width:7px; height:7px; border-radius:50%; background:#2a3142; }
+  #tutCard .tc-dots span.on { background:#2196f3; }
+  #tutCard .tc-btns { display:flex; gap:10px; }
+  #tutCard .tc-skip { flex:1; background:none; border:1px solid #2a3142; border-radius:8px; color:#787b86; padding:11px; font-size:14px; cursor:pointer; }
+  #tutCard .tc-next { flex:2; background:#2196f3; border:none; border-radius:8px; color:#fff; padding:11px; font-size:14px; font-weight:700; cursor:pointer; }
+  #tutCard .tc-next:active { background:#1976d2; }
+</style>
+</head>
+<body>
+
+<!-- 初期設定 -->
+<div id="setup">
+  <div class="logo">FX <span>Trade Trainer</span></div>
+  <div class="tag">デモ取引でFXを体験しよう（MT5スタイル）</div>
+  <div class="form">
+    <div>
+      <label>初期残高（円）を選んでください</label>
+      <select id="setupBalance">
+        <option value="100000">100,000 円</option>
+        <option value="300000">300,000 円</option>
+        <option value="500000">500,000 円</option>
+        <option value="1000000" selected>1,000,000 円</option>
+        <option value="5000000">5,000,000 円</option>
+        <option value="10000000">10,000,000 円</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="setupStart">取引を開始する</button>
+    <div class="note">通貨ペア（ドル円・ゴールド・ビットコインなど）は、開始後に「気配値」タブから選べます。<br>※ 本アプリは学習用シミュレーターです。価格は擬似的に生成されたものであり、実際の市場レートではありません。レバレッジ25倍で計算します。</div>
+  </div>
+</div>
+
+<header>
+  <div>
+    <div class="h-title" id="hTitle">チャート</div>
+    <div class="h-sub" id="hSub"></div>
+  </div>
+  <button id="btnNewOrder" title="新規注文">＋</button>
+</header>
+
+<main>
+  <!-- 気配値 -->
+  <section class="tab" id="tab-quotes"></section>
+
+  <!-- チャート -->
+  <section class="tab active" id="tab-chart">
+    <div class="oneclick">
+      <button class="oc-btn oc-sell" id="ocSell"><span class="lbl">売 (SELL)</span><span class="val" id="ocSellP">-</span></button>
+      <div class="oc-lot">
+        <button id="lotMinus">−</button>
+        <span class="lot-v" id="lotVal">0.10</span>
+        <button id="lotPlus">＋</button>
+      </div>
+      <button class="oc-btn oc-buy" id="ocBuy"><span class="lbl">買 (BUY)</span><span class="val" id="ocBuyP">-</span></button>
+    </div>
+    <div class="tf-bar" id="tfBar"></div>
+    <div id="chartWrap"><canvas id="chart"></canvas></div>
+  </section>
+
+  <!-- トレード -->
+  <section class="tab" id="tab-trade">
+    <div class="acct" id="acctBox"></div>
+    <div class="sec-h"><span>ポジション</span><span id="posCount"></span></div>
+    <div id="posList"></div>
+    <div class="sec-h"><span>予約注文</span><span id="ordCount"></span></div>
+    <div id="ordList"></div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="tab" id="tab-history">
+    <div class="acct" id="histSummary"></div>
+    <div id="histList"></div>
+  </section>
+
+  <!-- 設定 -->
+  <section class="tab" id="tab-settings">
+    <div class="form">
+      <div>
+        <label>初期残高（円）</label>
+        <select id="setBalance">
+          <option value="100000">100,000 円</option>
+          <option value="300000">300,000 円</option>
+          <option value="500000">500,000 円</option>
+          <option value="1000000">1,000,000 円</option>
+          <option value="5000000">5,000,000 円</option>
+          <option value="10000000">10,000,000 円</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="btnReset">この残高でリセットして開始</button>
+      <button class="btn-primary" id="btnTutorial" style="background:#2a3142;">📖 チュートリアルをもう一度見る</button>
+      <div class="note">リセットすると、ポジション・予約注文・履歴はすべて消去され、選択した残高で再スタートします。通貨ペアの切り替えは「気配値」タブから行えます。</div>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button data-tab="quotes"><span class="ic">📊</span>気配値</button>
+  <button data-tab="chart" class="active"><span class="ic">📈</span>チャート</button>
+  <button data-tab="trade"><span class="ic">💼</span>トレード</button>
+  <button data-tab="history"><span class="ic">🕐</span>履歴</button>
+  <button data-tab="settings"><span class="ic">⚙️</span>設定</button>
+</nav>
+
+<!-- 注文画面 -->
+<div class="overlay" id="orderScreen">
+  <div class="ov-head">
+    <button id="ordBack">‹</button>
+    <div>
+      <div class="t" id="ordPair">USD/JPY</div>
+      <div class="h-sub">新規注文</div>
+    </div>
+  </div>
+  <div class="ov-body">
+    <div class="ord-quote">
+      <div class="q"><div class="lbl">SELL（Bid）</div><div class="val dn" id="ordBid">-</div></div>
+      <div class="q"><div class="lbl">スプレッド</div><div class="val" id="ordSpread" style="font-size:14px;color:#787b86;">-</div></div>
+      <div class="q"><div class="lbl">BUY（Ask）</div><div class="val up" id="ordAsk">-</div></div>
+    </div>
+    <div>
+      <div class="field-lbl" style="margin-bottom:6px;">注文タイプ</div>
+      <select id="ordType" style="width:100%;background:#1c2230;color:#fff;border:1px solid #2a3142;border-radius:8px;padding:12px;font-size:16px;">
+        <option value="market">成行注文</option>
+        <option value="buylimit">Buy Limit（指値買い：現在より安く買う）</option>
+        <option value="selllimit">Sell Limit（指値売り：現在より高く売る）</option>
+        <option value="buystop">Buy Stop（逆指値買い：上抜けで買う）</option>
+        <option value="sellstop">Sell Stop（逆指値売り：下抜けで売る）</option>
+      </select>
+    </div>
+    <div>
+      <div class="field-lbl" style="margin-bottom:6px;" id="ordLotLbl">ロット数</div>
+      <div class="stepper">
+        <button id="ordLotM">−</button>
+        <input id="ordLot" inputmode="decimal" value="0.10">
+        <button id="ordLotP">＋</button>
+      </div>
+    </div>
+    <div id="ordPriceBox" style="display:none;">
+      <div class="field-lbl" style="margin-bottom:6px;">注文価格</div>
+      <div class="stepper">
+        <button id="ordPriceM">−</button>
+        <input id="ordPrice" inputmode="decimal" value="">
+        <button id="ordPriceP">＋</button>
+      </div>
+    </div>
+    <div>
+      <div class="field-lbl" style="margin-bottom:6px;">ストップロス（S/L）　0 = なし</div>
+      <div class="stepper">
+        <button id="ordSlM">−</button>
+        <input id="ordSl" inputmode="decimal" value="0">
+        <button id="ordSlP">＋</button>
+      </div>
+    </div>
+    <div>
+      <div class="field-lbl" style="margin-bottom:6px;">テイクプロフィット（T/P）　0 = なし</div>
+      <div class="stepper">
+        <button id="ordTpM">−</button>
+        <input id="ordTp" inputmode="decimal" value="0">
+        <button id="ordTpP">＋</button>
+      </div>
+    </div>
+    <div class="note" id="ordMarginNote"></div>
+    <div class="ord-actions" id="ordMarketBtns">
+      <button class="btn-sell" id="ordSellBtn"><span class="a">売 (SELL)</span><span class="b" id="ordSellBtnP">-</span></button>
+      <button class="btn-buy" id="ordBuyBtn"><span class="a">買 (BUY)</span><span class="b" id="ordBuyBtnP">-</span></button>
+    </div>
+    <div class="ord-actions" id="ordPendingBtns" style="display:none;">
+      <button class="btn-place" id="ordPlaceBtn"><span class="a">予約注文を発注</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- 決済シート -->
+<div class="overlay" id="closeSheet">
+  <div style="flex:1;" id="closeSheetBg"></div>
+  <div class="sheet">
+    <div class="s-title" id="csTitle"></div>
+    <div class="s-sub" id="csSub"></div>
+    <div class="s-pl" id="csPl"></div>
+    <button class="btn-close-pos" id="csClose"></button>
+    <button class="btn-cancel" id="csCancel">キャンセル</button>
+  </div>
+</div>
+
+<!-- チュートリアル -->
+<div id="tut">
+  <div id="tutHl"></div>
+  <div id="tutCard">
+    <div class="tc-step" id="tutStep"></div>
+    <div class="tc-title" id="tutTitle"></div>
+    <div class="tc-text" id="tutText"></div>
+    <div class="tc-dots" id="tutDots"></div>
+    <div class="tc-btns">
+      <button class="tc-skip" id="tutSkip">スキップ</button>
+      <button class="tc-next" id="tutNext">次へ</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= 通貨ペア定義 ================= */
+const PAIRS = {
+  USDJPY: { name:'USD/JPY', desc:'米ドル / 日本円',         base:155.20,  digits:3, spread:0.003,   vol:0.010,   contract:100000, pip:0.01,   unit:'通貨' },
+  EURJPY: { name:'EUR/JPY', desc:'ユーロ / 日本円',         base:168.45,  digits:3, spread:0.005,   vol:0.012,   contract:100000, pip:0.01,   unit:'通貨' },
+  EURUSD: { name:'EUR/USD', desc:'ユーロ / 米ドル',         base:1.08550, digits:5, spread:0.00006, vol:0.00008, contract:100000, pip:0.0001, unit:'通貨' },
+  XAUUSD: { name:'XAU/USD', desc:'ゴールド / 米ドル',       base:3320.00, digits:2, spread:0.35,    vol:0.50,    contract:100,    pip:0.1,    unit:'オンス' },
+  BTCUSD: { name:'BTC/USD', desc:'ビットコイン / 米ドル',   base:96000.0, digits:2, spread:30,      vol:18,      contract:1,      pip:10,     unit:'BTC' },
+};
+const LEVERAGE = 25;
+const TFS = { M1:60, M5:300, M15:900, M30:1800, H1:3600, H4:14400, D1:86400 };
+const TICK_MS = 400;
+
+/* ================= 状態 ================= */
+const state = {
+  pair: 'USDJPY',
+  initialBalance: 1000000,
+  balance: 1000000,
+  lot: 0.10,
+  tf: 'M1',
+  positions: [],   // {id, sym, type:'buy'|'sell', lots, openPrice, openTime, sl, tp}
+  orders: [],      // {id, sym, type:'buylimit'|..., lots, price, sl, tp, time}
+  history: [],     // {id, sym, type, lots, openPrice, closePrice, openTime, closeTime, profit, reason}
+  nextId: 1,
+  started: false,
+};
+const prices = {};  // sym -> {bid, ask, dir}
+const trend = {};   // sym -> momentum
+
+/* ================= ユーティリティ ================= */
+const $ = id => document.getElementById(id);
+function randn() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function fmt(sym, p) { return p.toFixed(PAIRS[sym].digits); }
+function fmtBig(sym, p) {
+  // MT5風：pip部分を大きく表示（例 155.1|23 → 23が大）
+  const s = p.toFixed(PAIRS[sym].digits);
+  if (PAIRS[sym].digits <= 2) {
+    return `${s.slice(0, -2)}<span class="big">${s.slice(-2)}</span>`;
+  }
+  const head = s.slice(0, s.length - 3);
+  const big = s.slice(s.length - 3, s.length - 1);
+  const tail = s.slice(s.length - 1);
+  return `${head}<span class="big">${big}</span><sup style="font-size:11px;">${tail}</sup>`;
+}
+function yen(v) { return Math.round(v).toLocaleString('ja-JP'); }
+function timeStr(t) {
+  const d = new Date(t);
+  const z = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${z(d.getMonth()+1)}.${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+}
+function toast(msg) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ================= 価格シミュレーション ================= */
+function initPrices() {
+  for (const sym in PAIRS) {
+    const p = PAIRS[sym];
+    const mid = p.base * (1 + (Math.random() - 0.5) * 0.002);
+    prices[sym] = { bid: mid - p.spread / 2, ask: mid + p.spread / 2, dir: 0 };
+    trend[sym] = 0;
+  }
+}
+function tickPrices() {
+  for (const sym in PAIRS) {
+    const p = PAIRS[sym];
+    // 慣性付きランダムウォーク（トレンドが出やすく体験として面白い）
+    trend[sym] = trend[sym] * 0.97 + randn() * 0.18;
+    const dz = (randn() + trend[sym]) * p.vol;
+    const q = prices[sym];
+    const prevBid = q.bid;
+    let mid = (q.bid + q.ask) / 2 + dz;
+    // 基準値から大きく離れすぎないよう弱い回帰をかける
+    mid += (p.base - mid) * 0.00012;
+    q.bid = mid - p.spread / 2;
+    q.ask = mid + p.spread / 2;
+    q.dir = q.bid > prevBid ? 1 : (q.bid < prevBid ? -1 : 0);
+  }
+}
+
+/* ================= 損益・証拠金計算（円建て） ================= */
+function jpyPerQuoteUnit(sym) {
+  // 決済通貨1単位あたりの円価値
+  if (sym.endsWith('JPY')) return 1;
+  if (sym.endsWith('USD')) return (prices.USDJPY.bid + prices.USDJPY.ask) / 2;
+  return 1;
+}
+function jpyPerBaseUnit(sym) {
+  // 基軸通貨1単位あたりの円価値（証拠金計算用）
+  const mid = (prices[sym].bid + prices[sym].ask) / 2;
+  return mid * jpyPerQuoteUnit(sym);
+}
+function posPnl(pos) {
+  const q = prices[pos.sym];
+  const cur = pos.type === 'buy' ? q.bid : q.ask;
+  const diff = pos.type === 'buy' ? cur - pos.openPrice : pos.openPrice - cur;
+  return diff * pos.lots * PAIRS[pos.sym].contract * jpyPerQuoteUnit(pos.sym);
+}
+function posMargin(pos) {
+  return pos.lots * PAIRS[pos.sym].contract * jpyPerBaseUnit(pos.sym) / LEVERAGE;
+}
+function requiredMargin(sym, lots) {
+  return lots * PAIRS[sym].contract * jpyPerBaseUnit(sym) / LEVERAGE;
+}
+function equity() { return state.balance + state.positions.reduce((s, p) => s + posPnl(p), 0); }
+function usedMargin() { return state.positions.reduce((s, p) => s + posMargin(p), 0); }
+function freeMargin() { return equity() - usedMargin(); }
+
+/* ================= 注文処理 ================= */
+function openPosition(sym, type, lots, sl, tp, reasonLabel) {
+  const need = requiredMargin(sym, lots);
+  if (need > freeMargin()) {
+    toast('⚠️ 証拠金が不足しています（必要証拠金 ' + yen(need) + ' 円）');
+    return null;
+  }
+  const q = prices[sym];
+  const price = type === 'buy' ? q.ask : q.bid;
+  const pos = {
+    id: state.nextId++, sym, type, lots,
+    openPrice: price, openTime: Date.now(), sl: sl || 0, tp: tp || 0,
+  };
+  state.positions.push(pos);
+  const cls = type === 'buy' ? 't-buy' : 't-sell';
+  toast(`✅ <span class="${cls}">${type === 'buy' ? '買い' : '売り'} ${lots.toFixed(2)}</span> ${PAIRS[sym].name} @ ${fmt(sym, price)}${reasonLabel ? '（' + reasonLabel + '）' : ''}`);
+  renderTrade(); renderHeader();
+  return pos;
+}
+function closePosition(pos, reason) {
+  const idx = state.positions.indexOf(pos);
+  if (idx < 0) return;
+  const q = prices[pos.sym];
+  const closePrice = pos.type === 'buy' ? q.bid : q.ask;
+  const profit = posPnl(pos);
+  state.positions.splice(idx, 1);
+  state.balance += profit;
+  state.history.unshift({
+    id: pos.id, sym: pos.sym, type: pos.type, lots: pos.lots,
+    openPrice: pos.openPrice, closePrice, openTime: pos.openTime, closeTime: Date.now(),
+    profit, reason: reason || '手動決済',
+  });
+  const cls = profit >= 0 ? 'profit' : 'loss';
+  toast(`決済しました：<span class="${cls}">${profit >= 0 ? '+' : ''}${yen(profit)} 円</span>${reason ? '（' + reason + '）' : ''}`);
+  renderTrade(); renderHistory(); renderHeader();
+}
+function placePendingOrder(sym, type, lots, price, sl, tp) {
+  const q = prices[sym];
+  const ok =
+    (type === 'buylimit'  && price < q.ask) ||
+    (type === 'selllimit' && price > q.bid) ||
+    (type === 'buystop'   && price > q.ask) ||
+    (type === 'sellstop'  && price < q.bid);
+  if (!ok) {
+    toast('⚠️ 注文価格が不正です。注文タイプに合った価格を指定してください');
+    return false;
+  }
+  state.orders.push({ id: state.nextId++, sym, type, lots, price, sl: sl || 0, tp: tp || 0, time: Date.now() });
+  toast(`📌 予約注文を受け付けました：${ORDER_LABEL[type]} ${lots.toFixed(2)} ${PAIRS[sym].name} @ ${fmt(sym, price)}`);
+  renderTrade(); renderHeader();
+  return true;
+}
+const ORDER_LABEL = { buylimit:'Buy Limit', selllimit:'Sell Limit', buystop:'Buy Stop', sellstop:'Sell Stop' };
+
+function checkOrdersAndSLTP() {
+  // 予約注文の約定判定
+  for (const o of [...state.orders]) {
+    const q = prices[o.sym];
+    let trig = false, side = null;
+    if (o.type === 'buylimit'  && q.ask <= o.price) { trig = true; side = 'buy'; }
+    if (o.type === 'buystop'   && q.ask >= o.price) { trig = true; side = 'buy'; }
+    if (o.type === 'selllimit' && q.bid >= o.price) { trig = true; side = 'sell'; }
+    if (o.type === 'sellstop'  && q.bid <= o.price) { trig = true; side = 'sell'; }
+    if (trig) {
+      state.orders.splice(state.orders.indexOf(o), 1);
+      openPosition(o.sym, side, o.lots, o.sl, o.tp, ORDER_LABEL[o.type] + ' 約定');
+    }
+  }
+  // SL/TP判定
+  for (const p of [...state.positions]) {
+    const q = prices[p.sym];
+    const cur = p.type === 'buy' ? q.bid : q.ask;
+    if (p.sl > 0 && ((p.type === 'buy' && cur <= p.sl) || (p.type === 'sell' && cur >= p.sl))) {
+      closePosition(p, 'S/L'); continue;
+    }
+    if (p.tp > 0 && ((p.type === 'buy' && cur >= p.tp) || (p.type === 'sell' && cur <= p.tp))) {
+      closePosition(p, 'T/P');
+    }
+  }
+  // ロスカット（証拠金維持率50%未満で全決済）
+  const m = usedMargin();
+  if (m > 0 && equity() / m < 0.5) {
+    while (state.positions.length) closePosition(state.positions[0], 'ロスカット');
+    toast('🚨 証拠金維持率が50%を下回ったため、ロスカットが執行されました');
+  }
+}
+
+/* ================= ローソク足データ ================= */
+const chartData = { sym: null, tf: null, candles: [], bucket: 0 };
+function genHistory(sym, tf) {
+  const tfSec = TFS[tf];
+  const p = PAIRS[sym];
+  const n = 300;
+  const now = Date.now();
+  const bucket = Math.floor(now / (tfSec * 1000));
+  const sigma = p.vol * Math.sqrt(tfSec / (TICK_MS / 1000)) * 0.55;
+  const candles = [];
+  let close = (prices[sym].bid + prices[sym].ask) / 2;
+  for (let i = 0; i < n; i++) {
+    const open = close - randn() * sigma;
+    const hi = Math.max(open, close) + Math.abs(randn()) * sigma * 0.45;
+    const lo = Math.min(open, close) - Math.abs(randn()) * sigma * 0.45;
+    candles.unshift({ t: (bucket - i) * tfSec * 1000, o: open, h: hi, l: lo, c: close });
+    close = open;
+  }
+  chartData.sym = sym; chartData.tf = tf; chartData.candles = candles; chartData.bucket = bucket;
+}
+function updateChartData() {
+  const sym = chartData.sym;
+  if (!sym) return;
+  const tfSec = TFS[chartData.tf];
+  const mid = (prices[sym].bid + prices[sym].ask) / 2;
+  const bucket = Math.floor(Date.now() / (tfSec * 1000));
+  const cs = chartData.candles;
+  if (bucket > chartData.bucket) {
+    cs.push({ t: bucket * tfSec * 1000, o: mid, h: mid, l: mid, c: mid });
+    chartData.bucket = bucket;
+    if (cs.length > 600) cs.splice(0, cs.length - 600);
+    if (view.offset > 0) view.offset++;  // 追従していない場合は表示位置を維持
+  } else {
+    const c = cs[cs.length - 1];
+    c.c = mid;
+    if (mid > c.h) c.h = mid;
+    if (mid < c.l) c.l = mid;
+  }
+}
+
+/* ================= チャート描画 ================= */
+const view = { candleW: 8, offset: 0 };  // offset=右端からの足数
+const canvas = $('chart');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() {
+  const r = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = r.width * dpr;
+  canvas.height = r.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawChart();
+}
+function drawChart() {
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (!W || !H || !chartData.candles.length) return;
+  const sym = chartData.sym;
+  const digits = PAIRS[sym].digits;
+  const axisW = digits >= 5 ? 58 : 56;
+  const plotW = W - axisW;
+  const cw = view.candleW;
+  const visible = Math.ceil(plotW / cw) + 1;
+  const cs = chartData.candles;
+  const end = cs.length - view.offset;
+  const start = Math.max(0, end - visible);
+  const slice = cs.slice(start, end);
+  if (!slice.length) return;
+
+  let lo = Infinity, hi = -Infinity;
+  for (const c of slice) { if (c.l < lo) lo = c.l; if (c.h > hi) hi = c.h; }
+  const q = prices[sym];
+  if (view.offset === 0) { lo = Math.min(lo, q.bid); hi = Math.max(hi, q.ask); }
+  const pad = (hi - lo) * 0.08 || PAIRS[sym].vol * 10;
+  lo -= pad; hi += pad;
+  const y = v => H - 18 - (v - lo) / (hi - lo) * (H - 36);
+
+  ctx.fillStyle = '#131722';
+  ctx.fillRect(0, 0, W, H);
+
+  // 横グリッド＋価格軸
+  ctx.font = '10px sans-serif';
+  ctx.textBaseline = 'middle';
+  const gridN = 6;
+  for (let i = 0; i <= gridN; i++) {
+    const v = lo + (hi - lo) * i / gridN;
+    const yy = y(v);
+    ctx.strokeStyle = '#1e2433';
+    ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(plotW, yy); ctx.stroke();
+    ctx.fillStyle = '#787b86';
+    ctx.fillText(v.toFixed(digits), plotW + 4, yy);
+  }
+  // 縦グリッド＋時刻
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.round(70 / cw));
+  for (let i = 0; i < slice.length; i++) {
+    const gi = start + i;
+    if (gi % step !== 0) continue;
+    const x = i * cw + cw / 2;
+    ctx.strokeStyle = '#1a2030';
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - 18); ctx.stroke();
+    const d = new Date(slice[i].t);
+    const lbl = chartData.tf === 'D1'
+      ? `${d.getMonth()+1}/${d.getDate()}`
+      : `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    ctx.fillStyle = '#565b68';
+    ctx.fillText(lbl, x, H - 9);
+  }
+  ctx.textAlign = 'left';
+
+  // ローソク足
+  const bodyW = Math.max(1, cw - 2);
+  for (let i = 0; i < slice.length; i++) {
+    const c = slice[i];
+    const x = i * cw + cw / 2;
+    const up = c.c >= c.o;
+    ctx.strokeStyle = ctx.fillStyle = up ? '#26a69a' : '#f23645';
+    ctx.beginPath(); ctx.moveTo(x, y(c.h)); ctx.lineTo(x, y(c.l)); ctx.stroke();
+    const yo = y(c.o), yc = y(c.c);
+    ctx.fillRect(x - bodyW / 2, Math.min(yo, yc), bodyW, Math.max(1, Math.abs(yc - yo)));
+  }
+
+  // ライン描画ヘルパー
+  function hline(price, color, dash, label, labelBg) {
+    if (price < lo || price > hi) return;
+    const yy = y(price);
+    ctx.strokeStyle = color;
+    ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(plotW, yy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = labelBg || color;
+    const txt = label || price.toFixed(digits);
+    const tw = ctx.measureText(txt).width + 8;
+    ctx.fillRect(plotW, yy - 8, Math.max(axisW, tw), 16);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(txt, plotW + 4, yy);
+  }
+  // ポジション・予約注文ライン（表示中ペアのみ）
+  for (const p of state.positions) {
+    if (p.sym !== sym) continue;
+    hline(p.openPrice, p.type === 'buy' ? 'rgba(33,150,243,.7)' : 'rgba(242,54,69,.7)', [6, 4]);
+    if (p.sl > 0) hline(p.sl, 'rgba(255,152,0,.6)', [2, 3], 'SL ' + p.sl.toFixed(digits), 'rgba(255,152,0,.85)');
+    if (p.tp > 0) hline(p.tp, 'rgba(38,166,154,.6)', [2, 3], 'TP ' + p.tp.toFixed(digits), 'rgba(38,166,154,.85)');
+  }
+  for (const o of state.orders) {
+    if (o.sym !== sym) continue;
+    hline(o.price, 'rgba(255,152,0,.8)', [8, 4]);
+  }
+  // 現在値（Bid）ライン
+  hline(q.bid, '#f23645', [3, 3]);
+  hline(q.ask, '#2196f3', [1, 4]);
+}
+
+/* チャート操作（ドラッグ・ピンチ） */
+(function setupChartGestures() {
+  let panX = null, pinchD = null, pinchW = null;
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) panX = e.touches[0].clientX;
+    else if (e.touches.length === 2) {
+      pinchD = Math.abs(e.touches[0].clientX - e.touches[1].clientX);
+      pinchW = view.candleW;
+    }
+  }, { passive: true });
+  canvas.addEventListener('touchmove', e => {
+    if (e.touches.length === 1 && panX !== null) {
+      const dx = e.touches[0].clientX - panX;
+      if (Math.abs(dx) >= view.candleW) {
+        const dc = Math.round(dx / view.candleW);
+        view.offset = Math.min(chartData.candles.length - 10, Math.max(0, view.offset + dc));
+        panX = e.touches[0].clientX;
+        drawChart();
+      }
+    } else if (e.touches.length === 2 && pinchD) {
+      const d = Math.abs(e.touches[0].clientX - e.touches[1].clientX);
+      view.candleW = Math.min(30, Math.max(2, pinchW * d / pinchD));
+      drawChart();
+    }
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => { panX = null; pinchD = null; });
+  // マウス（PC確認用）
+  let mDown = null;
+  canvas.addEventListener('mousedown', e => mDown = e.clientX);
+  window.addEventListener('mousemove', e => {
+    if (mDown === null) return;
+    const dx = e.clientX - mDown;
+    if (Math.abs(dx) >= view.candleW) {
+      const dc = Math.round(dx / view.candleW);
+      view.offset = Math.min(chartData.candles.length - 10, Math.max(0, view.offset + dc));
+      mDown = e.clientX;
+      drawChart();
+    }
+  });
+  window.addEventListener('mouseup', () => mDown = null);
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    view.candleW = Math.min(30, Math.max(2, view.candleW * (e.deltaY < 0 ? 1.15 : 0.87)));
+    drawChart();
+  }, { passive: false });
+})();
+
+/* ================= UI描画 ================= */
+const TAB_TITLES = { quotes:'気配値', chart:'チャート', trade:'トレード', history:'履歴', settings:'設定' };
+let activeTab = 'chart';
+
+function renderHeader() {
+  if (activeTab === 'chart') {
+    $('hTitle').textContent = PAIRS[state.pair].name + '・' + state.tf;
+    $('hSub').textContent = PAIRS[state.pair].desc;
+  } else if (activeTab === 'trade') {
+    $('hTitle').textContent = 'トレード';
+    $('hSub').textContent = `ポジション ${state.positions.length} ／ 予約 ${state.orders.length}`;
+  } else {
+    $('hTitle').textContent = TAB_TITLES[activeTab];
+    $('hSub').textContent = activeTab === 'history' ? `取引 ${state.history.length} 件` : '';
+  }
+}
+
+function renderQuotes() {
+  const el = $('tab-quotes');
+  let html = '';
+  for (const sym in PAIRS) {
+    const p = PAIRS[sym], q = prices[sym];
+    const cls = q.dir > 0 ? 'up' : (q.dir < 0 ? 'dn' : 'fl');
+    const spreadPips = ((q.ask - q.bid) / Math.pow(10, -p.digits)).toFixed(0);
+    html += `<div class="quote-row ${sym === state.pair ? 'sel' : ''}" data-sym="${sym}">
+      <div class="quote-left">
+        <div class="quote-sym">${p.name}</div>
+        <div class="quote-info">${p.desc}　スプレッド: ${spreadPips}</div>
+      </div>
+      <div class="quote-prices">
+        <div class="qp"><div class="lbl">Bid</div><div class="val ${cls}">${fmtBig(sym, q.bid)}</div></div>
+        <div class="qp"><div class="lbl">Ask</div><div class="val ${cls}">${fmtBig(sym, q.ask)}</div></div>
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+  el.querySelectorAll('.quote-row').forEach(r => r.addEventListener('click', () => {
+    selectPair(r.dataset.sym);
+    switchTab('chart');
+  }));
+}
+
+function renderOneClick() {
+  const q = prices[state.pair];
+  $('ocSellP').innerHTML = fmtBig(state.pair, q.bid);
+  $('ocBuyP').innerHTML = fmtBig(state.pair, q.ask);
+  $('lotVal').textContent = state.lot.toFixed(2);
+}
+
+function renderTrade() {
+  const eq = equity(), m = usedMargin(), fm = freeMargin();
+  const lvl = m > 0 ? (eq / m * 100).toFixed(1) + ' %' : '—';
+  const fl = eq - state.balance;
+  $('acctBox').innerHTML = `
+    <div class="acct-row"><span class="k">残高</span><span class="v">${yen(state.balance)} 円</span></div>
+    <div class="acct-row"><span class="k">有効証拠金</span><span class="v">${yen(eq)} 円</span></div>
+    <div class="acct-row"><span class="k">評価損益</span><span class="v ${fl >= 0 ? 'profit' : 'loss'}">${fl >= 0 ? '+' : ''}${yen(fl)} 円</span></div>
+    <div class="acct-row"><span class="k">必要証拠金</span><span class="v">${yen(m)} 円</span></div>
+    <div class="acct-row"><span class="k">余剰証拠金</span><span class="v">${yen(fm)} 円</span></div>
+    <div class="acct-row"><span class="k">証拠金維持率</span><span class="v">${lvl}</span></div>`;
+  $('posCount').textContent = state.positions.length + ' 件';
+  $('ordCount').textContent = state.orders.length + ' 件';
+
+  const pl = $('posList');
+  if (!state.positions.length) {
+    pl.innerHTML = '<div class="empty">ポジションはありません</div>';
+  } else {
+    pl.innerHTML = state.positions.map(p => {
+      const pnl = posPnl(p);
+      const q = prices[p.sym];
+      const cur = p.type === 'buy' ? q.bid : q.ask;
+      return `<div class="pos-row" data-id="${p.id}">
+        <div class="pos-line1">
+          <span><span class="pos-sym">${PAIRS[p.sym].name}</span><span class="pos-type ${p.type === 'buy' ? 't-buy' : 't-sell'}">${p.type === 'buy' ? '買い' : '売り'} ${p.lots.toFixed(2)}</span></span>
+          <span class="pos-pl ${pnl >= 0 ? 'profit' : 'loss'}">${pnl >= 0 ? '+' : ''}${yen(pnl)} 円</span>
+        </div>
+        <div class="pos-line2">
+          <span>${fmt(p.sym, p.openPrice)} → ${fmt(p.sym, cur)}</span>
+          <span>${p.sl ? 'SL ' + fmt(p.sym, p.sl) + '　' : ''}${p.tp ? 'TP ' + fmt(p.sym, p.tp) : ''}</span>
+        </div>
+      </div>`;
+    }).join('');
+    pl.querySelectorAll('.pos-row').forEach(r => r.addEventListener('click', () => openCloseSheet(+r.dataset.id)));
+  }
+
+  const ol = $('ordList');
+  if (!state.orders.length) {
+    ol.innerHTML = '<div class="empty">予約注文はありません</div>';
+  } else {
+    ol.innerHTML = state.orders.map(o => `
+      <div class="pos-row" data-oid="${o.id}">
+        <div class="pos-line1">
+          <span><span class="pos-sym">${PAIRS[o.sym].name}</span><span class="pos-type ${o.type.startsWith('buy') ? 't-buy' : 't-sell'}">${ORDER_LABEL[o.type]} ${o.lots.toFixed(2)}</span></span>
+          <span style="font-size:13px;color:#ff9800;font-weight:600;">@ ${fmt(o.sym, o.price)}</span>
+        </div>
+        <div class="pos-line2">
+          <span>${timeStr(o.time)}</span>
+          <span>タップで取消</span>
+        </div>
+      </div>`).join('');
+    ol.querySelectorAll('.pos-row').forEach(r => r.addEventListener('click', () => {
+      const o = state.orders.find(x => x.id === +r.dataset.oid);
+      if (o && confirm(`予約注文を取り消しますか？\n${ORDER_LABEL[o.type]} ${o.lots.toFixed(2)} ${PAIRS[o.sym].name} @ ${fmt(o.sym, o.price)}`)) {
+        state.orders.splice(state.orders.indexOf(o), 1);
+        toast('予約注文を取り消しました');
+        renderTrade(); renderHeader();
+      }
+    }));
+  }
+}
+
+function renderHistory() {
+  const total = state.history.reduce((s, h) => s + h.profit, 0);
+  const wins = state.history.filter(h => h.profit >= 0).length;
+  $('histSummary').innerHTML = `
+    <div class="acct-row"><span class="k">確定損益 合計</span><span class="v ${total >= 0 ? 'profit' : 'loss'}">${total >= 0 ? '+' : ''}${yen(total)} 円</span></div>
+    <div class="acct-row"><span class="k">取引回数</span><span class="v">${state.history.length} 回（勝ち ${wins} ／ 負け ${state.history.length - wins}）</span></div>
+    <div class="acct-row"><span class="k">初期残高</span><span class="v">${yen(state.initialBalance)} 円</span></div>`;
+  const el = $('histList');
+  if (!state.history.length) {
+    el.innerHTML = '<div class="empty">取引履歴はありません</div>';
+    return;
+  }
+  el.innerHTML = state.history.map(h => `
+    <div class="pos-row" style="cursor:default;">
+      <div class="pos-line1">
+        <span><span class="pos-sym">${PAIRS[h.sym].name}</span><span class="pos-type ${h.type === 'buy' ? 't-buy' : 't-sell'}">${h.type === 'buy' ? '買い' : '売り'} ${h.lots.toFixed(2)}</span></span>
+        <span class="pos-pl ${h.profit >= 0 ? 'profit' : 'loss'}">${h.profit >= 0 ? '+' : ''}${yen(h.profit)} 円</span>
+      </div>
+      <div class="pos-line2">
+        <span>${fmt(h.sym, h.openPrice)} → ${fmt(h.sym, h.closePrice)}（${h.reason}）</span>
+        <span>${timeStr(h.closeTime)}</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ================= 決済シート ================= */
+let closeTarget = null;
+function openCloseSheet(id) {
+  const p = state.positions.find(x => x.id === id);
+  if (!p) return;
+  closeTarget = p;
+  updateCloseSheet();
+  $('closeSheet').classList.add('show');
+}
+function updateCloseSheet() {
+  const p = closeTarget;
+  if (!p) return;
+  const q = prices[p.sym];
+  const cur = p.type === 'buy' ? q.bid : q.ask;
+  const pnl = posPnl(p);
+  $('csTitle').innerHTML = `${PAIRS[p.sym].name}　<span class="${p.type === 'buy' ? 't-buy' : 't-sell'}">${p.type === 'buy' ? '買い' : '売り'} ${p.lots.toFixed(2)}</span>`;
+  $('csSub').textContent = `建値 ${fmt(p.sym, p.openPrice)}　現在値 ${fmt(p.sym, cur)}　${timeStr(p.openTime)}`;
+  $('csPl').innerHTML = `<span class="${pnl >= 0 ? 'profit' : 'loss'}">${pnl >= 0 ? '+' : ''}${yen(pnl)} 円</span>`;
+  $('csClose').textContent = `成行で決済する（${fmt(p.sym, cur)}）`;
+}
+$('csClose').addEventListener('click', () => {
+  if (closeTarget) closePosition(closeTarget, '手動決済');
+  closeTarget = null;
+  $('closeSheet').classList.remove('show');
+});
+$('csCancel').addEventListener('click', () => { closeTarget = null; $('closeSheet').classList.remove('show'); });
+$('closeSheetBg').addEventListener('click', () => { closeTarget = null; $('closeSheet').classList.remove('show'); });
+
+/* ================= 注文画面 ================= */
+function pipSize(sym) { return PAIRS[sym].pip; }
+function openOrderScreen() {
+  const p = PAIRS[state.pair];
+  $('ordPair').textContent = p.name;
+  $('ordLotLbl').textContent = `ロット数（1ロット = ${p.contract.toLocaleString('ja-JP')} ${p.unit}）`;
+  $('ordLot').value = state.lot.toFixed(2);
+  $('ordType').value = 'market';
+  const q = prices[state.pair];
+  $('ordPrice').value = fmt(state.pair, (q.bid + q.ask) / 2);
+  $('ordSl').value = '0';
+  $('ordTp').value = '0';
+  syncOrderTypeUI();
+  $('orderScreen').classList.add('show');
+}
+function syncOrderTypeUI() {
+  const t = $('ordType').value;
+  $('ordPriceBox').style.display = t === 'market' ? 'none' : 'block';
+  $('ordMarketBtns').style.display = t === 'market' ? 'flex' : 'none';
+  $('ordPendingBtns').style.display = t === 'market' ? 'none' : 'flex';
+}
+function renderOrderScreen() {
+  if (!$('orderScreen').classList.contains('show')) return;
+  const sym = state.pair, q = prices[sym];
+  $('ordBid').textContent = fmt(sym, q.bid);
+  $('ordAsk').textContent = fmt(sym, q.ask);
+  const spreadPips = ((q.ask - q.bid) / Math.pow(10, -PAIRS[sym].digits)).toFixed(0);
+  $('ordSpread').textContent = spreadPips + ' ポイント';
+  $('ordSellBtnP').textContent = fmt(sym, q.bid);
+  $('ordBuyBtnP').textContent = fmt(sym, q.ask);
+  const lots = parseFloat($('ordLot').value) || 0;
+  const need = lots > 0 ? requiredMargin(sym, lots) : 0;
+  $('ordMarginNote').textContent =
+    `必要証拠金（目安）: ${yen(need)} 円 ／ 余剰証拠金: ${yen(freeMargin())} 円 ／ 1pipsの損益: 約 ${yen(lots * PAIRS[sym].contract * pipSize(sym) * jpyPerQuoteUnit(sym))} 円`;
+}
+function stepInput(id, delta, decimals) {
+  const el = $(id);
+  const v = (parseFloat(el.value) || 0) + delta;
+  el.value = Math.max(0, v).toFixed(decimals);
+}
+$('ordType').addEventListener('change', () => {
+  syncOrderTypeUI();
+  const t = $('ordType').value;
+  if (t !== 'market') {
+    // タイプに応じて妥当な初期価格を入れる（現在値±20pips）
+    const q = prices[state.pair];
+    const d = pipSize(state.pair) * 20;
+    const base = (t === 'buylimit' || t === 'sellstop') ? (q.bid + q.ask) / 2 - d : (q.bid + q.ask) / 2 + d;
+    $('ordPrice').value = fmt(state.pair, base);
+  }
+});
+$('ordLotM').addEventListener('click', () => stepInput('ordLot', -lotStep(), 2));
+$('ordLotP').addEventListener('click', () => stepInput('ordLot', lotStep(), 2));
+function lotStep() { return (parseFloat($('ordLot').value) || 0) >= 1 ? 0.1 : 0.01; }
+['ordPrice', 'ordSl', 'ordTp'].forEach(id => {
+  $(id + 'M').addEventListener('click', () => stepInput(id, -pipSize(state.pair), PAIRS[state.pair].digits));
+  $(id + 'P').addEventListener('click', () => stepInput(id, pipSize(state.pair), PAIRS[state.pair].digits));
+});
+function readOrderInputs() {
+  const lots = Math.round((parseFloat($('ordLot').value) || 0) * 100) / 100;
+  if (lots < 0.01) { toast('⚠️ ロット数は0.01以上で指定してください'); return null; }
+  const sl = parseFloat($('ordSl').value) || 0;
+  const tp = parseFloat($('ordTp').value) || 0;
+  return { lots, sl, tp };
+}
+function validSLTP(sym, side, entry, sl, tp) {
+  if (sl > 0 && ((side === 'buy' && sl >= entry) || (side === 'sell' && sl <= entry))) {
+    toast('⚠️ S/Lの価格が不正です（買いは建値より下、売りは上に設定）'); return false;
+  }
+  if (tp > 0 && ((side === 'buy' && tp <= entry) || (side === 'sell' && tp >= entry))) {
+    toast('⚠️ T/Pの価格が不正です（買いは建値より上、売りは下に設定）'); return false;
+  }
+  return true;
+}
+$('ordSellBtn').addEventListener('click', () => {
+  const v = readOrderInputs(); if (!v) return;
+  if (!validSLTP(state.pair, 'sell', prices[state.pair].bid, v.sl, v.tp)) return;
+  if (openPosition(state.pair, 'sell', v.lots, v.sl, v.tp)) $('orderScreen').classList.remove('show');
+});
+$('ordBuyBtn').addEventListener('click', () => {
+  const v = readOrderInputs(); if (!v) return;
+  if (!validSLTP(state.pair, 'buy', prices[state.pair].ask, v.sl, v.tp)) return;
+  if (openPosition(state.pair, 'buy', v.lots, v.sl, v.tp)) $('orderScreen').classList.remove('show');
+});
+$('ordPlaceBtn').addEventListener('click', () => {
+  const v = readOrderInputs(); if (!v) return;
+  const type = $('ordType').value;
+  const price = parseFloat($('ordPrice').value) || 0;
+  if (price <= 0) { toast('⚠️ 注文価格を入力してください'); return; }
+  const side = type.startsWith('buy') ? 'buy' : 'sell';
+  if (!validSLTP(state.pair, side, price, v.sl, v.tp)) return;
+  if (placePendingOrder(state.pair, type, v.lots, price, v.sl, v.tp)) $('orderScreen').classList.remove('show');
+});
+$('ordBack').addEventListener('click', () => $('orderScreen').classList.remove('show'));
+$('btnNewOrder').addEventListener('click', openOrderScreen);
+
+/* ================= タブ・操作 ================= */
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + name));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  renderHeader();
+  if (name === 'quotes') renderQuotes();
+  if (name === 'trade') renderTrade();
+  if (name === 'history') renderHistory();
+  if (name === 'chart') requestAnimationFrame(resizeCanvas);
+}
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+function selectPair(sym) {
+  state.pair = sym;
+  genHistory(sym, state.tf);
+  view.offset = 0;
+  renderHeader(); renderOneClick(); drawChart();
+}
+
+/* 時間足バー */
+(function buildTfBar() {
+  const bar = $('tfBar');
+  for (const tf in TFS) {
+    const b = document.createElement('button');
+    b.textContent = tf;
+    b.dataset.tf = tf;
+    if (tf === state.tf) b.classList.add('active');
+    b.addEventListener('click', () => {
+      state.tf = tf;
+      bar.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.tf === tf));
+      genHistory(state.pair, tf);
+      view.offset = 0;
+      renderHeader(); drawChart();
+    });
+    bar.appendChild(b);
+  }
+})();
+
+/* ワンタップ売買 */
+$('ocSell').addEventListener('click', () => openPosition(state.pair, 'sell', state.lot, 0, 0, 'ワンタップ'));
+$('ocBuy').addEventListener('click', () => openPosition(state.pair, 'buy', state.lot, 0, 0, 'ワンタップ'));
+$('lotMinus').addEventListener('click', () => {
+  state.lot = Math.max(0.01, Math.round((state.lot - (state.lot > 1 ? 0.1 : 0.01)) * 100) / 100);
+  renderOneClick();
+});
+$('lotPlus').addEventListener('click', () => {
+  state.lot = Math.min(50, Math.round((state.lot + (state.lot >= 1 ? 0.1 : 0.01)) * 100) / 100);
+  renderOneClick();
+});
+
+/* ================= チュートリアル ================= */
+const TUT_STEPS = [
+  { title: 'ようこそ！🎉',
+    text: 'これはFX（為替取引）をリスクゼロで体験できるデモアプリです。<br><b>「安いときに買って、高くなったら売る」</b>（またはその逆）で利益が出ます。<br>使い方を順番にご案内します！' },
+  { tab: 'quotes', target: '.quote-row',
+    title: '① 通貨ペアを選ぶ',
+    text: 'ここに取引できる銘柄が並んでいます。<b>タップするとチャートが開きます。</b><br><span class="dn">Bid＝あなたが売るときの価格</span>、<span class="up">Ask＝買うときの価格</span>です。その差（スプレッド）が取引コストになります。' },
+  { tab: 'chart', target: '#chartWrap',
+    title: '② チャートを見る',
+    text: '価格の動きを「ローソク足」で表示します。<b><span class="profit">緑＝値上がり</span>、<span class="loss">赤＝値下がり</span></b>。<br>左右にドラッグすると過去が見られて、上のM1〜D1ボタンで時間の幅を変えられます。' },
+  { tab: 'chart', target: '.oneclick',
+    title: '③ 注文してみる',
+    text: '「これから上がる！」と思ったら<b class="t-buy">買 (BUY)</b>、「下がる！」と思ったら<b class="t-sell">売 (SELL)</b>をタップするだけで注文完了。<br>真ん中の数字は<b>ロット（取引量）</b>。最初は0.01〜0.10の少なめがおすすめです。' },
+  { tab: 'trade', target: '#acctBox',
+    title: '④ 損益をチェック',
+    text: '注文すると「トレード」タブに持ち高（ポジション）と<b>損益がリアルタイム</b>で表示されます。<br><b>ポジションをタップすると決済</b>（利益・損失の確定）ができます。' },
+  { target: '#btnNewOrder',
+    title: '⑤ 予約注文・損切りも',
+    text: '右上の「＋」からは、<b>指定した価格になったら自動で売買する「予約注文」</b>や、損切り（S/L）・利益確定（T/P）付きの注文もできます。慣れてきたら試してみましょう。' },
+  { title: '準備完了！🚀',
+    text: 'お金は仮想なので、<b>失敗しても大丈夫</b>。まずは気配値から好きな銘柄を選んで、1回取引してみましょう！<br><span style="color:#787b86;font-size:12px;">このチュートリアルは「設定」タブからいつでも見直せます。</span>' },
+];
+let tutIdx = -1;
+function tutDone() { try { return localStorage.getItem('fxTutoDone') === '1'; } catch (e) { return false; } }
+function setTutDone() { try { localStorage.setItem('fxTutoDone', '1'); } catch (e) {} }
+function startTutorial() {
+  $('tutDots').innerHTML = TUT_STEPS.map(() => '<span></span>').join('');
+  $('tut').classList.add('show');
+  showTutStep(0);
+}
+function showTutStep(i) {
+  tutIdx = i;
+  const s = TUT_STEPS[i];
+  if (s.tab) switchTab(s.tab);
+  $('tutStep').textContent = `ステップ ${i + 1} / ${TUT_STEPS.length}`;
+  $('tutTitle').innerHTML = s.title;
+  $('tutText').innerHTML = s.text;
+  $('tutDots').querySelectorAll('span').forEach((d, j) => d.classList.toggle('on', j === i));
+  $('tutNext').textContent = i === TUT_STEPS.length - 1 ? 'はじめる！' : '次へ';
+  $('tutSkip').style.display = i === TUT_STEPS.length - 1 ? 'none' : 'block';
+  // タブ切替後のレイアウト確定を待ってから配置する
+  requestAnimationFrame(() => requestAnimationFrame(placeTut));
+}
+function placeTut() {
+  if (tutIdx < 0) return;
+  const s = TUT_STEPS[tutIdx];
+  const hl = $('tutHl'), card = $('tutCard');
+  let r = null;
+  if (s.target) {
+    const el = document.querySelector(s.target);
+    if (el) r = el.getBoundingClientRect();
+  }
+  const H = window.innerHeight;
+  if (r) {
+    hl.style.left = (r.left - 5) + 'px';
+    hl.style.top = (r.top - 5) + 'px';
+    hl.style.width = (r.width + 10) + 'px';
+    hl.style.height = (r.height + 10) + 'px';
+    // 空きが広い側にカードを置き、必ず画面内に収まるようクランプする
+    card.style.bottom = '';
+    const ch = card.offsetHeight;
+    const spaceBelow = H - r.bottom;
+    let top = (spaceBelow >= ch + 24 || spaceBelow >= r.top) ? r.bottom + 16 : r.top - ch - 16;
+    top = Math.min(Math.max(8, top), H - ch - 8);
+    card.style.top = top + 'px';
+  } else {
+    // 対象なし＝全体を暗くして中央にカード
+    hl.style.left = '50%'; hl.style.top = '-30px';
+    hl.style.width = '0px'; hl.style.height = '0px';
+    card.style.bottom = '';
+    card.style.top = Math.max(40, H / 2 - 140) + 'px';
+  }
+}
+function endTutorial(finished) {
+  $('tut').classList.remove('show');
+  tutIdx = -1;
+  setTutDone();
+  if (finished) {
+    switchTab('quotes');
+    toast('💰 さあ体験スタート！銘柄をタップしてチャートを開きましょう');
+  }
+}
+$('tutNext').addEventListener('click', () => {
+  if (tutIdx >= TUT_STEPS.length - 1) endTutorial(true);
+  else showTutStep(tutIdx + 1);
+});
+$('tutSkip').addEventListener('click', () => endTutorial(false));
+window.addEventListener('resize', placeTut);
+$('btnTutorial').addEventListener('click', startTutorial);
+
+/* ================= 設定・リセット ================= */
+function resetAccount(pair, balance) {
+  state.pair = pair;
+  state.initialBalance = balance;
+  state.balance = balance;
+  state.positions = [];
+  state.orders = [];
+  state.history = [];
+  state.lot = 0.10;
+  genHistory(pair, state.tf);
+  view.offset = 0;
+  renderHeader(); renderOneClick(); renderTrade(); renderHistory(); drawChart();
+}
+$('setupStart').addEventListener('click', () => {
+  resetAccount(state.pair, +$('setupBalance').value);
+  $('setBalance').value = $('setupBalance').value;
+  $('setup').style.display = 'none';
+  state.started = true;
+  switchTab('quotes');
+  if (!tutDone()) {
+    startTutorial();  // 初回のみチュートリアルを表示
+  } else {
+    toast(`💰 残高 ${yen(state.balance)} 円でスタート！取引したい通貨ペアをタップしてください`);
+  }
+});
+$('btnReset').addEventListener('click', () => {
+  if (!confirm('リセットしますか？ポジション・履歴はすべて消去されます。')) return;
+  resetAccount(state.pair, +$('setBalance').value);
+  switchTab('chart');
+  toast('リセットしました');
+});
+
+/* ================= メインループ ================= */
+initPrices();
+genHistory(state.pair, state.tf);
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+setInterval(() => {
+  tickPrices();
+  if (state.started) checkOrdersAndSLTP();
+  updateChartData();
+  if (activeTab === 'chart') { renderOneClick(); drawChart(); }
+  if (activeTab === 'quotes') renderQuotes();
+  if (activeTab === 'trade') renderTrade();
+  renderOrderScreen();
+  if (closeTarget) updateCloseSheet();
+}, TICK_MS);
+</script>
+</body>
+</html>
