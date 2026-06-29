@@ -1,0 +1,25 @@
+# note ブログ自動運用の設定
+
+# あなたのブログのテーマ・読者像（記事生成のベースになる）
+blog:
+  theme: "個人開発とAI活用の実践ノウハウ"
+  audience: "副業・個人開発に興味があるエンジニアや非エンジニア"
+  tone: "親しみやすく、具体例が多く、すぐ試せる"
+  language: "日本語"
+
+# 記事生成の方針
+writing:
+  model: "claude-opus-4-8"
+  target_chars: 2500        # 目安の文字数
+  drafts_per_run: 1         # 1回の実行で生成する下書き本数
+
+# 分析の方針
+analysis:
+  top_n: 10                 # 上位何記事を分析対象にするか
+  model: "claude-opus-4-8"
+
+# note の URL（通常は変更不要）
+note:
+  dashboard_url: "https://note.com/sitesettings/stats"
+  login_url: "https://note.com/login"
+  new_note_url: "https://note.com/notes/new"

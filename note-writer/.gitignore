@@ -1,0 +1,9 @@
+.env
+data/*.json
+data/*.csv
+drafts/*.md
+auth_state.json
+__pycache__/
+*.pyc
+.venv/
+venv/
