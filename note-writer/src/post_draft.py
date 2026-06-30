@@ -44,14 +44,51 @@ def post(draft: Path, debug: bool = False) -> None:
         context = browser.new_context(storage_state=str(AUTH_STATE))
         page = context.new_page()
         page.goto(cfg["note"]["new_note_url"], wait_until="networkidle")
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(5000)
 
-        # タイトル入力
-        page.click('textarea[placeholder*="タイトル"], [placeholder*="タイトル"]')
+        # デバッグ用にエディタ画面のHTMLとスクショを必ず保存しておく
+        from common import DATA_DIR
+
+        (DATA_DIR / "newnote_debug.html").write_text(page.content(), encoding="utf-8")
+        page.screenshot(path=str(DATA_DIR / "newnote_debug.png"), full_page=True)
+        print(f"エディタ画面を保存: {DATA_DIR / 'newnote_debug.html'} / .png")
+
+        # タイトル入力（noteの構造変更に備え複数候補を順に試す）
+        title_selectors = [
+            'textarea[placeholder*="タイトル"]',
+            '[placeholder*="タイトル"]',
+            'textarea[placeholder*="記事タイトル"]',
+            'h1[contenteditable="true"]',
+            '[contenteditable="true"][data-placeholder*="タイトル"]',
+        ]
+        clicked = False
+        for sel in title_selectors:
+            try:
+                page.click(sel, timeout=4000)
+                clicked = True
+                print(f"タイトル欄を発見: {sel}")
+                break
+            except Exception:  # noqa: BLE001
+                continue
+        if not clicked:
+            print(
+                "タイトル欄が見つかりませんでした。"
+                "data/newnote_debug.html を共有してくれればセレクタを直します。"
+            )
+            if debug:
+                print("ブラウザを開いたままにします。Enterで閉じます...")
+                input()
+            browser.close()
+            return
         page.keyboard.type(title)
 
         # 本文入力（エディタ本体にフォーカスして流し込む）
-        page.click('[contenteditable="true"], .ProseMirror')
+        for sel in ['.ProseMirror', '[contenteditable="true"]', '[role="textbox"]']:
+            try:
+                page.click(sel, timeout=4000)
+                break
+            except Exception:  # noqa: BLE001
+                continue
         page.keyboard.type(body)
         page.wait_for_timeout(1500)
 
