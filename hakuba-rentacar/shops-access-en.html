@@ -1,0 +1,304 @@
+<!-- ══════════════════════════════════════════════
+  Hakuba Rent a Car | Shops & Access (English)
+  Paste into a WordPress Custom HTML block
+══════════════════════════════════════════════ -->
+<div class="hrs-wrap">
+<style>
+.hrs-wrap{
+  --hrs-green:#1a7a3c;
+  --hrs-green-light:#2ea55a;
+  --hrs-gold:#fecc01;
+  --hrs-text:#111111;
+  --hrs-sub:#3f3f46;
+  --hrs-muted:#767678;
+  --hrs-bg:#f6f7f9;
+  --hrs-border:rgba(0,0,0,.10);
+  --hrs-shadow:0 10px 24px rgba(0,0,0,.08);
+  color:var(--hrs-text);
+  line-height:1.75;
+}
+.hrs-wrap *{box-sizing:border-box !important;}
+.hrs-wrap h2,.hrs-wrap h3,.hrs-wrap h4{
+  line-height:1.35 !important;background:none !important;background-color:transparent !important;
+  padding:0 !important;border:none !important;box-shadow:none !important;margin:0 !important;
+}
+.hrs-wrap a{text-decoration:none !important;}
+
+.hrs-inner{max-width:1100px;margin:0 auto;padding:0 24px;}
+
+.hrs-label{
+  font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:#b89000;font-weight:700;margin:0 0 8px !important;text-align:center;
+}
+.hrs-title{
+  font-size:clamp(1.6rem,3.4vw,2.2rem) !important;font-weight:800 !important;
+  text-align:center;letter-spacing:.03em;margin:0 0 14px !important;
+}
+.hrs-lead{
+  text-align:center;color:var(--hrs-sub);font-size:.98rem;
+  margin:0 auto 36px;max-width:720px;
+}
+
+/* ── Shop cards ── */
+.hrs-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
+}
+@media(max-width:900px){.hrs-grid{grid-template-columns:1fr;}}
+
+.hrs-card{
+  background:#fff;border:1px solid var(--hrs-border);border-radius:16px;
+  overflow:hidden;box-shadow:var(--hrs-shadow);display:flex;flex-direction:column;
+}
+.hrs-card-head{
+  background:linear-gradient(135deg,var(--hrs-green) 0%,var(--hrs-green-light) 100%);
+  padding:20px 22px;
+}
+.hrs-badge{
+  display:inline-block;background:var(--hrs-gold);color:#111;
+  font-size:11px;font-weight:800;letter-spacing:.08em;
+  padding:5px 12px;border-radius:999px;margin-bottom:10px;
+}
+.hrs-name{font-size:1.15rem !important;font-weight:800 !important;color:#fff !important;}
+.hrs-sub{font-size:.85rem;color:rgba(255,255,255,.9);margin:6px 0 0 !important;}
+
+.hrs-card-body{padding:22px;flex:1;}
+
+.hrs-dl{margin:0 0 18px !important;padding:0;}
+.hrs-row{
+  display:grid;grid-template-columns:104px 1fr;gap:12px;
+  padding:11px 0;border-bottom:1px solid #eeeeec;align-items:start;
+}
+.hrs-row:last-child{border-bottom:none;}
+.hrs-dt{
+  font-size:12px;font-weight:800;color:var(--hrs-muted);
+  letter-spacing:.05em;margin:0;padding-top:2px;
+}
+.hrs-dd{margin:0;font-size:14.5px;color:var(--hrs-sub);line-height:1.8;}
+.hrs-dd a{color:var(--hrs-green) !important;font-weight:800;}
+.hrs-dd strong{color:var(--hrs-text);}
+.hrs-note{display:block;font-size:12px;color:var(--hrs-muted);margin-top:4px;}
+
+.hrs-btn{
+  display:inline-block !important;background:var(--hrs-gold) !important;color:#111 !important;
+  font-weight:800 !important;font-size:14px !important;line-height:1 !important;
+  padding:13px 24px !important;border-radius:12px !important;
+  border:1px solid rgba(0,0,0,.08) !important;transition:.2s ease;
+}
+.hrs-btn:hover{transform:translateY(-1px);opacity:.96;}
+
+.hrs-map{
+  position:relative;padding-bottom:62%;height:0;overflow:hidden;
+  border-top:1px solid var(--hrs-border);background:#eee;
+}
+.hrs-map iframe{
+  position:absolute;top:0;left:0;width:100%;height:100%;border:0;
+}
+
+/* ── Shared notes ── */
+.hrs-info{
+  margin-top:28px;background:#fff8e1;border-left:4px solid var(--hrs-gold);
+  border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;
+  line-height:1.85;color:var(--hrs-sub);
+}
+.hrs-info strong{color:var(--hrs-text);}
+
+.hrs-cta{text-align:center;margin-top:32px;}
+
+@media(max-width:600px){
+  .hrs-inner{padding:0 16px;}
+  .hrs-card-body{padding:18px;}
+  .hrs-row{grid-template-columns:88px 1fr;gap:10px;}
+}
+</style>
+
+<div class="hrs-inner">
+
+  <p class="hrs-label">Shops &amp; Access</p>
+  <h2 class="hrs-title">Our Locations</h2>
+  <p class="hrs-lead">
+    Hakuba Rent a Car operates <strong>two locations</strong> across the Hakuba and Otari area.<br>
+    Choose whichever branch is most convenient for your accommodation and travel plans.
+  </p>
+
+  <div class="hrs-grid">
+
+    <!-- ══ Hakuba Norikura Branch ══ -->
+    <article class="hrs-card">
+      <div class="hrs-card-head">
+        <span class="hrs-badge">Norikura / Cortina Area</span>
+        <h3 class="hrs-name">Hakuba Norikura Branch</h3>
+        <p class="hrs-sub">Inside Hakuba Cortina Lodge</p>
+      </div>
+
+      <div class="hrs-card-body">
+        <div class="hrs-dl">
+          <div class="hrs-row">
+            <p class="hrs-dt">📍 Address</p>
+            <p class="hrs-dd">
+              12856-125 Chikuni-otsu, Otari-mura,<br>
+              Kitaazumi-gun, Nagano 399-9422
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">📞 Phone</p>
+            <p class="hrs-dd"><a href="tel:+815017930205">+81-50-1793-0205</a></p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🕗 Hours</p>
+            <p class="hrs-dd">
+              8:00 – 18:00
+              <span class="hrs-note">Open daily (irregular holidays). Hours may vary by season.</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🚗 Access</p>
+            <p class="hrs-dd">
+              Right by Hakuba Norikura Onsen Ski Resort and Hakuba Cortina Ski Resort.<br>
+              <span class="hrs-note">Shuttle service available to Hakuba Station, Happo Bus Terminal, Tsugaike Kogen and more (paid, reservation required).</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🌐 Facility</p>
+            <p class="hrs-dd">
+              <a href="https://www.hakubacortina.com/hakuba-cortina-lodge" target="_blank" rel="noreferrer noopener">Hakuba Cortina Lodge</a>
+            </p>
+          </div>
+        </div>
+
+        <a class="hrs-btn" href="https://maps.app.goo.gl/WLru5Gi451d3LTW17" target="_blank" rel="noreferrer noopener">Open in Google Maps</a>
+      </div>
+
+      <div class="hrs-map">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d204752.0430013238!2d137.53819879453124!3d36.69251380000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x5ff633e271de3fc9%3A0x40c61c30583c3208!2zSGFrdWJhIFJlbnQgYSBDYXIgLyDnmb3ppqzjg6zjg7Pjgr_jgqvjg7w!5e0!3m2!1sen!2sjp!4v1767308185858!5m2!1sen!2sjp"
+          title="Map to Hakuba Rent a Car — Hakuba Norikura Branch"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </article>
+
+    <!-- ══ Hakuba Station Branch ══ -->
+    <article class="hrs-card">
+      <div class="hrs-card-head">
+        <span class="hrs-badge">Hakuba Station / Happo Area</span>
+        <h3 class="hrs-name">Hakuba Station Branch</h3>
+        <p class="hrs-sub">Steps from JR Hakuba Station</p>
+      </div>
+
+      <div class="hrs-card-body">
+        <div class="hrs-dl">
+          <div class="hrs-row">
+            <p class="hrs-dt">📍 Address</p>
+            <p class="hrs-dd">
+              [TO BE ADDED], Hakuba-mura,<br>
+              Kitaazumi-gun, Nagano [TO BE ADDED]
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">📞 Phone</p>
+            <p class="hrs-dd"><a href="tel:+815017930205">+81-50-1793-0205</a></p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🕗 Hours</p>
+            <p class="hrs-dd">
+              [TO BE ADDED] 8:00 – 18:00
+              <span class="hrs-note">Open daily (irregular holidays). Hours may vary by season.</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🚗 Access</p>
+            <p class="hrs-dd">
+              [TO BE ADDED] minutes on foot from JR Oito Line, Hakuba Station.<br>
+              <span class="hrs-note">Convenient for visitors arriving by express or highway bus.</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🅿️ Parking</p>
+            <p class="hrs-dd">[TO BE ADDED]</p>
+          </div>
+        </div>
+
+        <a class="hrs-btn" href="[TO BE ADDED: Google Maps URL]" target="_blank" rel="noreferrer noopener">Open in Google Maps</a>
+      </div>
+
+      <div class="hrs-map">
+        <!-- [TO BE ADDED] Replace with the iframe src from Google Maps "Share → Embed a map" -->
+        <iframe
+          src="[TO BE ADDED: Google Maps embed URL]"
+          title="Map to Hakuba Rent a Car — Hakuba Station Branch"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="hrs-info">
+    <strong>[Before you visit]</strong><br>
+    • All vehicles require an <strong>advance reservation</strong>. Walk-in rentals are not available.<br>
+    • If you would like to <strong>pick up at one branch and return to the other</strong>, please let us know when booking.<br>
+    • <strong>Shuttle service</strong> to your accommodation or the station is also available (Hakuba / Otari area: ¥3,000 one-way, ¥6,000 round-trip, tax included).
+  </div>
+
+  <div class="hrs-cta">
+    <a class="hrs-btn" href="https://hakubarentacar.com/en/reservations-2/">Request a Booking</a>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ SEO: structured data for both branches ══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Hakuba Rent a Car — Locations",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "AutoRental",
+        "name": "Hakuba Rent a Car — Hakuba Norikura Branch",
+        "url": "https://hakubarentacar.com/en/access/",
+        "telephone": "+81-50-1793-0205",
+        "email": "info@hakubarentacar.com",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "399-9422",
+          "streetAddress": "12856-125 Chikuni-otsu",
+          "addressLocality": "Otari",
+          "addressRegion": "Nagano",
+          "addressCountry": "JP"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 36.6983,
+          "longitude": 137.8619
+        },
+        "openingHours": "Mo-Su 08:00-18:00",
+        "areaServed": ["Hakuba", "Otari", "Hakuba Norikura", "Cortina", "Tsugaike Kogen"]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "AutoRental",
+        "name": "Hakuba Rent a Car — Hakuba Station Branch",
+        "url": "https://hakubarentacar.com/en/access/",
+        "telephone": "+81-50-1793-0205",
+        "email": "info@hakubarentacar.com",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "[TO BE ADDED]",
+          "streetAddress": "[TO BE ADDED]",
+          "addressLocality": "Hakuba",
+          "addressRegion": "Nagano",
+          "addressCountry": "JP"
+        },
+        "openingHours": "Mo-Su 08:00-18:00",
+        "areaServed": ["Hakuba", "Hakuba Station", "Happo-one", "Iwatake", "Hakuba Goryu"]
+      }
+    }
+  ]
+}
+</script>

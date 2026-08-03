@@ -1,0 +1,304 @@
+<!-- ══════════════════════════════════════════════
+  白馬レンタカー｜店舗案内・アクセス（日本語）
+  WordPress カスタムHTMLブロックに貼り付けてください
+══════════════════════════════════════════════ -->
+<div class="hrs-wrap">
+<style>
+.hrs-wrap{
+  --hrs-green:#1a7a3c;
+  --hrs-green-light:#2ea55a;
+  --hrs-gold:#fecc01;
+  --hrs-text:#111111;
+  --hrs-sub:#3f3f46;
+  --hrs-muted:#767678;
+  --hrs-bg:#f6f7f9;
+  --hrs-border:rgba(0,0,0,.10);
+  --hrs-shadow:0 10px 24px rgba(0,0,0,.08);
+  color:var(--hrs-text);
+  line-height:1.75;
+}
+.hrs-wrap *{box-sizing:border-box !important;}
+.hrs-wrap h2,.hrs-wrap h3,.hrs-wrap h4{
+  line-height:1.35 !important;background:none !important;background-color:transparent !important;
+  padding:0 !important;border:none !important;box-shadow:none !important;margin:0 !important;
+}
+.hrs-wrap a{text-decoration:none !important;}
+
+.hrs-inner{max-width:1100px;margin:0 auto;padding:0 24px;}
+
+.hrs-label{
+  font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:#b89000;font-weight:700;margin:0 0 8px !important;text-align:center;
+}
+.hrs-title{
+  font-size:clamp(1.6rem,3.4vw,2.2rem) !important;font-weight:800 !important;
+  text-align:center;letter-spacing:.03em;margin:0 0 14px !important;
+}
+.hrs-lead{
+  text-align:center;color:var(--hrs-sub);font-size:.98rem;
+  margin:0 auto 36px;max-width:720px;
+}
+
+/* ── 店舗カード ── */
+.hrs-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
+}
+@media(max-width:900px){.hrs-grid{grid-template-columns:1fr;}}
+
+.hrs-card{
+  background:#fff;border:1px solid var(--hrs-border);border-radius:16px;
+  overflow:hidden;box-shadow:var(--hrs-shadow);display:flex;flex-direction:column;
+}
+.hrs-card-head{
+  background:linear-gradient(135deg,var(--hrs-green) 0%,var(--hrs-green-light) 100%);
+  padding:20px 22px;
+}
+.hrs-badge{
+  display:inline-block;background:var(--hrs-gold);color:#111;
+  font-size:11px;font-weight:800;letter-spacing:.08em;
+  padding:5px 12px;border-radius:999px;margin-bottom:10px;
+}
+.hrs-name{font-size:1.15rem !important;font-weight:800 !important;color:#fff !important;}
+.hrs-sub{font-size:.85rem;color:rgba(255,255,255,.9);margin:6px 0 0 !important;}
+
+.hrs-card-body{padding:22px;flex:1;}
+
+.hrs-dl{margin:0 0 18px !important;padding:0;}
+.hrs-row{
+  display:grid;grid-template-columns:96px 1fr;gap:12px;
+  padding:11px 0;border-bottom:1px solid #eeeeec;align-items:start;
+}
+.hrs-row:last-child{border-bottom:none;}
+.hrs-dt{
+  font-size:12px;font-weight:800;color:var(--hrs-muted);
+  letter-spacing:.05em;margin:0;padding-top:2px;
+}
+.hrs-dd{margin:0;font-size:14.5px;color:var(--hrs-sub);line-height:1.8;}
+.hrs-dd a{color:var(--hrs-green) !important;font-weight:800;}
+.hrs-dd strong{color:var(--hrs-text);}
+.hrs-note{display:block;font-size:12px;color:var(--hrs-muted);margin-top:4px;}
+
+.hrs-btn{
+  display:inline-block !important;background:var(--hrs-gold) !important;color:#111 !important;
+  font-weight:800 !important;font-size:14px !important;line-height:1 !important;
+  padding:13px 24px !important;border-radius:12px !important;
+  border:1px solid rgba(0,0,0,.08) !important;transition:.2s ease;
+}
+.hrs-btn:hover{transform:translateY(-1px);opacity:.96;}
+
+.hrs-map{
+  position:relative;padding-bottom:62%;height:0;overflow:hidden;
+  border-top:1px solid var(--hrs-border);background:#eee;
+}
+.hrs-map iframe{
+  position:absolute;top:0;left:0;width:100%;height:100%;border:0;
+}
+
+/* ── 共通のご案内 ── */
+.hrs-info{
+  margin-top:28px;background:#fff8e1;border-left:4px solid var(--hrs-gold);
+  border-radius:0 10px 10px 0;padding:18px 22px;font-size:14px;
+  line-height:1.85;color:var(--hrs-sub);
+}
+.hrs-info strong{color:var(--hrs-text);}
+
+.hrs-cta{text-align:center;margin-top:32px;}
+
+@media(max-width:600px){
+  .hrs-inner{padding:0 16px;}
+  .hrs-card-body{padding:18px;}
+  .hrs-row{grid-template-columns:80px 1fr;gap:10px;}
+}
+</style>
+
+<div class="hrs-inner">
+
+  <p class="hrs-label">Shops &amp; Access</p>
+  <h2 class="hrs-title">店舗案内・アクセス</h2>
+  <p class="hrs-lead">
+    白馬レンタカーは、白馬・小谷エリアに<strong>2店舗</strong>を展開しています。<br>
+    ご旅行のプランやご宿泊先にあわせて、ご利用しやすい店舗をお選びください。
+  </p>
+
+  <div class="hrs-grid">
+
+    <!-- ══ 白馬乗鞍店 ══ -->
+    <article class="hrs-card">
+      <div class="hrs-card-head">
+        <span class="hrs-badge">白馬乗鞍・コルチナエリア</span>
+        <h3 class="hrs-name">白馬乗鞍店</h3>
+        <p class="hrs-sub">白馬コルチナロッジ内</p>
+      </div>
+
+      <div class="hrs-card-body">
+        <div class="hrs-dl">
+          <div class="hrs-row">
+            <p class="hrs-dt">📍 住所</p>
+            <p class="hrs-dd">
+              〒399-9422<br>
+              長野県北安曇郡小谷村千国乙12856-125
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">📞 電話</p>
+            <p class="hrs-dd"><a href="tel:05017930205">050-1793-0205</a></p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🕗 営業時間</p>
+            <p class="hrs-dd">
+              8:00〜18:00
+              <span class="hrs-note">不定休／シーズンにより変動する場合があります</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🚗 アクセス</p>
+            <p class="hrs-dd">
+              白馬乗鞍温泉スキー場・白馬コルチナスキー場からすぐ。<br>
+              <span class="hrs-note">白馬駅・八方バスターミナル・栂池高原などへの送迎も承ります（有料・要予約）。</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🌐 併設施設</p>
+            <p class="hrs-dd">
+              <a href="https://www.hakubacortina.com/hakuba-cortina-lodge" target="_blank" rel="noreferrer noopener">白馬コルチナロッジ</a>
+            </p>
+          </div>
+        </div>
+
+        <a class="hrs-btn" href="https://maps.app.goo.gl/WLru5Gi451d3LTW17" target="_blank" rel="noreferrer noopener">Googleマップで開く</a>
+      </div>
+
+      <div class="hrs-map">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d204752.0430013238!2d137.53819879453124!3d36.69251380000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x5ff633e271de3fc9%3A0x40c61c30583c3208!2zSGFrdWJhIFJlbnQgYSBDYXIgLyDnmb3ppqzjg6zjg7Pjgr_jgqvjg7w!5e0!3m2!1sja!2sjp!4v1767308185858!5m2!1sja!2sjp"
+          title="白馬レンタカー 白馬乗鞍店の地図"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </article>
+
+    <!-- ══ 白馬駅前店 ══ -->
+    <article class="hrs-card">
+      <div class="hrs-card-head">
+        <span class="hrs-badge">白馬駅・八方エリア</span>
+        <h3 class="hrs-name">白馬駅前店</h3>
+        <p class="hrs-sub">JR大糸線 白馬駅すぐ</p>
+      </div>
+
+      <div class="hrs-card-body">
+        <div class="hrs-dl">
+          <div class="hrs-row">
+            <p class="hrs-dt">📍 住所</p>
+            <p class="hrs-dd">
+              〒【要入力】<br>
+              長野県北安曇郡白馬村【要入力】
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">📞 電話</p>
+            <p class="hrs-dd"><a href="tel:05017930205">050-1793-0205</a></p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🕗 営業時間</p>
+            <p class="hrs-dd">
+              【要入力】8:00〜18:00
+              <span class="hrs-note">不定休／シーズンにより変動する場合があります</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🚗 アクセス</p>
+            <p class="hrs-dd">
+              JR大糸線 白馬駅から徒歩【要入力】分。<br>
+              <span class="hrs-note">特急バス・高速バスでお越しの方にも便利な立地です。</span>
+            </p>
+          </div>
+          <div class="hrs-row">
+            <p class="hrs-dt">🅿️ 駐車場</p>
+            <p class="hrs-dd">【要入力】</p>
+          </div>
+        </div>
+
+        <a class="hrs-btn" href="【要入力：GoogleマップのURL】" target="_blank" rel="noreferrer noopener">Googleマップで開く</a>
+      </div>
+
+      <div class="hrs-map">
+        <!-- 【要入力】Googleマップ「共有 → 地図を埋め込む」で取得したiframeのsrcに差し替えてください -->
+        <iframe
+          src="【要入力：Googleマップ埋め込みURL】"
+          title="白馬レンタカー 白馬駅前店の地図"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="hrs-info">
+    <strong>【ご利用にあたって】</strong><br>
+    ・すべての車両は<strong>事前予約制</strong>です。ご来店前に必ずご予約をお済ませください。<br>
+    ・<strong>店舗間の乗り捨て</strong>をご希望の場合は、ご予約時にお知らせください。<br>
+    ・ご宿泊先や駅などへの<strong>送迎サービス</strong>も承っています（白馬・小谷エリア 片道3,000円／往復6,000円・税込）。
+  </div>
+
+  <div class="hrs-cta">
+    <a class="hrs-btn" href="https://hakubarentacar.com/reservations/">予約リクエストを送る</a>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ SEO：2店舗の構造化データ ══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "白馬レンタカー 店舗一覧",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "AutoRental",
+        "name": "白馬レンタカー 白馬乗鞍店",
+        "url": "https://hakubarentacar.com/access/",
+        "telephone": "+81-50-1793-0205",
+        "email": "info@hakubarentacar.com",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "399-9422",
+          "streetAddress": "千国乙12856-125",
+          "addressLocality": "北安曇郡小谷村",
+          "addressRegion": "長野県",
+          "addressCountry": "JP"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 36.6983,
+          "longitude": 137.8619
+        },
+        "openingHours": "Mo-Su 08:00-18:00",
+        "areaServed": ["白馬村", "小谷村", "白馬乗鞍", "コルチナ", "栂池高原"]
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "AutoRental",
+        "name": "白馬レンタカー 白馬駅前店",
+        "url": "https://hakubarentacar.com/access/",
+        "telephone": "+81-50-1793-0205",
+        "email": "info@hakubarentacar.com",
+        "address": {
+          "@type": "PostalAddress",
+          "postalCode": "【要入力】",
+          "streetAddress": "【要入力】",
+          "addressLocality": "北安曇郡白馬村",
+          "addressRegion": "長野県",
+          "addressCountry": "JP"
+        },
+        "openingHours": "Mo-Su 08:00-18:00",
+        "areaServed": ["白馬村", "白馬駅", "八方尾根", "岩岳", "白馬五竜"]
+      }
+    }
+  ]
+}
+</script>
