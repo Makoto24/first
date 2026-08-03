@@ -1,0 +1,977 @@
+<!-- ══════════════════════════════════════════════════════════════
+  Hakuba Rent a Car | Vehicles & Rates (English)
+  https://hakubarentacar.com/en/cars-deals/
+  Paste the whole file into a WordPress "Custom HTML" block.
+  ══════════════════════════════════════════════════════════════ -->
+<div class="hrc">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   白馬レンタカー 共通デザインシステム v1.0
+   すべてのセレクタは .hrc 配下にスコープ済み。
+   WordPress テーマの既存スタイルとは干渉しません。
+   ══════════════════════════════════════════════════════════════ */
+
+.hrc{
+  /* ── ブランドカラー ── */
+  --hrc-green:#1a7a3c;
+  --hrc-green-dark:#14612f;
+  --hrc-green-light:#2ea55a;
+  --hrc-green-pale:#f0faf4;
+  --hrc-gold:#fecc01;
+  --hrc-gold-dark:#b89000;
+  --hrc-gold-pale:#fff8e1;
+  --hrc-ink:#111111;
+  --hrc-ink-soft:#2a2a2a;
+  --hrc-body:#3f3f46;
+  --hrc-muted:#767678;
+  --hrc-line:#e8e8e6;
+  --hrc-bg:#f6f7f9;
+  --hrc-white:#ffffff;
+  --hrc-danger:#c0392b;
+
+  /* ── 造形 ── */
+  --hrc-r-sm:8px;
+  --hrc-r:12px;
+  --hrc-r-lg:16px;
+  --hrc-shadow-sm:0 8px 18px rgba(0,0,0,.04);
+  --hrc-shadow:0 10px 24px rgba(0,0,0,.08);
+  --hrc-shadow-lg:0 14px 32px rgba(0,0,0,.10);
+  --hrc-max:1120px;
+  --hrc-max-narrow:860px;
+
+  color:var(--hrc-ink);
+  font-size:16px;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+
+.hrc *{box-sizing:border-box !important;}
+
+.hrc h1,.hrc h2,.hrc h3,.hrc h4,.hrc h5{
+  background:none !important;background-color:transparent !important;
+  border:none !important;box-shadow:none !important;padding:0 !important;
+  margin:0 !important;line-height:1.35 !important;color:var(--hrc-ink);
+  font-weight:800;letter-spacing:.02em;
+}
+.hrc p{margin:0 0 1em;}
+.hrc p:last-child{margin-bottom:0;}
+.hrc a{text-decoration:none;color:var(--hrc-green);}
+.hrc a:hover{text-decoration:underline;}
+.hrc img{display:block;max-width:100%;height:auto;}
+.hrc table{border-collapse:collapse;width:100%;}
+.hrc ul,.hrc ol{margin:0 0 1em;padding-left:1.4em;}
+.hrc li{margin-bottom:.4em;}
+.hrc li:last-child{margin-bottom:0;}
+
+/* ── レイアウト ───────────────────────────── */
+.hrc-full{position:relative;width:100vw;left:50%;margin-left:-50vw;}
+.hrc-container{max-width:var(--hrc-max);margin:0 auto;padding:0 24px;}
+.hrc-container--narrow{max-width:var(--hrc-max-narrow);}
+.hrc-section{padding:64px 0;}
+.hrc-section--tight{padding:44px 0;}
+.hrc-section--bg{background:var(--hrc-bg);}
+.hrc-section--white{background:var(--hrc-white);}
+.hrc-rule{border:none;border-top:1px solid var(--hrc-line);margin:0;}
+.hrc-sp{height:32px;}
+
+/* ── 見出し ───────────────────────────────── */
+.hrc-eyebrow{
+  font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--hrc-gold-dark);font-weight:700;margin:0 0 10px !important;
+}
+.hrc-h1{
+  font-size:clamp(1.75rem,4.2vw,2.75rem) !important;
+  margin:0 0 16px !important;letter-spacing:.01em;
+}
+.hrc-h2{
+  font-size:clamp(1.45rem,3.4vw,2.1rem) !important;
+  margin:0 0 24px !important;padding-bottom:12px !important;
+  border-bottom:3px solid var(--hrc-gold) !important;display:inline-block;
+}
+.hrc-h3{font-size:clamp(1.15rem,2.4vw,1.4rem) !important;margin:0 0 14px !important;}
+.hrc-h4{font-size:1.02rem !important;margin:0 0 10px !important;}
+.hrc-lead{
+  color:var(--hrc-body);font-size:1.02rem;line-height:1.9;
+  margin:0 0 28px;max-width:760px;
+}
+.hrc-center{text-align:center;}
+.hrc-center .hrc-lead{margin-left:auto;margin-right:auto;}
+
+/* ── ボタン ───────────────────────────────── */
+.hrc-btn{
+  display:inline-block;font-weight:800;font-size:.95rem;line-height:1;
+  padding:15px 28px;border-radius:var(--hrc-r);text-align:center;
+  transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
+  border:1px solid transparent;cursor:pointer;text-decoration:none !important;
+}
+.hrc-btn:hover{transform:translateY(-2px);box-shadow:var(--hrc-shadow);}
+.hrc-btn--gold{background:var(--hrc-gold);color:#111 !important;border-color:rgba(0,0,0,.08);}
+.hrc-btn--green{background:var(--hrc-green);color:#fff !important;}
+.hrc-btn--dark{background:var(--hrc-ink);color:#fff !important;}
+.hrc-btn--ghost{background:rgba(255,255,255,.92);color:var(--hrc-ink) !important;border-color:rgba(0,0,0,.22);}
+.hrc-btn--sm{padding:10px 18px;font-size:.84rem;border-radius:999px;}
+.hrc-btn--block{display:block;width:100%;}
+.hrc-btnrow{display:flex;flex-wrap:wrap;gap:12px;}
+.hrc-btnrow--center{justify-content:center;}
+
+/* ── パンくず ─────────────────────────────── */
+.hrc-crumb{
+  font-size:12.5px;color:var(--hrc-muted);padding:14px 0;
+  border-bottom:1px solid var(--hrc-line);
+}
+.hrc-crumb ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;}
+.hrc-crumb li{margin:0;}
+.hrc-crumb li+li::before{content:"›";margin-right:8px;color:#bbb;}
+.hrc-crumb a{color:var(--hrc-muted);}
+
+/* ── バッジ ───────────────────────────────── */
+.hrc-badgebar{
+  background:var(--hrc-gold);display:flex;flex-wrap:wrap;
+  justify-content:center;gap:10px 24px;padding:13px 20px;
+}
+.hrc-badgebar span{
+  font-size:12px;font-weight:800;color:var(--hrc-ink);
+  letter-spacing:.06em;display:inline-flex;align-items:center;gap:6px;
+}
+.hrc-pill{
+  display:inline-block;background:var(--hrc-green);color:#fff;
+  font-size:11px;font-weight:800;letter-spacing:.06em;
+  padding:5px 12px;border-radius:999px;
+}
+.hrc-pill--gold{background:var(--hrc-gold);color:#111;}
+.hrc-pill--dark{background:var(--hrc-ink);color:#fff;}
+
+/* ── 要点まとめ（AIO用サマリー） ───────────── */
+.hrc-keyfacts{
+  background:var(--hrc-white);border:2px solid var(--hrc-green);
+  border-radius:var(--hrc-r-lg);padding:26px 28px;
+  box-shadow:0 12px 28px rgba(26,122,60,.10);margin:0 0 40px;
+}
+.hrc-keyfacts-title{
+  font-size:.95rem !important;font-weight:800 !important;color:var(--hrc-green) !important;
+  margin:0 0 14px !important;letter-spacing:.08em;display:flex;align-items:center;gap:8px;
+}
+.hrc-keyfacts ul{list-style:none;margin:0;padding:0;}
+.hrc-keyfacts li{
+  position:relative;padding-left:26px;margin-bottom:9px;
+  font-size:14.5px;line-height:1.85;color:var(--hrc-body);
+}
+.hrc-keyfacts li::before{
+  content:"✓";position:absolute;left:0;top:0;
+  color:var(--hrc-green);font-weight:900;font-size:14px;
+}
+.hrc-keyfacts li strong{color:var(--hrc-ink);}
+
+/* ── カード ───────────────────────────────── */
+.hrc-grid{display:grid;gap:22px;}
+.hrc-grid--2{grid-template-columns:repeat(2,1fr);}
+.hrc-grid--3{grid-template-columns:repeat(3,1fr);}
+.hrc-grid--4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:960px){
+  .hrc-grid--3,.hrc-grid--4{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:720px){
+  .hrc-grid--2,.hrc-grid--3,.hrc-grid--4{grid-template-columns:1fr;}
+}
+
+.hrc-card{
+  background:var(--hrc-white);border:1px solid rgba(0,0,0,.10);
+  border-radius:var(--hrc-r-lg);overflow:hidden;box-shadow:var(--hrc-shadow);
+  display:flex;flex-direction:column;
+}
+.hrc-card__img{width:100%;height:184px;object-fit:cover;}
+.hrc-card__body{padding:20px;display:flex;flex-direction:column;flex:1;}
+.hrc-card__title{font-size:1.05rem !important;margin:0 0 10px !important;}
+.hrc-card__text{color:var(--hrc-body);font-size:.94rem;line-height:1.85;flex:1;margin:0 0 16px;}
+.hrc-card--accent{border:2px solid var(--hrc-green);box-shadow:0 12px 28px rgba(26,122,60,.14);position:relative;}
+.hrc-card__tag{
+  position:absolute;top:12px;left:12px;z-index:1;background:var(--hrc-green);
+  color:#fff;font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;letter-spacing:.05em;
+}
+
+/* ── 店舗カード ───────────────────────────── */
+.hrc-shop{
+  background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:var(--hrc-r-lg);
+  overflow:hidden;box-shadow:var(--hrc-shadow);display:flex;flex-direction:column;
+}
+.hrc-shop__head{
+  background:linear-gradient(135deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  padding:22px 24px;
+}
+.hrc-shop__name{font-size:1.2rem !important;color:#fff !important;margin:10px 0 0 !important;}
+.hrc-shop__sub{font-size:.85rem;color:rgba(255,255,255,.92);margin:6px 0 0 !important;}
+.hrc-shop__body{padding:24px;flex:1;}
+.hrc-shop__map{position:relative;padding-bottom:62%;height:0;overflow:hidden;border-top:1px solid var(--hrc-line);background:#eee;}
+.hrc-shop__map iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+
+.hrc-dl{margin:0 0 20px;}
+.hrc-dl__row{
+  display:grid;grid-template-columns:104px 1fr;gap:12px;
+  padding:12px 0;border-bottom:1px solid #eeeeec;align-items:start;
+}
+.hrc-dl__row:last-child{border-bottom:none;}
+.hrc-dl dt{font-size:12px;font-weight:800;color:var(--hrc-muted);letter-spacing:.05em;margin:0;padding-top:3px;}
+.hrc-dl dd{margin:0;font-size:14.5px;color:var(--hrc-body);line-height:1.8;}
+.hrc-dl dd strong{color:var(--hrc-ink);}
+.hrc-hint{display:block;font-size:12px;color:var(--hrc-muted);margin-top:5px;line-height:1.7;}
+@media(max-width:600px){.hrc-dl__row{grid-template-columns:84px 1fr;gap:10px;}}
+
+/* ── テーブル ─────────────────────────────── */
+.hrc-tablewrap{
+  overflow-x:auto;border:1px solid var(--hrc-line);
+  border-radius:var(--hrc-r);box-shadow:var(--hrc-shadow-sm);background:#fff;
+}
+.hrc-table{font-size:14px;min-width:520px;}
+.hrc-table caption{
+  caption-side:top;text-align:left;font-size:12px;font-weight:800;
+  color:var(--hrc-muted);letter-spacing:.1em;text-transform:uppercase;padding:0 0 8px;
+}
+.hrc-table thead th{
+  background:var(--hrc-ink);color:#fff;font-weight:700;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;padding:14px 18px;
+  text-align:left;vertical-align:bottom;
+}
+.hrc-table thead th.num{text-align:right;}
+.hrc-table thead th.hl{background:var(--hrc-green);color:var(--hrc-gold);text-align:right;}
+.hrc-table thead .sub{display:block;margin-top:5px;font-size:10px;font-weight:400;letter-spacing:.08em;opacity:.8;}
+.hrc-table thead th.hl .sub{color:rgba(255,255,255,.82);}
+.hrc-table tbody th{
+  text-align:left;font-weight:700;padding:14px 18px;
+  border-bottom:1px solid var(--hrc-line);color:var(--hrc-ink-soft);
+  background:#fff;font-size:14px;
+}
+.hrc-table tbody td{
+  padding:14px 18px;border-bottom:1px solid var(--hrc-line);
+  vertical-align:middle;color:var(--hrc-body);
+}
+.hrc-table tbody tr:last-child th,
+.hrc-table tbody tr:last-child td{border-bottom:none;}
+.hrc-table tbody tr:nth-child(even) th,
+.hrc-table tbody tr:nth-child(even) td{background:#fbfbfa;}
+.hrc-table td.num{text-align:right;font-weight:700;color:var(--hrc-ink);white-space:nowrap;}
+.hrc-table td.hl{text-align:right;background:var(--hrc-green-pale) !important;white-space:nowrap;}
+.hrc-table .price{font-size:15px;font-weight:800;color:var(--hrc-ink);}
+.hrc-table .price-green{font-size:16px;font-weight:800;color:var(--hrc-green);}
+.hrc-table .strike{text-decoration:line-through;color:#ababab;font-size:12.5px;font-weight:400;margin-right:5px;}
+.hrc-table .off{
+  display:inline-block;background:var(--hrc-green);color:#fff;font-size:10px;
+  font-weight:700;letter-spacing:.08em;padding:3px 7px;border-radius:4px;margin-right:6px;
+}
+.hrc-table .dnote{font-size:11px;color:#8e8e91;font-weight:400;margin-right:6px;}
+.hrc-table .foot td{
+  text-align:center;font-size:13px;color:var(--hrc-muted);
+  font-style:italic;background:#fff !important;
+}
+.hrc-table .neg{color:var(--hrc-danger);font-weight:800;}
+.hrc-table .pos{color:var(--hrc-green);font-weight:800;}
+@media(max-width:600px){
+  .hrc-table thead th,.hrc-table tbody th,.hrc-table tbody td{padding:11px 12px;}
+}
+
+/* ── 注意ボックス ─────────────────────────── */
+.hrc-note{
+  border-radius:0 var(--hrc-r-sm) var(--hrc-r-sm) 0;padding:18px 22px;
+  font-size:14px;line-height:1.85;color:var(--hrc-body);
+}
+.hrc-note strong{color:var(--hrc-ink);}
+.hrc-note--info{background:var(--hrc-white);border-left:4px solid var(--hrc-gold);box-shadow:var(--hrc-shadow-sm);}
+.hrc-note--warn{background:var(--hrc-gold-pale);border-left:4px solid var(--hrc-gold);}
+.hrc-note--danger{background:#fff5f5;border:2px solid var(--hrc-danger);border-radius:var(--hrc-r-sm);}
+.hrc-note--danger strong{color:var(--hrc-danger);}
+
+.hrc-alert{
+  background:#fff3cd;border:2px solid #f2b600;border-radius:14px;
+  padding:24px 26px;box-shadow:var(--hrc-shadow);
+  max-width:780px;margin:0 auto;text-align:center;
+}
+.hrc-alert__title{font-size:1rem !important;color:#8a6200 !important;margin:0 0 10px !important;}
+.hrc-alert p{font-size:.94rem;color:var(--hrc-body);margin:0;}
+
+/* ── キャンペーン帯 ───────────────────────── */
+.hrc-topbar{
+  background:linear-gradient(90deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  padding:12px 24px;display:flex;align-items:center;justify-content:center;
+  gap:14px;flex-wrap:wrap;
+}
+.hrc-topbar p{color:#fff;font-size:.94rem;font-weight:700;margin:0;text-align:center;}
+.hrc-topbar strong{color:var(--hrc-gold);}
+.hrc-topbar small{opacity:.88;font-size:.8rem;font-weight:500;}
+
+.hrc-campaign{
+  background:linear-gradient(135deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  border-radius:var(--hrc-r-lg);border-left:5px solid var(--hrc-gold);
+  padding:26px 30px;box-shadow:0 12px 28px rgba(26,122,60,.18);color:#fff;
+}
+.hrc-campaign h2,.hrc-campaign h3{color:#fff !important;}
+.hrc-campaign p{color:#fff;}
+.hrc-campaign strong{color:var(--hrc-gold);}
+.hrc-campaign__excl{
+  font-size:12.5px;background:rgba(0,0,0,.22);padding:11px 15px;
+  border-radius:var(--hrc-r-sm);line-height:1.7;margin:0;
+}
+.hrc-campaign__excl strong{color:var(--hrc-gold);}
+
+/* ── ステップ ─────────────────────────────── */
+.hrc-step{
+  background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:var(--hrc-r-lg);
+  padding:24px;box-shadow:var(--hrc-shadow-sm);position:relative;
+}
+.hrc-step__num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;background:var(--hrc-green);
+  color:#fff;font-weight:800;font-size:15px;margin-bottom:12px;
+}
+.hrc-step__title{font-size:1rem !important;margin:0 0 10px !important;}
+.hrc-step p,.hrc-step li{font-size:14px;color:var(--hrc-body);line-height:1.85;}
+
+/* ── 保険プラン ───────────────────────────── */
+.hrc-plan{
+  background:var(--hrc-bg);border:1px solid rgba(0,0,0,.08);
+  border-radius:var(--hrc-r);padding:28px 22px 30px;position:relative;
+}
+.hrc-plan--best{background:var(--hrc-ink);border:2px solid var(--hrc-gold);padding-top:46px;}
+.hrc-plan__ribbon{
+  position:absolute;top:0;left:0;right:0;background:var(--hrc-gold);
+  text-align:center;font-size:10px;font-weight:800;letter-spacing:.16em;
+  color:var(--hrc-ink);padding:7px 0;border-radius:10px 10px 0 0;
+}
+.hrc-plan__label{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--hrc-muted);margin:0 0 6px;}
+.hrc-plan__name{font-size:13px !important;margin:0 0 16px !important;}
+.hrc-plan__price{font-size:2rem;font-weight:800;line-height:1;margin:0 0 4px;color:var(--hrc-ink);}
+.hrc-plan__price span{font-size:12px;color:var(--hrc-muted);font-weight:400;}
+.hrc-plan hr{border:none;border-top:1px solid #e0e0de;margin:16px 0;}
+.hrc-plan__row{display:flex;justify-content:space-between;margin-bottom:9px;font-size:12px;}
+.hrc-plan__row span:first-child{color:var(--hrc-muted);}
+.hrc-plan__foot{font-size:11.5px;color:var(--hrc-muted);line-height:1.65;margin:8px 0 0;}
+.hrc-plan--best .hrc-plan__label{color:rgba(255,255,255,.45);}
+.hrc-plan--best .hrc-plan__name{color:#fff !important;}
+.hrc-plan--best .hrc-plan__price{color:var(--hrc-gold);}
+.hrc-plan--best .hrc-plan__price span{color:rgba(255,255,255,.45);}
+.hrc-plan--best hr{border-top-color:rgba(255,255,255,.12);}
+.hrc-plan--best .hrc-plan__row span:first-child{color:rgba(255,255,255,.55);}
+.hrc-plan--best .hrc-plan__foot{color:rgba(255,255,255,.55);}
+.hrc-plan--best .hrc-plan__foot strong{color:var(--hrc-gold);}
+.hrc-yes{color:var(--hrc-green);font-weight:800;}
+.hrc-plan--best .hrc-yes{color:#4ec77a;}
+.hrc-no{color:var(--hrc-danger);font-weight:800;}
+
+/* ── FAQ（details＝JS不要・SEO/AIO耐性あり） ── */
+.hrc-faq{max-width:var(--hrc-max-narrow);margin:0 auto;}
+.hrc-faq details{
+  background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:14px;
+  margin-bottom:12px;box-shadow:var(--hrc-shadow-sm);overflow:hidden;
+}
+.hrc-faq summary{
+  cursor:pointer;list-style:none;padding:20px 54px 20px 22px;
+  font-size:1rem;font-weight:800;color:var(--hrc-ink);position:relative;line-height:1.7;
+}
+.hrc-faq summary::-webkit-details-marker{display:none;}
+.hrc-faq summary::after{
+  content:"+";position:absolute;right:22px;top:50%;transform:translateY(-50%);
+  font-size:22px;font-weight:700;color:var(--hrc-green);line-height:1;
+}
+.hrc-faq details[open] summary::after{content:"−";}
+.hrc-faq details[open] summary{border-bottom:1px solid var(--hrc-line);}
+.hrc-faq .hrc-faq__a{padding:18px 22px 22px;color:var(--hrc-body);font-size:.96rem;line-height:1.95;}
+.hrc-faq .hrc-faq__a p:last-child{margin-bottom:0;}
+
+/* ── CTA ──────────────────────────────────── */
+.hrc-cta{
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;
+}
+.hrc-cta__title{font-size:1.3rem !important;margin:0 0 8px !important;}
+.hrc-cta__text{color:var(--hrc-body);margin:0;}
+
+.hrc-ctaband{
+  background:var(--hrc-ink);border-radius:var(--hrc-r-lg);
+  border-left:5px solid var(--hrc-gold);padding:26px 30px;box-shadow:var(--hrc-shadow);
+}
+.hrc-ctaband h3{color:#fff !important;margin:0 0 8px !important;font-size:1.05rem !important;}
+.hrc-ctaband p{color:rgba(255,255,255,.88);font-size:13.5px;margin:0 0 18px;}
+.hrc-ctaband strong{color:var(--hrc-gold);}
+
+/* ── 更新日 ───────────────────────────────── */
+.hrc-updated{
+  font-size:12px;color:var(--hrc-muted);margin:0 0 24px;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ── 相互リンク ───────────────────────────── */
+.hrc-links{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+}
+@media(max-width:820px){.hrc-links{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.hrc-links{grid-template-columns:1fr;}}
+.hrc-links a{
+  display:block;background:#fff;border:1px solid rgba(0,0,0,.10);
+  border-radius:var(--hrc-r);padding:16px 18px;
+  font-size:14px;font-weight:800;color:var(--hrc-ink) !important;
+  box-shadow:var(--hrc-shadow-sm);transition:transform .18s ease,box-shadow .18s ease;
+  text-decoration:none !important;
+}
+.hrc-links a:hover{transform:translateY(-2px);box-shadow:var(--hrc-shadow);}
+.hrc-links a span{display:block;font-size:12px;font-weight:400;color:var(--hrc-muted);margin-top:5px;}
+
+/* ── ヒーロー ─────────────────────────────── */
+.hrc-hero{position:relative;width:100%;min-height:540px;overflow:hidden;display:flex;align-items:center;}
+.hrc-hero__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transform:scale(1.02);}
+.hrc-hero__veil{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,rgba(255,255,255,.90) 0%,rgba(255,255,255,.66) 55%,rgba(255,255,255,.24) 100%);
+}
+.hrc-hero__inner{position:relative;z-index:2;width:100%;max-width:var(--hrc-max);margin:0 auto;padding:44px 24px;}
+.hrc-hero__logo{width:100%;max-width:380px;filter:drop-shadow(0 8px 20px rgba(255,255,255,.4));margin-bottom:18px;}
+.hrc-hero__sub{font-size:clamp(1rem,1.6vw,1.2rem);font-weight:700;line-height:1.75;margin:0 0 18px;}
+.hrc-hero__list{margin:0 0 24px 1.2em;padding:0;font-size:.98rem;line-height:1.9;}
+.hrc-hero__card{
+  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.08);
+  border-radius:var(--hrc-r-lg);padding:20px;box-shadow:var(--hrc-shadow-lg);max-width:560px;
+}
+@media(max-width:600px){
+  .hrc-hero{min-height:auto;}
+  .hrc-hero__veil{background:rgba(255,255,255,.90);}
+  .hrc-hero__inner{padding:32px 20px;}
+}
+
+/* ── 印刷／アクセシビリティ ───────────────── */
+.hrc-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+@media(prefers-reduced-motion:reduce){
+  .hrc *{transition:none !important;animation:none !important;}
+  .hrc-btn:hover,.hrc-links a:hover{transform:none;}
+}
+@media(max-width:600px){
+  .hrc-section{padding:44px 0;}
+  .hrc-container{padding:0 18px;}
+  .hrc-keyfacts{padding:20px;}
+  .hrc-campaign,.hrc-ctaband{padding:20px 18px;}
+  .hrc-btn{padding:14px 20px;}
+}
+
+</style>
+
+<!-- ═══ Badge bar ═══ -->
+<div class="hrc-full">
+  <div class="hrc-badgebar">
+    <span>🚗 All vehicles 4WD</span>
+    <span>❄️ Winter tires included</span>
+    <span>🛡️ Insurance included</span>
+    <span>🚐 Shuttle &amp; one-way rental</span>
+    <span>🏬 Two branches</span>
+  </div>
+</div>
+
+<!-- ═══ Breadcrumb ═══ -->
+<div class="hrc-container">
+  <nav class="hrc-crumb" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="https://hakubarentacar.com/en/">Home</a></li>
+      <li>Vehicles &amp; Rates</li>
+    </ol>
+  </nav>
+</div>
+
+<!-- ═══ Intro ═══ -->
+<div class="hrc-container hrc-section hrc-section--tight">
+  <p class="hrc-eyebrow">Vehicles &amp; Rates</p>
+  <h1 class="hrc-h1">Vehicles &amp; Rates — Hakuba Rent a Car</h1>
+  <p class="hrc-lead">
+    Hakuba Rent a Car offers three vehicle classes: kei car, compact car and minivan.
+    Every vehicle is 4WD, with winter tires fitted as standard from December to March.
+    All prices below <strong>include tax and basic third-party insurance</strong>.
+  </p>
+  <p class="hrc-updated">🕒 Last updated: August 2026</p>
+
+  <div class="hrc-keyfacts">
+    <h2 class="hrc-keyfacts-title">📌 Key facts about our rates</h2>
+    <ul>
+      <li>24-hour rates (tax included): <strong>kei car ¥11,000, compact car ¥13,000, minivan ¥24,000</strong>.</li>
+      <li>During the <strong>green season (April–November) all classes are 40% off</strong>: ¥6,600, ¥7,800 and ¥14,400 respectively.</li>
+      <li>In winter (December–March), <strong>3+ days is 10% off and 7+ days is 20% off</strong>.</li>
+      <li>Monthly rates are <strong>¥120,000, ¥150,000 and ¥220,000</strong>. Longer rentals are quoted individually.</li>
+      <li>Child seats and ski racks are <strong>¥1,100 each per 24 hours</strong>, tax included.</li>
+      <li>Vehicle damage coverage is <strong>¥3,300 per day</strong>; damage coverage plus NOC waiver is <strong>¥5,500 per day</strong>.</li>
+      <li>Shuttle service costs <strong>¥3,000 one way</strong> in the Hakuba / Otari area and <strong>¥6,000</strong> for the Omachi area.</li>
+      <li>Vehicles are supplied with a <strong>full tank and must be returned full</strong>. <strong>Advance reservation is required.</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══ Campaign ═══ -->
+<div class="hrc-container hrc-container--narrow" style="margin-bottom:16px;">
+  <div class="hrc-campaign">
+    <h2 class="hrc-h3" style="border:none !important;padding:0 !important;">🌿 Green Season Campaign — All classes 40% OFF</h2>
+    <p>During the green season <strong>(April – November)</strong>, all vehicle classes receive a <strong>40% discount</strong> off the standard 24-hour rate.</p>
+    <p class="hrc-campaign__excl">⚠️ <strong>Exclusion periods:</strong> Golden Week (late April – early May), Obon and summer holidays (mid-August), and other peak periods are excluded. Please confirm at the time of booking.</p>
+  </div>
+</div>
+
+<div class="hrc-container hrc-container--narrow">
+  <div class="hrc-ctaband">
+    <h3>📅 Now accepting reservations for next season</h3>
+    <p>Planning ahead? We accept bookings for the upcoming winter and green seasons, and <strong>early-bird discounts</strong> are available — get in touch for details.</p>
+    <div class="hrc-btnrow"><a href="https://hakubarentacar.com/en/reservations-2/" class="hrc-btn hrc-btn--gold">Reserve now</a></div>
+  </div>
+</div>
+
+<!-- ═══ Kei car ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Compact Class</p>
+  <h2 class="hrc-h2">Kei car</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/lapin.webp"
+      alt="Kei car rental in Hakuba — a compact 4WD with winter tires, easy to drive on narrow mountain roads in Nagano">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">Seats 4</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    Kei cars are Japanese compact vehicles with an engine displacement of 660cc or less. Popular models include the N-BOX, Spacia and Tanto.
+    They are easy to drive on narrow mountain roads and comfortable for two adults and two children.
+    Luggage space fits roughly two wheeled suitcases. All are 4WD, with winter tires fitted from December to March.
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>Kei car rental rates (tax included)</caption>
+      <thead>
+        <tr>
+          <th scope="col">Duration</th>
+          <th scope="col" class="num">Standard rate<span class="sub">Dec – Mar</span></th>
+          <th scope="col" class="hl">🌿 Green season<span class="sub">Apr – Nov</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Up to 24 hours</th>
+          <td class="num"><span class="price">¥11,000</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">3+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">10% OFF</span><span class="price">¥9,900</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">7+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">20% OFF</span><span class="price">¥8,800</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">1 month</th>
+          <td class="num"><span class="price">¥120,000</span></td>
+          <td class="hl"><span class="dnote">Please contact us</span></td></tr>
+        <tr class="foot"><td colspan="3">Rentals of 1 month or longer are available — contact us for a custom quote.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="hrc-rule">
+
+<!-- ═══ Compact car ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Mid Class</p>
+  <h2 class="hrc-h2">Compact car</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/colt.webp"
+      alt="Compact car rental in Hakuba — a fuel-efficient five-seat 4WD with winter tires, good for sightseeing in Nagano">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">Seats 5</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    Compact cars with an engine displacement up to 1350cc. Fuel-efficient and easy to manoeuvre, they suit sightseeing,
+    business trips and everyday errands around Hakuba and Nagano. All are 4WD, with winter tires fitted from December to March.
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>Compact car rental rates (tax included)</caption>
+      <thead>
+        <tr>
+          <th scope="col">Duration</th>
+          <th scope="col" class="num">Standard rate<span class="sub">Dec – Mar</span></th>
+          <th scope="col" class="hl">🌿 Green season<span class="sub">Apr – Nov</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Up to 24 hours</th>
+          <td class="num"><span class="price">¥13,000</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">3+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">10% OFF</span><span class="price">¥11,700</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">7+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">20% OFF</span><span class="price">¥10,400</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">1 month</th>
+          <td class="num"><span class="price">¥150,000</span></td>
+          <td class="hl"><span class="dnote">Please contact us</span></td></tr>
+        <tr class="foot"><td colspan="3">Rentals of 1 month or longer are available — contact us for a custom quote.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="hrc-rule">
+
+<!-- ═══ Minivan ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Group Class</p>
+  <h2 class="hrc-h2">Minivan / one-box</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/estima.webp"
+      alt="Minivan rental in Hakuba — a seven to eight seat 4WD suited to family trips and group ski holidays in Nagano">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">Seats 7–8</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    Seven to eight seat minivans, including popular models such as the Voxy, Noah and Serena (subject to availability).
+    They suit family travel, group ski trips, golf outings, camping and BBQ trips.
+    All are 4WD, with winter tires fitted from December to March.
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>Minivan rental rates (tax included)</caption>
+      <thead>
+        <tr>
+          <th scope="col">Duration</th>
+          <th scope="col" class="num">Standard rate<span class="sub">Dec – Mar</span></th>
+          <th scope="col" class="hl">🌿 Green season<span class="sub">Apr – Nov</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Up to 24 hours</th>
+          <td class="num"><span class="price">¥24,000</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">3+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">10% OFF</span><span class="price">¥21,600</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">7+ days <span style="font-size:12px;color:#999;font-weight:400;">/ per day</span></th>
+          <td class="num"><span class="dnote">20% OFF</span><span class="price">¥19,200</span></td>
+          <td class="hl"><span class="off">40% OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">1 month</th>
+          <td class="num"><span class="price">¥220,000</span></td>
+          <td class="hl"><span class="dnote">Please contact us</span></td></tr>
+        <tr class="foot"><td colspan="3">Rentals of 1 month or longer are available — contact us for a custom quote.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ Options & shuttle ═══ -->
+<div class="hrc-full hrc-section hrc-section--bg">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">Additional fees</h2>
+    <div class="hrc-tablewrap" style="margin-bottom:40px;">
+      <table class="hrc-table">
+        <caption>Optional extras (tax included)</caption>
+        <thead><tr><th scope="col">Option</th><th scope="col" class="num">Fee</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">Child seat
+              <span class="hrc-hint">Required by law for children under 6. Seats for children under 1 year 3 months or under 76 cm are not available — please bring your own. The customer is responsible for confirming correct installation.</span></th>
+            <td class="num">¥1,100 / unit (24 hrs)</td>
+          </tr>
+          <tr>
+            <th scope="row">Ski rack
+              <span class="hrc-hint">Fits up to 4 snowboards or 6 pairs of skis.</span></th>
+            <td class="num">¥1,100 / unit (24 hrs)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="hrc-h3">Shuttle service &amp; one-way rental</h2>
+    <div class="hrc-note hrc-note--info" style="margin-bottom:20px;">
+      We offer pick-up and drop-off within the Hakuba and Otari area, including Hakuba Station, Happo Bus Terminal and Tsugaike Kogen.
+      You can also <strong>pick up at one branch and return to the other</strong>.<br>
+      <strong>Just let us know when you make your reservation</strong> and we will arrange it.
+      <span class="hrc-hint">* Service may be unavailable depending on road conditions or bookings on the day.</span>
+    </div>
+
+    <div class="hrc-tablewrap">
+      <table class="hrc-table">
+        <caption>Shuttle fees (one way, tax included)</caption>
+        <thead><tr><th scope="col">Area</th><th scope="col">Example pick-up points</th><th scope="col" class="num">Fee</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">Hakuba / Otari<span class="hrc-hint">Within Hakuba and Otari villages</span></th>
+            <td style="font-size:13px;">Hakuba Station, Happo Bus Terminal, Tsugaike Kogen, Hakuba Norikura, Cortina, Hakuba Goryu</td>
+            <td class="num"><span class="price-green">¥3,000</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Omachi<span class="hrc-hint">Within Omachi City</span></th>
+            <td style="font-size:13px;">Shinano-Omachi Station, Omachi Onsenkyo</td>
+            <td class="num"><span class="price-green">¥6,000</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Other areas<span class="hrc-hint">Nagano, Matsumoto and beyond</span></th>
+            <td style="font-size:13px;">—</td>
+            <td class="num" style="font-style:italic;color:var(--hrc-muted);font-weight:600;">On request</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hrc-hint" style="margin-top:10px;">* A return trip is twice the one-way fee (¥6,000 for the Hakuba / Otari area).</p>
+  </div>
+</div>
+
+<!-- ═══ Insurance ═══ -->
+<div class="hrc-full hrc-section hrc-section--white">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">Insurance &amp; coverage</h2>
+    <p style="font-size:13.5px;color:var(--hrc-muted);margin-bottom:24px;">
+      Basic voluntary insurance for bodily injury and property damage is included in the rental fee.
+      Vehicle repair costs and NOC (Non-Operation Charge) are <strong>not</strong> covered by the basic plan, so please consider adding coverage below.
+      Note that all insurance and coverage applies only to <strong>drivers aged 21 and over</strong>.
+    </p>
+
+    <div class="hrc-grid hrc-grid--3" style="margin-bottom:26px;">
+      <div class="hrc-plan">
+        <p class="hrc-plan__label">Option A</p>
+        <h3 class="hrc-plan__name">Basic coverage only</h3>
+        <p class="hrc-plan__price">¥0 <span>/ day</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>Vehicle repair</span><span class="hrc-no">Customer pays</span></div>
+        <div class="hrc-plan__row"><span>NOC charge</span><span class="hrc-no">Charged</span></div>
+        <p class="hrc-plan__foot">Short rentals and experienced drivers</p>
+      </div>
+
+      <div class="hrc-plan">
+        <p class="hrc-plan__label">Option B</p>
+        <h3 class="hrc-plan__name">Vehicle damage coverage</h3>
+        <p class="hrc-plan__price">¥3,300 <span>/ day</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>Vehicle repair</span><span class="hrc-yes">Covered</span></div>
+        <div class="hrc-plan__row"><span>NOC charge</span><span class="hrc-no">Charged</span></div>
+        <p class="hrc-plan__foot">Avoid out-of-pocket repair costs</p>
+      </div>
+
+      <div class="hrc-plan hrc-plan--best">
+        <div class="hrc-plan__ribbon">RECOMMENDED</div>
+        <p class="hrc-plan__label">Option C</p>
+        <h3 class="hrc-plan__name">Damage coverage + NOC waiver</h3>
+        <p class="hrc-plan__price">¥5,500 <span>/ day</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>Vehicle repair</span><span class="hrc-yes">Covered</span></div>
+        <div class="hrc-plan__row"><span>NOC charge</span><span class="hrc-yes">Waived</span></div>
+        <p class="hrc-plan__foot"><strong>Most customers</strong> — peace of mind</p>
+      </div>
+    </div>
+
+    <div class="hrc-note hrc-note--warn" style="margin-bottom:28px;">
+      <strong>[Please note]</strong> Accidents are more likely around ski resorts because of snow, ice and narrow mountain roads.
+      For complete peace of mind we strongly recommend <strong>Option C (damage coverage + NOC waiver)</strong>.
+      NOC is ¥55,000 if the vehicle can be returned under its own power, and ¥110,000 if towing is required.
+    </div>
+
+    <div class="hrc-btnrow hrc-btnrow--center">
+      <a href="https://hakubarentacar.com/en/terms-and-conditions-booking-policies/" class="hrc-btn hrc-btn--ghost">Full coverage details</a>
+      <a href="https://hakubarentacar.com/en/reservations-2/" class="hrc-btn hrc-btn--gold">Reserve now</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Fuel policy ═══ -->
+<div class="hrc-full hrc-section hrc-section--bg">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">Fuel policy &amp; things to know</h2>
+    <p style="font-size:14px;color:var(--hrc-body);">
+      Vehicles are supplied with a full tank and <strong>must be returned with a full tank</strong>.
+      If the tank is not full on return, fuel charges are calculated using our standard formula and billed to you.
+      See our <a href="https://hakubarentacar.com/en/terms-and-conditions-booking-policies/">Terms &amp; Conditions / Booking Policies</a> for details.
+    </p>
+
+    <ul style="list-style:none;padding:0;margin:20px 0 32px;">
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>Late returns may incur additional charges.</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>Petrol stations are limited around Hakuba, so allow enough time to refuel before returning.</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>All vehicles are strictly non-smoking, and pets are not allowed.</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>Unpaid parking fines are charged at ¥25,000.</li>
+    </ul>
+
+    <div class="hrc-alert" style="margin-bottom:28px;">
+      <h3 class="hrc-alert__title">⚠️ Advance reservation required</h3>
+      <p><strong>Walk-in rentals are not available.</strong> Every vehicle must be reserved in advance. Please complete your reservation online or by phone before visiting.</p>
+    </div>
+
+    <div class="hrc-btnrow hrc-btnrow--center">
+      <a href="https://hakubarentacar.com/en/reservations-2/" class="hrc-btn hrc-btn--gold">Reserve now</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FAQ ═══ -->
+<div class="hrc-full hrc-section hrc-section--white">
+  <div class="hrc-container">
+    <div class="hrc-center">
+      <p class="hrc-eyebrow">FAQ</p>
+      <h2 class="hrc-h2">Questions about pricing</h2>
+    </div>
+
+    <div class="hrc-faq">
+      <details open>
+        <summary>What is the cheapest vehicle at Hakuba Rent a Car?</summary>
+        <div class="hrc-faq__a"><p>The cheapest class at Hakuba Rent a Car is the kei car at ¥11,000 per 24 hours including tax. During the green season (April to November) it drops 40% to ¥6,600.</p></div>
+      </details>
+      <details>
+        <summary>Is insurance included in the price shown?</summary>
+        <div class="hrc-faq__a"><p>Yes. The rate includes unlimited bodily injury coverage, unlimited property damage coverage with no deductible, personal injury coverage up to ¥30 million per person, and roadside assistance up to ¥150,000 per accident. Vehicle repair costs and NOC are not included, so we recommend adding vehicle damage coverage (¥3,300 per day) or damage coverage plus NOC waiver (¥5,500 per day).</p></div>
+      </details>
+      <details>
+        <summary>Are there discounts for longer rentals?</summary>
+        <div class="hrc-faq__a"><p>Yes. In the standard season (December to March), rentals of 3 days or more are 10% off and 7 days or more are 20% off. Monthly rates are ¥120,000 for a kei car, ¥150,000 for a compact car and ¥220,000 for a minivan, tax included. Rentals longer than one month are quoted individually.</p></div>
+      </details>
+      <details>
+        <summary>Can the green season discount be combined with the long-rental discount?</summary>
+        <div class="hrc-faq__a"><p>During the green season (April to November), a flat 40% discount applies regardless of rental length. Because 40% is larger than the long-rental discounts of 10% and 20%, the green season rate is the one applied.</p></div>
+      </details>
+      <details>
+        <summary>What is NOC (Non-Operation Charge)?</summary>
+        <div class="hrc-faq__a"><p>NOC is a compensation charge for the income lost while a vehicle is out of service for repair or cleaning after an accident, theft or damage. It is charged in addition to the actual repair costs. At Hakuba Rent a Car it is ¥55,000 if the vehicle can be returned under its own power and ¥110,000 if towing is required, both including tax. Option C (damage coverage plus NOC waiver, ¥5,500 per day) waives NOC entirely.</p></div>
+      </details>
+      <details>
+        <summary>Do winter tires cost extra?</summary>
+        <div class="hrc-faq__a"><p>No. Hakuba Rent a Car fits winter tires to every vehicle from December to March as standard, at no additional charge.</p></div>
+      </details>
+      <details>
+        <summary>What happens if I cancel?</summary>
+        <div class="hrc-faq__a"><p>Cancelling more than 48 hours before pick-up is free. Within 48 hours the fee is 50% of the base rental fee, and a no-show without notice is charged at 100%.</p></div>
+      </details>
+      <details>
+        <summary>When and how do I pay?</summary>
+        <div class="hrc-faq__a"><p>Payment is taken at pick-up, before the rental starts. We accept cash (Japanese yen only), credit cards (VISA, Mastercard, AMEX, JCB, Diners) and QR payments (PayPay, Alipay, WeChat Pay).</p></div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Related pages ═══ -->
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg">
+  <div class="hrc-container">
+    <h2 class="hrc-h3" style="margin-bottom:18px !important;">Related pages</h2>
+    <nav class="hrc-links" aria-label="Related pages">
+      <a href="https://hakubarentacar.com/en/access/">Locations &amp; Access<span>Both branches, maps and shuttle</span></a>
+      <a href="https://hakubarentacar.com/en/how-to-rent/">How to Rent<span>Booking to return, licence rules</span></a>
+      <a href="https://hakubarentacar.com/en/terms-and-conditions-booking-policies/">Terms &amp; Policies<span>Cancellation, insurance, NOC</span></a>
+    </nav>
+  </div>
+</div>
+
+</div>
+<!-- ══ end .hrc ══ -->
+
+<!-- ══════════ Structured data ══════════ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://hakubarentacar.com/en/cars-deals/#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://hakubarentacar.com/en/" },
+        { "@type": "ListItem", "position": 2, "name": "Vehicles & Rates", "item": "https://hakubarentacar.com/en/cars-deals/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://hakubarentacar.com/en/cars-deals/#webpage",
+      "url": "https://hakubarentacar.com/en/cars-deals/",
+      "name": "Vehicles & Rates — Hakuba Rent a Car",
+      "description": "Hakuba Rent a Car vehicles and rates: kei car ¥11,000, compact car ¥13,000, minivan ¥24,000 per 24 hours including tax. Green season (April–November) brings 40% off all classes. Insurance, options and shuttle fees included.",
+      "inLanguage": "en",
+      "dateModified": "2026-08-03",
+      "breadcrumb": { "@id": "https://hakubarentacar.com/en/cars-deals/#breadcrumb" },
+      "about": { "@id": "https://hakubarentacar.com/#autorental" },
+      "speakable": { "@type": "SpeakableSpecification", "cssSelector": [".hrc-keyfacts"] }
+    },
+    {
+      "@type": "AutoRental",
+      "@id": "https://hakubarentacar.com/#autorental",
+      "name": "Hakuba Rent a Car",
+      "url": "https://hakubarentacar.com/en/",
+      "telephone": "+81-50-1793-0205",
+      "email": "info@hakubarentacar.com",
+      "priceRange": "¥6,600–¥220,000",
+      "currenciesAccepted": "JPY",
+      "paymentAccepted": "Cash, Credit Card, QR Code Payment",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "08:00",
+        "closes": "18:00"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Hakuba Rent a Car — vehicles and rates",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "Kei car rental in Hakuba (N-BOX, Spacia, Tanto)",
+            "price": "11000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "Standard rate (Dec–Mar), 24 hours", "price": "11000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "Green season (Apr–Nov), 24 hours", "price": "6600", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "One month", "price": "120000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "¥11,000 per 24 hours including tax, ¥6,600 with the 40% green season discount. 10% off for 3+ days, 20% off for 7+ days. ¥120,000 per month. 4WD with winter tires standard.",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/en/reservations-2/",
+            "itemOffered": { "@type": "Car", "name": "Kei car", "vehicleConfiguration": "4WD", "fuelType": "Gasoline", "seatingCapacity": 4, "vehicleEngine": { "@type": "EngineSpecification", "engineDisplacement": { "@type": "QuantitativeValue", "maxValue": 660, "unitCode": "CMQ" } } }
+          },
+          {
+            "@type": "Offer",
+            "name": "Compact car rental in Hakuba (5 seats, 4WD)",
+            "price": "13000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "Standard rate (Dec–Mar), 24 hours", "price": "13000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "Green season (Apr–Nov), 24 hours", "price": "7800", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "One month", "price": "150000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "¥13,000 per 24 hours including tax, ¥7,800 with the 40% green season discount. 10% off for 3+ days, 20% off for 7+ days. ¥150,000 per month. 4WD with winter tires standard.",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/en/reservations-2/",
+            "itemOffered": { "@type": "Car", "name": "Compact car", "vehicleConfiguration": "4WD", "fuelType": "Gasoline", "seatingCapacity": 5 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Minivan rental in Hakuba (Voxy, Noah, Serena — 7 to 8 seats)",
+            "price": "24000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "Standard rate (Dec–Mar), 24 hours", "price": "24000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "Green season (Apr–Nov), 24 hours", "price": "14400", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "One month", "price": "220000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "¥24,000 per 24 hours including tax, ¥14,400 with the 40% green season discount. 10% off for 3+ days, 20% off for 7+ days. ¥220,000 per month. 4WD with winter tires standard, seats 7–8.",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/en/reservations-2/",
+            "itemOffered": { "@type": "Car", "name": "Minivan / one-box", "vehicleConfiguration": "4WD", "fuelType": "Gasoline", "seatingCapacity": 8 }
+          },
+          { "@type": "Offer", "name": "Child seat rental", "price": "1100", "priceCurrency": "JPY", "description": "¥1,100 per unit per 24 hours including tax. Required by law for children under 6." },
+          { "@type": "Offer", "name": "Ski rack rental", "price": "1100", "priceCurrency": "JPY", "description": "¥1,100 per unit per 24 hours including tax. Fits up to 4 snowboards or 6 pairs of skis." },
+          { "@type": "Offer", "name": "Vehicle damage coverage (Option B)", "price": "3300", "priceCurrency": "JPY", "description": "¥3,300 per day including tax. Covers vehicle repair costs. NOC is still charged." },
+          { "@type": "Offer", "name": "Damage coverage + NOC waiver (Option C)", "price": "5500", "priceCurrency": "JPY", "description": "¥5,500 per day including tax. Covers vehicle repair costs and waives NOC (¥55,000 / ¥110,000) entirely." },
+          { "@type": "Offer", "name": "Shuttle service (Hakuba / Otari area)", "price": "3000", "priceCurrency": "JPY", "description": "¥3,000 one way, ¥6,000 return, including tax. Covers Hakuba Station, Happo Bus Terminal, Tsugaike Kogen and more. Omachi area is ¥6,000 one way." }
+        ]
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://hakubarentacar.com/en/cars-deals/#faq",
+      "isPartOf": { "@id": "https://hakubarentacar.com/en/cars-deals/#webpage" },
+      "mainEntity": [
+        { "@type": "Question", "name": "What is the cheapest vehicle at Hakuba Rent a Car?", "acceptedAnswer": { "@type": "Answer", "text": "The cheapest class at Hakuba Rent a Car is the kei car at 11,000 yen per 24 hours including tax. During the green season (April to November) it drops 40% to 6,600 yen." } },
+        { "@type": "Question", "name": "Is insurance included in the price shown?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The rate includes unlimited bodily injury coverage, unlimited property damage coverage with no deductible, personal injury coverage up to 30 million yen per person, and roadside assistance up to 150,000 yen per accident. Vehicle repair costs and NOC are not included, so we recommend adding vehicle damage coverage (3,300 yen per day) or damage coverage plus NOC waiver (5,500 yen per day)." } },
+        { "@type": "Question", "name": "Are there discounts for longer rentals?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. In the standard season (December to March), rentals of 3 days or more are 10% off and 7 days or more are 20% off. Monthly rates are 120,000 yen for a kei car, 150,000 yen for a compact car and 220,000 yen for a minivan, tax included. Rentals longer than one month are quoted individually." } },
+        { "@type": "Question", "name": "Can the green season discount be combined with the long-rental discount?", "acceptedAnswer": { "@type": "Answer", "text": "During the green season (April to November), a flat 40% discount applies regardless of rental length. Because 40% is larger than the long-rental discounts of 10% and 20%, the green season rate is the one applied." } },
+        { "@type": "Question", "name": "What is NOC (Non-Operation Charge)?", "acceptedAnswer": { "@type": "Answer", "text": "NOC is a compensation charge for the income lost while a vehicle is out of service for repair or cleaning after an accident, theft or damage. It is charged in addition to the actual repair costs. At Hakuba Rent a Car it is 55,000 yen if the vehicle can be returned under its own power and 110,000 yen if towing is required, both including tax. Option C (damage coverage plus NOC waiver, 5,500 yen per day) waives NOC entirely." } },
+        { "@type": "Question", "name": "Do winter tires cost extra?", "acceptedAnswer": { "@type": "Answer", "text": "No. Hakuba Rent a Car fits winter tires to every vehicle from December to March as standard, at no additional charge." } },
+        { "@type": "Question", "name": "What happens if I cancel?", "acceptedAnswer": { "@type": "Answer", "text": "Cancelling more than 48 hours before pick-up is free. Within 48 hours the fee is 50% of the base rental fee, and a no-show without notice is charged at 100%." } },
+        { "@type": "Question", "name": "When and how do I pay?", "acceptedAnswer": { "@type": "Answer", "text": "Payment is taken at pick-up, before the rental starts. We accept cash (Japanese yen only), credit cards (VISA, Mastercard, AMEX, JCB, Diners) and QR payments (PayPay, Alipay, WeChat Pay)." } }
+      ]
+    }
+  ]
+}
+</script>

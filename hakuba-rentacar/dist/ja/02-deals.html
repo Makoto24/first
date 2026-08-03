@@ -1,0 +1,1004 @@
+<!-- ══════════════════════════════════════════════════════════════
+  白馬レンタカー｜車種・料金（日本語）  https://hakubarentacar.com/deals/
+  WordPress「カスタムHTML」ブロックに全文貼り付けてください。
+  ══════════════════════════════════════════════════════════════ -->
+<div class="hrc">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   白馬レンタカー 共通デザインシステム v1.0
+   すべてのセレクタは .hrc 配下にスコープ済み。
+   WordPress テーマの既存スタイルとは干渉しません。
+   ══════════════════════════════════════════════════════════════ */
+
+.hrc{
+  /* ── ブランドカラー ── */
+  --hrc-green:#1a7a3c;
+  --hrc-green-dark:#14612f;
+  --hrc-green-light:#2ea55a;
+  --hrc-green-pale:#f0faf4;
+  --hrc-gold:#fecc01;
+  --hrc-gold-dark:#b89000;
+  --hrc-gold-pale:#fff8e1;
+  --hrc-ink:#111111;
+  --hrc-ink-soft:#2a2a2a;
+  --hrc-body:#3f3f46;
+  --hrc-muted:#767678;
+  --hrc-line:#e8e8e6;
+  --hrc-bg:#f6f7f9;
+  --hrc-white:#ffffff;
+  --hrc-danger:#c0392b;
+
+  /* ── 造形 ── */
+  --hrc-r-sm:8px;
+  --hrc-r:12px;
+  --hrc-r-lg:16px;
+  --hrc-shadow-sm:0 8px 18px rgba(0,0,0,.04);
+  --hrc-shadow:0 10px 24px rgba(0,0,0,.08);
+  --hrc-shadow-lg:0 14px 32px rgba(0,0,0,.10);
+  --hrc-max:1120px;
+  --hrc-max-narrow:860px;
+
+  color:var(--hrc-ink);
+  font-size:16px;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+
+.hrc *{box-sizing:border-box !important;}
+
+.hrc h1,.hrc h2,.hrc h3,.hrc h4,.hrc h5{
+  background:none !important;background-color:transparent !important;
+  border:none !important;box-shadow:none !important;padding:0 !important;
+  margin:0 !important;line-height:1.35 !important;color:var(--hrc-ink);
+  font-weight:800;letter-spacing:.02em;
+}
+.hrc p{margin:0 0 1em;}
+.hrc p:last-child{margin-bottom:0;}
+.hrc a{text-decoration:none;color:var(--hrc-green);}
+.hrc a:hover{text-decoration:underline;}
+.hrc img{display:block;max-width:100%;height:auto;}
+.hrc table{border-collapse:collapse;width:100%;}
+.hrc ul,.hrc ol{margin:0 0 1em;padding-left:1.4em;}
+.hrc li{margin-bottom:.4em;}
+.hrc li:last-child{margin-bottom:0;}
+
+/* ── レイアウト ───────────────────────────── */
+.hrc-full{position:relative;width:100vw;left:50%;margin-left:-50vw;}
+.hrc-container{max-width:var(--hrc-max);margin:0 auto;padding:0 24px;}
+.hrc-container--narrow{max-width:var(--hrc-max-narrow);}
+.hrc-section{padding:64px 0;}
+.hrc-section--tight{padding:44px 0;}
+.hrc-section--bg{background:var(--hrc-bg);}
+.hrc-section--white{background:var(--hrc-white);}
+.hrc-rule{border:none;border-top:1px solid var(--hrc-line);margin:0;}
+.hrc-sp{height:32px;}
+
+/* ── 見出し ───────────────────────────────── */
+.hrc-eyebrow{
+  font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--hrc-gold-dark);font-weight:700;margin:0 0 10px !important;
+}
+.hrc-h1{
+  font-size:clamp(1.75rem,4.2vw,2.75rem) !important;
+  margin:0 0 16px !important;letter-spacing:.01em;
+}
+.hrc-h2{
+  font-size:clamp(1.45rem,3.4vw,2.1rem) !important;
+  margin:0 0 24px !important;padding-bottom:12px !important;
+  border-bottom:3px solid var(--hrc-gold) !important;display:inline-block;
+}
+.hrc-h3{font-size:clamp(1.15rem,2.4vw,1.4rem) !important;margin:0 0 14px !important;}
+.hrc-h4{font-size:1.02rem !important;margin:0 0 10px !important;}
+.hrc-lead{
+  color:var(--hrc-body);font-size:1.02rem;line-height:1.9;
+  margin:0 0 28px;max-width:760px;
+}
+.hrc-center{text-align:center;}
+.hrc-center .hrc-lead{margin-left:auto;margin-right:auto;}
+
+/* ── ボタン ───────────────────────────────── */
+.hrc-btn{
+  display:inline-block;font-weight:800;font-size:.95rem;line-height:1;
+  padding:15px 28px;border-radius:var(--hrc-r);text-align:center;
+  transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
+  border:1px solid transparent;cursor:pointer;text-decoration:none !important;
+}
+.hrc-btn:hover{transform:translateY(-2px);box-shadow:var(--hrc-shadow);}
+.hrc-btn--gold{background:var(--hrc-gold);color:#111 !important;border-color:rgba(0,0,0,.08);}
+.hrc-btn--green{background:var(--hrc-green);color:#fff !important;}
+.hrc-btn--dark{background:var(--hrc-ink);color:#fff !important;}
+.hrc-btn--ghost{background:rgba(255,255,255,.92);color:var(--hrc-ink) !important;border-color:rgba(0,0,0,.22);}
+.hrc-btn--sm{padding:10px 18px;font-size:.84rem;border-radius:999px;}
+.hrc-btn--block{display:block;width:100%;}
+.hrc-btnrow{display:flex;flex-wrap:wrap;gap:12px;}
+.hrc-btnrow--center{justify-content:center;}
+
+/* ── パンくず ─────────────────────────────── */
+.hrc-crumb{
+  font-size:12.5px;color:var(--hrc-muted);padding:14px 0;
+  border-bottom:1px solid var(--hrc-line);
+}
+.hrc-crumb ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;}
+.hrc-crumb li{margin:0;}
+.hrc-crumb li+li::before{content:"›";margin-right:8px;color:#bbb;}
+.hrc-crumb a{color:var(--hrc-muted);}
+
+/* ── バッジ ───────────────────────────────── */
+.hrc-badgebar{
+  background:var(--hrc-gold);display:flex;flex-wrap:wrap;
+  justify-content:center;gap:10px 24px;padding:13px 20px;
+}
+.hrc-badgebar span{
+  font-size:12px;font-weight:800;color:var(--hrc-ink);
+  letter-spacing:.06em;display:inline-flex;align-items:center;gap:6px;
+}
+.hrc-pill{
+  display:inline-block;background:var(--hrc-green);color:#fff;
+  font-size:11px;font-weight:800;letter-spacing:.06em;
+  padding:5px 12px;border-radius:999px;
+}
+.hrc-pill--gold{background:var(--hrc-gold);color:#111;}
+.hrc-pill--dark{background:var(--hrc-ink);color:#fff;}
+
+/* ── 要点まとめ（AIO用サマリー） ───────────── */
+.hrc-keyfacts{
+  background:var(--hrc-white);border:2px solid var(--hrc-green);
+  border-radius:var(--hrc-r-lg);padding:26px 28px;
+  box-shadow:0 12px 28px rgba(26,122,60,.10);margin:0 0 40px;
+}
+.hrc-keyfacts-title{
+  font-size:.95rem !important;font-weight:800 !important;color:var(--hrc-green) !important;
+  margin:0 0 14px !important;letter-spacing:.08em;display:flex;align-items:center;gap:8px;
+}
+.hrc-keyfacts ul{list-style:none;margin:0;padding:0;}
+.hrc-keyfacts li{
+  position:relative;padding-left:26px;margin-bottom:9px;
+  font-size:14.5px;line-height:1.85;color:var(--hrc-body);
+}
+.hrc-keyfacts li::before{
+  content:"✓";position:absolute;left:0;top:0;
+  color:var(--hrc-green);font-weight:900;font-size:14px;
+}
+.hrc-keyfacts li strong{color:var(--hrc-ink);}
+
+/* ── カード ───────────────────────────────── */
+.hrc-grid{display:grid;gap:22px;}
+.hrc-grid--2{grid-template-columns:repeat(2,1fr);}
+.hrc-grid--3{grid-template-columns:repeat(3,1fr);}
+.hrc-grid--4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:960px){
+  .hrc-grid--3,.hrc-grid--4{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:720px){
+  .hrc-grid--2,.hrc-grid--3,.hrc-grid--4{grid-template-columns:1fr;}
+}
+
+.hrc-card{
+  background:var(--hrc-white);border:1px solid rgba(0,0,0,.10);
+  border-radius:var(--hrc-r-lg);overflow:hidden;box-shadow:var(--hrc-shadow);
+  display:flex;flex-direction:column;
+}
+.hrc-card__img{width:100%;height:184px;object-fit:cover;}
+.hrc-card__body{padding:20px;display:flex;flex-direction:column;flex:1;}
+.hrc-card__title{font-size:1.05rem !important;margin:0 0 10px !important;}
+.hrc-card__text{color:var(--hrc-body);font-size:.94rem;line-height:1.85;flex:1;margin:0 0 16px;}
+.hrc-card--accent{border:2px solid var(--hrc-green);box-shadow:0 12px 28px rgba(26,122,60,.14);position:relative;}
+.hrc-card__tag{
+  position:absolute;top:12px;left:12px;z-index:1;background:var(--hrc-green);
+  color:#fff;font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;letter-spacing:.05em;
+}
+
+/* ── 店舗カード ───────────────────────────── */
+.hrc-shop{
+  background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:var(--hrc-r-lg);
+  overflow:hidden;box-shadow:var(--hrc-shadow);display:flex;flex-direction:column;
+}
+.hrc-shop__head{
+  background:linear-gradient(135deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  padding:22px 24px;
+}
+.hrc-shop__name{font-size:1.2rem !important;color:#fff !important;margin:10px 0 0 !important;}
+.hrc-shop__sub{font-size:.85rem;color:rgba(255,255,255,.92);margin:6px 0 0 !important;}
+.hrc-shop__body{padding:24px;flex:1;}
+.hrc-shop__map{position:relative;padding-bottom:62%;height:0;overflow:hidden;border-top:1px solid var(--hrc-line);background:#eee;}
+.hrc-shop__map iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+
+.hrc-dl{margin:0 0 20px;}
+.hrc-dl__row{
+  display:grid;grid-template-columns:104px 1fr;gap:12px;
+  padding:12px 0;border-bottom:1px solid #eeeeec;align-items:start;
+}
+.hrc-dl__row:last-child{border-bottom:none;}
+.hrc-dl dt{font-size:12px;font-weight:800;color:var(--hrc-muted);letter-spacing:.05em;margin:0;padding-top:3px;}
+.hrc-dl dd{margin:0;font-size:14.5px;color:var(--hrc-body);line-height:1.8;}
+.hrc-dl dd strong{color:var(--hrc-ink);}
+.hrc-hint{display:block;font-size:12px;color:var(--hrc-muted);margin-top:5px;line-height:1.7;}
+@media(max-width:600px){.hrc-dl__row{grid-template-columns:84px 1fr;gap:10px;}}
+
+/* ── テーブル ─────────────────────────────── */
+.hrc-tablewrap{
+  overflow-x:auto;border:1px solid var(--hrc-line);
+  border-radius:var(--hrc-r);box-shadow:var(--hrc-shadow-sm);background:#fff;
+}
+.hrc-table{font-size:14px;min-width:520px;}
+.hrc-table caption{
+  caption-side:top;text-align:left;font-size:12px;font-weight:800;
+  color:var(--hrc-muted);letter-spacing:.1em;text-transform:uppercase;padding:0 0 8px;
+}
+.hrc-table thead th{
+  background:var(--hrc-ink);color:#fff;font-weight:700;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;padding:14px 18px;
+  text-align:left;vertical-align:bottom;
+}
+.hrc-table thead th.num{text-align:right;}
+.hrc-table thead th.hl{background:var(--hrc-green);color:var(--hrc-gold);text-align:right;}
+.hrc-table thead .sub{display:block;margin-top:5px;font-size:10px;font-weight:400;letter-spacing:.08em;opacity:.8;}
+.hrc-table thead th.hl .sub{color:rgba(255,255,255,.82);}
+.hrc-table tbody th{
+  text-align:left;font-weight:700;padding:14px 18px;
+  border-bottom:1px solid var(--hrc-line);color:var(--hrc-ink-soft);
+  background:#fff;font-size:14px;
+}
+.hrc-table tbody td{
+  padding:14px 18px;border-bottom:1px solid var(--hrc-line);
+  vertical-align:middle;color:var(--hrc-body);
+}
+.hrc-table tbody tr:last-child th,
+.hrc-table tbody tr:last-child td{border-bottom:none;}
+.hrc-table tbody tr:nth-child(even) th,
+.hrc-table tbody tr:nth-child(even) td{background:#fbfbfa;}
+.hrc-table td.num{text-align:right;font-weight:700;color:var(--hrc-ink);white-space:nowrap;}
+.hrc-table td.hl{text-align:right;background:var(--hrc-green-pale) !important;white-space:nowrap;}
+.hrc-table .price{font-size:15px;font-weight:800;color:var(--hrc-ink);}
+.hrc-table .price-green{font-size:16px;font-weight:800;color:var(--hrc-green);}
+.hrc-table .strike{text-decoration:line-through;color:#ababab;font-size:12.5px;font-weight:400;margin-right:5px;}
+.hrc-table .off{
+  display:inline-block;background:var(--hrc-green);color:#fff;font-size:10px;
+  font-weight:700;letter-spacing:.08em;padding:3px 7px;border-radius:4px;margin-right:6px;
+}
+.hrc-table .dnote{font-size:11px;color:#8e8e91;font-weight:400;margin-right:6px;}
+.hrc-table .foot td{
+  text-align:center;font-size:13px;color:var(--hrc-muted);
+  font-style:italic;background:#fff !important;
+}
+.hrc-table .neg{color:var(--hrc-danger);font-weight:800;}
+.hrc-table .pos{color:var(--hrc-green);font-weight:800;}
+@media(max-width:600px){
+  .hrc-table thead th,.hrc-table tbody th,.hrc-table tbody td{padding:11px 12px;}
+}
+
+/* ── 注意ボックス ─────────────────────────── */
+.hrc-note{
+  border-radius:0 var(--hrc-r-sm) var(--hrc-r-sm) 0;padding:18px 22px;
+  font-size:14px;line-height:1.85;color:var(--hrc-body);
+}
+.hrc-note strong{color:var(--hrc-ink);}
+.hrc-note--info{background:var(--hrc-white);border-left:4px solid var(--hrc-gold);box-shadow:var(--hrc-shadow-sm);}
+.hrc-note--warn{background:var(--hrc-gold-pale);border-left:4px solid var(--hrc-gold);}
+.hrc-note--danger{background:#fff5f5;border:2px solid var(--hrc-danger);border-radius:var(--hrc-r-sm);}
+.hrc-note--danger strong{color:var(--hrc-danger);}
+
+.hrc-alert{
+  background:#fff3cd;border:2px solid #f2b600;border-radius:14px;
+  padding:24px 26px;box-shadow:var(--hrc-shadow);
+  max-width:780px;margin:0 auto;text-align:center;
+}
+.hrc-alert__title{font-size:1rem !important;color:#8a6200 !important;margin:0 0 10px !important;}
+.hrc-alert p{font-size:.94rem;color:var(--hrc-body);margin:0;}
+
+/* ── キャンペーン帯 ───────────────────────── */
+.hrc-topbar{
+  background:linear-gradient(90deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  padding:12px 24px;display:flex;align-items:center;justify-content:center;
+  gap:14px;flex-wrap:wrap;
+}
+.hrc-topbar p{color:#fff;font-size:.94rem;font-weight:700;margin:0;text-align:center;}
+.hrc-topbar strong{color:var(--hrc-gold);}
+.hrc-topbar small{opacity:.88;font-size:.8rem;font-weight:500;}
+
+.hrc-campaign{
+  background:linear-gradient(135deg,var(--hrc-green) 0%,var(--hrc-green-light) 100%);
+  border-radius:var(--hrc-r-lg);border-left:5px solid var(--hrc-gold);
+  padding:26px 30px;box-shadow:0 12px 28px rgba(26,122,60,.18);color:#fff;
+}
+.hrc-campaign h2,.hrc-campaign h3{color:#fff !important;}
+.hrc-campaign p{color:#fff;}
+.hrc-campaign strong{color:var(--hrc-gold);}
+.hrc-campaign__excl{
+  font-size:12.5px;background:rgba(0,0,0,.22);padding:11px 15px;
+  border-radius:var(--hrc-r-sm);line-height:1.7;margin:0;
+}
+.hrc-campaign__excl strong{color:var(--hrc-gold);}
+
+/* ── ステップ ─────────────────────────────── */
+.hrc-step{
+  background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:var(--hrc-r-lg);
+  padding:24px;box-shadow:var(--hrc-shadow-sm);position:relative;
+}
+.hrc-step__num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;background:var(--hrc-green);
+  color:#fff;font-weight:800;font-size:15px;margin-bottom:12px;
+}
+.hrc-step__title{font-size:1rem !important;margin:0 0 10px !important;}
+.hrc-step p,.hrc-step li{font-size:14px;color:var(--hrc-body);line-height:1.85;}
+
+/* ── 保険プラン ───────────────────────────── */
+.hrc-plan{
+  background:var(--hrc-bg);border:1px solid rgba(0,0,0,.08);
+  border-radius:var(--hrc-r);padding:28px 22px 30px;position:relative;
+}
+.hrc-plan--best{background:var(--hrc-ink);border:2px solid var(--hrc-gold);padding-top:46px;}
+.hrc-plan__ribbon{
+  position:absolute;top:0;left:0;right:0;background:var(--hrc-gold);
+  text-align:center;font-size:10px;font-weight:800;letter-spacing:.16em;
+  color:var(--hrc-ink);padding:7px 0;border-radius:10px 10px 0 0;
+}
+.hrc-plan__label{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--hrc-muted);margin:0 0 6px;}
+.hrc-plan__name{font-size:13px !important;margin:0 0 16px !important;}
+.hrc-plan__price{font-size:2rem;font-weight:800;line-height:1;margin:0 0 4px;color:var(--hrc-ink);}
+.hrc-plan__price span{font-size:12px;color:var(--hrc-muted);font-weight:400;}
+.hrc-plan hr{border:none;border-top:1px solid #e0e0de;margin:16px 0;}
+.hrc-plan__row{display:flex;justify-content:space-between;margin-bottom:9px;font-size:12px;}
+.hrc-plan__row span:first-child{color:var(--hrc-muted);}
+.hrc-plan__foot{font-size:11.5px;color:var(--hrc-muted);line-height:1.65;margin:8px 0 0;}
+.hrc-plan--best .hrc-plan__label{color:rgba(255,255,255,.45);}
+.hrc-plan--best .hrc-plan__name{color:#fff !important;}
+.hrc-plan--best .hrc-plan__price{color:var(--hrc-gold);}
+.hrc-plan--best .hrc-plan__price span{color:rgba(255,255,255,.45);}
+.hrc-plan--best hr{border-top-color:rgba(255,255,255,.12);}
+.hrc-plan--best .hrc-plan__row span:first-child{color:rgba(255,255,255,.55);}
+.hrc-plan--best .hrc-plan__foot{color:rgba(255,255,255,.55);}
+.hrc-plan--best .hrc-plan__foot strong{color:var(--hrc-gold);}
+.hrc-yes{color:var(--hrc-green);font-weight:800;}
+.hrc-plan--best .hrc-yes{color:#4ec77a;}
+.hrc-no{color:var(--hrc-danger);font-weight:800;}
+
+/* ── FAQ（details＝JS不要・SEO/AIO耐性あり） ── */
+.hrc-faq{max-width:var(--hrc-max-narrow);margin:0 auto;}
+.hrc-faq details{
+  background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:14px;
+  margin-bottom:12px;box-shadow:var(--hrc-shadow-sm);overflow:hidden;
+}
+.hrc-faq summary{
+  cursor:pointer;list-style:none;padding:20px 54px 20px 22px;
+  font-size:1rem;font-weight:800;color:var(--hrc-ink);position:relative;line-height:1.7;
+}
+.hrc-faq summary::-webkit-details-marker{display:none;}
+.hrc-faq summary::after{
+  content:"+";position:absolute;right:22px;top:50%;transform:translateY(-50%);
+  font-size:22px;font-weight:700;color:var(--hrc-green);line-height:1;
+}
+.hrc-faq details[open] summary::after{content:"−";}
+.hrc-faq details[open] summary{border-bottom:1px solid var(--hrc-line);}
+.hrc-faq .hrc-faq__a{padding:18px 22px 22px;color:var(--hrc-body);font-size:.96rem;line-height:1.95;}
+.hrc-faq .hrc-faq__a p:last-child{margin-bottom:0;}
+
+/* ── CTA ──────────────────────────────────── */
+.hrc-cta{
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;
+}
+.hrc-cta__title{font-size:1.3rem !important;margin:0 0 8px !important;}
+.hrc-cta__text{color:var(--hrc-body);margin:0;}
+
+.hrc-ctaband{
+  background:var(--hrc-ink);border-radius:var(--hrc-r-lg);
+  border-left:5px solid var(--hrc-gold);padding:26px 30px;box-shadow:var(--hrc-shadow);
+}
+.hrc-ctaband h3{color:#fff !important;margin:0 0 8px !important;font-size:1.05rem !important;}
+.hrc-ctaband p{color:rgba(255,255,255,.88);font-size:13.5px;margin:0 0 18px;}
+.hrc-ctaband strong{color:var(--hrc-gold);}
+
+/* ── 更新日 ───────────────────────────────── */
+.hrc-updated{
+  font-size:12px;color:var(--hrc-muted);margin:0 0 24px;
+  display:flex;align-items:center;gap:6px;
+}
+
+/* ── 相互リンク ───────────────────────────── */
+.hrc-links{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+}
+@media(max-width:820px){.hrc-links{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.hrc-links{grid-template-columns:1fr;}}
+.hrc-links a{
+  display:block;background:#fff;border:1px solid rgba(0,0,0,.10);
+  border-radius:var(--hrc-r);padding:16px 18px;
+  font-size:14px;font-weight:800;color:var(--hrc-ink) !important;
+  box-shadow:var(--hrc-shadow-sm);transition:transform .18s ease,box-shadow .18s ease;
+  text-decoration:none !important;
+}
+.hrc-links a:hover{transform:translateY(-2px);box-shadow:var(--hrc-shadow);}
+.hrc-links a span{display:block;font-size:12px;font-weight:400;color:var(--hrc-muted);margin-top:5px;}
+
+/* ── ヒーロー ─────────────────────────────── */
+.hrc-hero{position:relative;width:100%;min-height:540px;overflow:hidden;display:flex;align-items:center;}
+.hrc-hero__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transform:scale(1.02);}
+.hrc-hero__veil{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,rgba(255,255,255,.90) 0%,rgba(255,255,255,.66) 55%,rgba(255,255,255,.24) 100%);
+}
+.hrc-hero__inner{position:relative;z-index:2;width:100%;max-width:var(--hrc-max);margin:0 auto;padding:44px 24px;}
+.hrc-hero__logo{width:100%;max-width:380px;filter:drop-shadow(0 8px 20px rgba(255,255,255,.4));margin-bottom:18px;}
+.hrc-hero__sub{font-size:clamp(1rem,1.6vw,1.2rem);font-weight:700;line-height:1.75;margin:0 0 18px;}
+.hrc-hero__list{margin:0 0 24px 1.2em;padding:0;font-size:.98rem;line-height:1.9;}
+.hrc-hero__card{
+  background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.08);
+  border-radius:var(--hrc-r-lg);padding:20px;box-shadow:var(--hrc-shadow-lg);max-width:560px;
+}
+@media(max-width:600px){
+  .hrc-hero{min-height:auto;}
+  .hrc-hero__veil{background:rgba(255,255,255,.90);}
+  .hrc-hero__inner{padding:32px 20px;}
+}
+
+/* ── 印刷／アクセシビリティ ───────────────── */
+.hrc-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+@media(prefers-reduced-motion:reduce){
+  .hrc *{transition:none !important;animation:none !important;}
+  .hrc-btn:hover,.hrc-links a:hover{transform:none;}
+}
+@media(max-width:600px){
+  .hrc-section{padding:44px 0;}
+  .hrc-container{padding:0 18px;}
+  .hrc-keyfacts{padding:20px;}
+  .hrc-campaign,.hrc-ctaband{padding:20px 18px;}
+  .hrc-btn{padding:14px 20px;}
+}
+
+</style>
+
+<!-- ═══ バッジバー ═══ -->
+<div class="hrc-full">
+  <div class="hrc-badgebar">
+    <span>🚗 全車4WD</span>
+    <span>❄️ スタッドレスタイヤ標準装備</span>
+    <span>🛡️ 対人・対物保険込み</span>
+    <span>🚐 送迎・店舗間乗り捨て対応</span>
+    <span>🏬 白馬駅前店／白馬乗鞍店</span>
+  </div>
+</div>
+
+<!-- ═══ パンくず ═══ -->
+<div class="hrc-container">
+  <nav class="hrc-crumb" aria-label="パンくずリスト">
+    <ol>
+      <li><a href="https://hakubarentacar.com/">ホーム</a></li>
+      <li>車種・料金</li>
+    </ol>
+  </nav>
+</div>
+
+<!-- ═══ 導入 ═══ -->
+<div class="hrc-container hrc-section hrc-section--tight">
+  <p class="hrc-eyebrow">Vehicles &amp; Rates</p>
+  <h1 class="hrc-h1">車種・料金｜白馬レンタカー</h1>
+  <p class="hrc-lead">
+    白馬レンタカーでは、軽自動車・コンパクトカー・ミニバンの3クラスをご用意しています。
+    全車両が4WDで、12月〜3月はスタッドレスタイヤを標準装備。表示料金はすべて<strong>税込・対人対物保険込み</strong>です。
+  </p>
+  <p class="hrc-updated">🕒 最終更新：2026年8月</p>
+
+  <div class="hrc-keyfacts">
+    <h2 class="hrc-keyfacts-title">📌 料金の要点</h2>
+    <ul>
+      <li>24時間料金（税込）は<strong>軽自動車11,000円／コンパクトカー13,000円／ミニバン24,000円</strong>です。</li>
+      <li><strong>グリーンシーズン（4月〜11月）は全車両クラス40%OFF</strong>。それぞれ6,600円／7,800円／14,400円になります。</li>
+      <li>冬季（12月〜3月）は<strong>3日以上で10%OFF、7日以上で20%OFF</strong>の長期割引が適用されます。</li>
+      <li>1ヶ月料金は<strong>120,000円／150,000円／220,000円</strong>。1ヶ月を超える長期レンタルは個別見積もりです。</li>
+      <li>チャイルドシート・スキーキャリアは<strong>各1,100円／24時間</strong>（税込）です。</li>
+      <li>車両補償は<strong>3,300円／日</strong>、車両補償＋NOC免除は<strong>5,500円／日</strong>（税込）で追加できます。</li>
+      <li>送迎は白馬・小谷エリア<strong>片道3,000円</strong>、大町エリア<strong>片道6,000円</strong>（税込）です。</li>
+      <li>燃料は<strong>満タン貸出・満タン返却</strong>。すべて<strong>事前予約制</strong>です。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══ キャンペーン ═══ -->
+<div class="hrc-container hrc-container--narrow" style="margin-bottom:16px;">
+  <div class="hrc-campaign">
+    <h2 class="hrc-h3" style="border:none !important;padding:0 !important;">🌿 グリーンシーズンキャンペーン — 全車種40%OFF</h2>
+    <p>グリーンシーズン中<strong>（4月〜11月）</strong>は、全車種で<strong>40%割引</strong>となります。割引は24時間の基本料金に適用されます。</p>
+    <p class="hrc-campaign__excl">⚠️ <strong>対象外期間：</strong>ゴールデンウィーク（4月下旬〜5月上旬）、お盆・夏休み期間（8月中旬）、その他の繁忙期は対象外となります。</p>
+  </div>
+</div>
+
+<div class="hrc-container hrc-container--narrow">
+  <div class="hrc-ctaband">
+    <h3>📅 次のシーズンのご予約受付中</h3>
+    <p>先のご計画ですか？次のウィンターシーズン・グリーンシーズンのご予約をお受けしています。<strong>早期予約割引</strong>もご用意していますので、お気軽にお問い合わせください。</p>
+    <div class="hrc-btnrow"><a href="https://hakubarentacar.com/reservations/" class="hrc-btn hrc-btn--gold">今すぐ予約する</a></div>
+  </div>
+</div>
+
+<!-- ═══ 軽自動車 ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Compact Class</p>
+  <h2 class="hrc-h2">軽自動車</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/lapin.webp"
+      alt="白馬レンタカーの軽自動車。4WD・スタッドレスタイヤ装備で白馬の狭い山道も走りやすい4人乗り車両">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">乗車定員 4人</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    排気量660cc以下の軽自動車です。人気車種はN-BOX、スペーシア、タントなど。狭い山道でも運転しやすく、大人2名＋子供2名で快適にご利用いただけます。
+    荷物スペースはキャスター付きスーツケース約2個分。全車4WD、12月〜3月はスタッドレスタイヤを装備しています。
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>軽自動車 レンタル料金（税込）</caption>
+      <thead>
+        <tr>
+          <th scope="col">ご利用期間</th>
+          <th scope="col" class="num">通常料金<span class="sub">12月〜3月</span></th>
+          <th scope="col" class="hl">🌿 グリーンシーズン<span class="sub">4月〜11月</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">24時間まで</th>
+          <td class="num"><span class="price">¥11,000</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">3日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">10%OFF</span><span class="price">¥9,900</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">7日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">20%OFF</span><span class="price">¥8,800</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥11,000</span><span class="price-green">¥6,600</span></td></tr>
+        <tr><th scope="row">1ヶ月</th>
+          <td class="num"><span class="price">¥120,000</span></td>
+          <td class="hl"><span class="dnote">お問い合わせください</span></td></tr>
+        <tr class="foot"><td colspan="3">1ヶ月以上の長期レンタルはお問い合わせください。カスタム見積もりをご提供いたします。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="hrc-rule">
+
+<!-- ═══ コンパクトカー ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Mid Class</p>
+  <h2 class="hrc-h2">コンパクトカー</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/colt.webp"
+      alt="白馬レンタカーのコンパクトカー。5人乗り・4WD・燃費が良く観光地巡りに適した車両">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">乗車定員 5人</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    排気量1350cc以下のコンパクトカーです。燃費が良く小回りが利くため、観光地巡り、ビジネス利用、白馬・長野での日常利用に適しています。
+    全車4WD、12月〜3月はスタッドレスタイヤを装備しています。
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>コンパクトカー レンタル料金（税込）</caption>
+      <thead>
+        <tr>
+          <th scope="col">ご利用期間</th>
+          <th scope="col" class="num">通常料金<span class="sub">12月〜3月</span></th>
+          <th scope="col" class="hl">🌿 グリーンシーズン<span class="sub">4月〜11月</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">24時間まで</th>
+          <td class="num"><span class="price">¥13,000</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">3日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">10%OFF</span><span class="price">¥11,700</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">7日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">20%OFF</span><span class="price">¥10,400</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥13,000</span><span class="price-green">¥7,800</span></td></tr>
+        <tr><th scope="row">1ヶ月</th>
+          <td class="num"><span class="price">¥150,000</span></td>
+          <td class="hl"><span class="dnote">お問い合わせください</span></td></tr>
+        <tr class="foot"><td colspan="3">1ヶ月以上の長期レンタルはお問い合わせください。カスタム見積もりをご提供いたします。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr class="hrc-rule">
+
+<!-- ═══ ミニバン ═══ -->
+<div class="hrc-container hrc-container--narrow hrc-section">
+  <p class="hrc-eyebrow">Group Class</p>
+  <h2 class="hrc-h2">ワンボックス・ミニバン</h2>
+
+  <figure style="margin:0 0 24px;position:relative;">
+    <img style="width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;" loading="lazy"
+      src="https://hakubarentacar.com/wp-content/uploads/2026/03/estima.webp"
+      alt="白馬レンタカーのミニバン。7〜8人乗り・4WDでグループのスキー旅行や家族旅行に適した車両">
+    <figcaption class="hrc-pill hrc-pill--dark" style="position:absolute;bottom:14px;right:14px;">乗車定員 7〜8人</figcaption>
+  </figure>
+
+  <p style="font-size:14.5px;color:var(--hrc-body);">
+    7〜8人乗りのミニバンです。人気車種はヴォクシー、ノア、セレナなど（車種は空車状況によります）。
+    ご家族での旅行、グループでのスキー旅行、ゴルフ、キャンプ、BBQなど大人数での利用に適しています。
+    全車4WD、12月〜3月はスタッドレスタイヤを装備しています。
+  </p>
+
+  <div class="hrc-tablewrap" style="margin-top:20px;">
+    <table class="hrc-table">
+      <caption>ワンボックス・ミニバン レンタル料金（税込）</caption>
+      <thead>
+        <tr>
+          <th scope="col">ご利用期間</th>
+          <th scope="col" class="num">通常料金<span class="sub">12月〜3月</span></th>
+          <th scope="col" class="hl">🌿 グリーンシーズン<span class="sub">4月〜11月</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">24時間まで</th>
+          <td class="num"><span class="price">¥24,000</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">3日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">10%OFF</span><span class="price">¥21,600</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">7日以上 <span style="font-size:12px;color:#999;font-weight:400;">/ 1日あたり</span></th>
+          <td class="num"><span class="dnote">20%OFF</span><span class="price">¥19,200</span></td>
+          <td class="hl"><span class="off">40%OFF</span><span class="strike">¥24,000</span><span class="price-green">¥14,400</span></td></tr>
+        <tr><th scope="row">1ヶ月</th>
+          <td class="num"><span class="price">¥220,000</span></td>
+          <td class="hl"><span class="dnote">お問い合わせください</span></td></tr>
+        <tr class="foot"><td colspan="3">1ヶ月以上の長期レンタルはお問い合わせください。カスタム見積もりをご提供いたします。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ 追加料金・送迎 ═══ -->
+<div class="hrc-full hrc-section hrc-section--bg">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">追加料金（オプション）</h2>
+    <div class="hrc-tablewrap" style="margin-bottom:40px;">
+      <table class="hrc-table">
+        <caption>オプション料金（税込）</caption>
+        <thead><tr><th scope="col">オプション</th><th scope="col" class="num">料金</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">チャイルドシート
+              <span class="hrc-hint">6歳未満のお子様は使用が義務付けられています。1歳3ヶ月未満、または身長76cm未満のお子様用シートはご持参ください。取付確認はお客様にお願いしています。</span></th>
+            <td class="num">¥1,100 / 台（24時間）</td>
+          </tr>
+          <tr>
+            <th scope="row">スキーキャリア
+              <span class="hrc-hint">スノーボード最大4枚、またはスキー最大6セットに対応します。</span></th>
+            <td class="num">¥1,100 / 台（24時間）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="hrc-h3">送迎・店舗間乗り捨てサービス</h2>
+    <div class="hrc-note hrc-note--info" style="margin-bottom:20px;">
+      白馬・小谷エリア内の各地点（白馬駅、八方バスターミナル、栂池高原など）への送迎に対応しています。
+      また、<strong>白馬駅前店で借りて白馬乗鞍店で返却する</strong>といった店舗間の乗り捨ても可能です。<br>
+      <strong>ご予約時にお気軽にお知らせください。</strong>
+      <span class="hrc-hint">※ 道路状況や当日の予約状況によっては送迎をお受けできない場合があります。</span>
+    </div>
+
+    <div class="hrc-tablewrap">
+      <table class="hrc-table">
+        <caption>送迎料金（片道・税込）</caption>
+        <thead><tr><th scope="col">エリア</th><th scope="col">主な地点（例）</th><th scope="col" class="num">料金</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">白馬・小谷エリア<span class="hrc-hint">白馬村・小谷村内</span></th>
+            <td style="font-size:13px;">白馬駅、八方バスターミナル、栂池高原、白馬乗鞍、コルチナ、白馬五竜 など</td>
+            <td class="num"><span class="price-green">¥3,000</span></td>
+          </tr>
+          <tr>
+            <th scope="row">大町エリア<span class="hrc-hint">大町市内</span></th>
+            <td style="font-size:13px;">信濃大町駅、大町温泉郷 など</td>
+            <td class="num"><span class="price-green">¥6,000</span></td>
+          </tr>
+          <tr>
+            <th scope="row">その他エリア<span class="hrc-hint">長野市・松本市 など</span></th>
+            <td style="font-size:13px;">—</td>
+            <td class="num" style="font-style:italic;color:var(--hrc-muted);font-weight:600;">応相談</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hrc-hint" style="margin-top:10px;">※ 往復でご利用の場合は片道料金の2倍（白馬・小谷エリアなら6,000円）となります。</p>
+  </div>
+</div>
+
+<!-- ═══ 保険 ═══ -->
+<div class="hrc-full hrc-section hrc-section--white">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">保険・補償内容</h2>
+    <p style="font-size:13.5px;color:var(--hrc-muted);margin-bottom:24px;">
+      対人・対物の基本任意保険はレンタル料金に含まれています。
+      車両修理費用およびNOC（ノン・オペレーション・チャージ）は基本補償に含まれないため、下記の追加補償をご検討ください。
+      なお、すべての保険・補償は<strong>21歳以上の運転者</strong>にのみ適用されます。
+    </p>
+
+    <div class="hrc-grid hrc-grid--3" style="margin-bottom:26px;">
+      <div class="hrc-plan">
+        <p class="hrc-plan__label">オプション A</p>
+        <h3 class="hrc-plan__name">基本補償のみ</h3>
+        <p class="hrc-plan__price">¥0 <span>/ 日</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>車両修理費用</span><span class="hrc-no">お客様負担</span></div>
+        <div class="hrc-plan__row"><span>NOC免除</span><span class="hrc-no">対象外</span></div>
+        <p class="hrc-plan__foot">短時間利用・運転経験が豊富な方向け</p>
+      </div>
+
+      <div class="hrc-plan">
+        <p class="hrc-plan__label">オプション B</p>
+        <h3 class="hrc-plan__name">車両補償</h3>
+        <p class="hrc-plan__price">¥3,300 <span>/ 日</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>車両修理費用</span><span class="hrc-yes">補償あり</span></div>
+        <div class="hrc-plan__row"><span>NOC免除</span><span class="hrc-no">対象外</span></div>
+        <p class="hrc-plan__foot">修理費のご負担を避けたい方向け</p>
+      </div>
+
+      <div class="hrc-plan hrc-plan--best">
+        <div class="hrc-plan__ribbon">推奨</div>
+        <p class="hrc-plan__label">オプション C</p>
+        <h3 class="hrc-plan__name">車両補償 ＋ NOC免除</h3>
+        <p class="hrc-plan__price">¥5,500 <span>/ 日</span></p>
+        <hr>
+        <div class="hrc-plan__row"><span>車両修理費用</span><span class="hrc-yes">補償あり</span></div>
+        <div class="hrc-plan__row"><span>NOC免除</span><span class="hrc-yes">あり</span></div>
+        <p class="hrc-plan__foot"><strong>ほとんどのお客様</strong>・安心重視の方におすすめ</p>
+      </div>
+    </div>
+
+    <div class="hrc-note hrc-note--warn" style="margin-bottom:28px;">
+      <strong>【ご注意ください】</strong> スキー場周辺では積雪、凍結路面、狭い山道の影響により事故が発生しやすくなっています。
+      安心してご利用いただくためにも、<strong>オプション C（車両補償＋NOC免除）</strong>をおすすめします。
+      NOCは自走返却可能な場合55,000円、レッカー移動が必要な場合110,000円（いずれも税込）です。
+    </div>
+
+    <div class="hrc-btnrow hrc-btnrow--center">
+      <a href="https://hakubarentacar.com/terms-and-conditions/" class="hrc-btn hrc-btn--ghost">補償内容の詳細（利用規約）</a>
+      <a href="https://hakubarentacar.com/reservations/" class="hrc-btn hrc-btn--gold">今すぐ予約する</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 燃料・注意事項 ═══ -->
+<div class="hrc-full hrc-section hrc-section--bg">
+  <div class="hrc-container hrc-container--narrow">
+    <h2 class="hrc-h3">燃料ポリシー・ご利用上の注意</h2>
+    <p style="font-size:14px;color:var(--hrc-body);">
+      車両は満タンでお渡しし、<strong>返却時も必ずガソリン満タン</strong>でご返却ください。
+      満タンでない場合は、当社所定の計算式に基づき燃料代を精算・ご請求いたします。
+      詳しくは<a href="https://hakubarentacar.com/terms-and-conditions/">利用規約・予約ポリシー</a>をご確認ください。
+    </p>
+
+    <ul style="list-style:none;padding:0;margin:20px 0 32px;">
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>遅延返却は追加料金が発生する場合があります。</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>白馬周辺エリアはガソリンスタンドが少ないため、返却時間に余裕を持ってご給油ください。</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;margin-bottom:10px;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>全車禁煙・ペットのご乗車は不可です。</li>
+      <li style="font-size:13.5px;color:var(--hrc-body);padding-left:20px;position:relative;"><span style="position:absolute;left:0;color:var(--hrc-muted);">*</span>駐車違反金が未納の場合、25,000円を申し受けます。</li>
+    </ul>
+
+    <div class="hrc-alert" style="margin-bottom:28px;">
+      <h3 class="hrc-alert__title">⚠️ 事前予約が必要です</h3>
+      <p><strong>当日のご来店のみでのレンタルはお受けできません。</strong>すべての車両は事前予約が必要です。ご来店前に、WEBまたはお電話にてご予約をお済ませください。</p>
+    </div>
+
+    <div class="hrc-btnrow hrc-btnrow--center">
+      <a href="https://hakubarentacar.com/reservations/" class="hrc-btn hrc-btn--gold">今すぐ予約する</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FAQ ═══ -->
+<div class="hrc-full hrc-section hrc-section--white">
+  <div class="hrc-container">
+    <div class="hrc-center">
+      <p class="hrc-eyebrow">FAQ</p>
+      <h2 class="hrc-h2">料金についてのよくあるご質問</h2>
+    </div>
+
+    <div class="hrc-faq">
+      <details open>
+        <summary>白馬レンタカーの一番安い車種はいくらですか？</summary>
+        <div class="hrc-faq__a"><p>白馬レンタカーで最も安い車種は軽自動車で、24時間あたり税込11,000円です。グリーンシーズン（4月〜11月）は40%OFFの税込6,600円でご利用いただけます。</p></div>
+      </details>
+      <details>
+        <summary>表示料金に保険は含まれていますか？</summary>
+        <div class="hrc-faq__a"><p>はい。表示料金には対人補償（無制限）、対物補償（無制限・免責なし）、人身傷害補償（1名につき3,000万円まで）、ロードサービス（1事故につき15万円まで）が含まれています。ただし車両修理費用とNOCは含まれないため、車両補償（3,300円／日）または車両補償＋NOC免除（5,500円／日）の追加をおすすめします。</p></div>
+      </details>
+      <details>
+        <summary>長期割引はありますか？</summary>
+        <div class="hrc-faq__a"><p>はい。通常期（12月〜3月）は3日以上のご利用で10%OFF、7日以上で20%OFFになります。1ヶ月の料金は軽自動車120,000円、コンパクトカー150,000円、ミニバン220,000円（税込）です。1ヶ月を超える長期レンタルは個別にお見積もりいたします。</p></div>
+      </details>
+      <details>
+        <summary>グリーンシーズン割引と長期割引は併用できますか？</summary>
+        <div class="hrc-faq__a"><p>グリーンシーズン（4月〜11月）は日数にかかわらず一律40%OFFが適用されます。40%OFFは長期割引（10%・20%OFF）よりも割引率が大きいため、グリーンシーズン料金が適用されます。</p></div>
+      </details>
+      <details>
+        <summary>NOC（ノン・オペレーション・チャージ）とは何ですか？</summary>
+        <div class="hrc-faq__a"><p>NOCとは、事故・盗難・汚損などにより車両の修理や清掃が必要になった際、その車両を営業に使用できない期間の休業補償として、実際の修理費とは別にお客様にご負担いただく費用です。白馬レンタカーでは、自走して返却できる場合は55,000円、レッカー移動が必要な場合は110,000円（いずれも税込）です。オプションC（車両補償＋NOC免除・5,500円／日）にご加入いただくと、このNOCが全額免除されます。</p></div>
+      </details>
+      <details>
+        <summary>スタッドレスタイヤは別料金ですか？</summary>
+        <div class="hrc-faq__a"><p>いいえ、別料金はかかりません。白馬レンタカーでは12月〜3月の期間、全車両にスタッドレスタイヤを標準装備しており、追加料金なしでご利用いただけます。</p></div>
+      </details>
+      <details>
+        <summary>キャンセルした場合、料金はかかりますか？</summary>
+        <div class="hrc-faq__a"><p>貸出の48時間前までのキャンセルは無料です。48時間以内のキャンセルは基本料金の50%、無断キャンセル（No-Show）は基本料金の100%を申し受けます。</p></div>
+      </details>
+      <details>
+        <summary>支払いのタイミングと方法を教えてください。</summary>
+        <div class="hrc-faq__a"><p>お支払いは貸渡時（車両をお渡しする際）の前払いです。現金（日本円のみ）、クレジットカード（VISA・Mastercard・AMEX・JCB・Diners）、QR決済（PayPay・Alipay・WeChat Pay）に対応しています。</p></div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 関連ページ ═══ -->
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg">
+  <div class="hrc-container">
+    <h2 class="hrc-h3" style="margin-bottom:18px !important;">関連ページ</h2>
+    <nav class="hrc-links" aria-label="サイト内関連ページ">
+      <a href="https://hakubarentacar.com/access/">店舗案内・アクセス<span>白馬駅前店／白馬乗鞍店</span></a>
+      <a href="https://hakubarentacar.com/howtorent/">ご利用の流れ・免許証<span>予約から返却まで</span></a>
+      <a href="https://hakubarentacar.com/terms-and-conditions/">利用規約・予約ポリシー<span>キャンセル料・保険・NOC</span></a>
+    </nav>
+  </div>
+</div>
+
+</div>
+<!-- ══ .hrc ここまで ══ -->
+
+<!-- ══════════ 構造化データ ══════════ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://hakubarentacar.com/deals/#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "ホーム", "item": "https://hakubarentacar.com/" },
+        { "@type": "ListItem", "position": 2, "name": "車種・料金", "item": "https://hakubarentacar.com/deals/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://hakubarentacar.com/deals/#webpage",
+      "url": "https://hakubarentacar.com/deals/",
+      "name": "車種・料金｜白馬レンタカー",
+      "description": "白馬レンタカーの車種と料金一覧。軽自動車11,000円、コンパクトカー13,000円、ミニバン24,000円（24時間・税込）。グリーンシーズン（4月〜11月）は全車両クラス40%OFF。保険・オプション・送迎料金も掲載。",
+      "inLanguage": "ja",
+      "dateModified": "2026-08-03",
+      "breadcrumb": { "@id": "https://hakubarentacar.com/deals/#breadcrumb" },
+      "about": { "@id": "https://hakubarentacar.com/#autorental" },
+      "speakable": { "@type": "SpeakableSpecification", "cssSelector": [".hrc-keyfacts"] }
+    },
+    {
+      "@type": "AutoRental",
+      "@id": "https://hakubarentacar.com/#autorental",
+      "name": "白馬レンタカー",
+      "url": "https://hakubarentacar.com/",
+      "telephone": "+81-50-1793-0205",
+      "email": "info@hakubarentacar.com",
+      "priceRange": "¥6,600〜¥220,000",
+      "currenciesAccepted": "JPY",
+      "paymentAccepted": "現金, クレジットカード, QRコード決済",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+        "opens": "08:00",
+        "closes": "18:00"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "白馬レンタカー 車種・料金",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "軽自動車レンタル（N-BOX・スペーシア・タント）",
+            "price": "11000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "通常料金（12月〜3月）24時間", "price": "11000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "グリーンシーズン（4月〜11月）24時間", "price": "6600", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "1ヶ月", "price": "120000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "24時間 税込11,000円。グリーンシーズン40%OFFで6,600円。3日以上10%OFF、7日以上20%OFF。1ヶ月120,000円。4WD・スタッドレスタイヤ標準装備。",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/reservations/",
+            "itemOffered": { "@type": "Car", "name": "軽自動車", "vehicleConfiguration": "4WD", "fuelType": "ガソリン", "seatingCapacity": 4, "vehicleEngine": { "@type": "EngineSpecification", "engineDisplacement": { "@type": "QuantitativeValue", "maxValue": 660, "unitCode": "CMQ" } } }
+          },
+          {
+            "@type": "Offer",
+            "name": "コンパクトカーレンタル（5人乗り・4WD）",
+            "price": "13000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "通常料金（12月〜3月）24時間", "price": "13000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "グリーンシーズン（4月〜11月）24時間", "price": "7800", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "1ヶ月", "price": "150000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "24時間 税込13,000円。グリーンシーズン40%OFFで7,800円。3日以上10%OFF、7日以上20%OFF。1ヶ月150,000円。4WD・スタッドレスタイヤ標準装備。",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/reservations/",
+            "itemOffered": { "@type": "Car", "name": "コンパクトカー", "vehicleConfiguration": "4WD", "fuelType": "ガソリン", "seatingCapacity": 5 }
+          },
+          {
+            "@type": "Offer",
+            "name": "ミニバン・ワンボックスレンタル（ヴォクシー・ノア・セレナ）",
+            "price": "24000",
+            "priceCurrency": "JPY",
+            "priceSpecification": [
+              { "@type": "UnitPriceSpecification", "name": "通常料金（12月〜3月）24時間", "price": "24000", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "グリーンシーズン（4月〜11月）24時間", "price": "14400", "priceCurrency": "JPY", "unitCode": "DAY" },
+              { "@type": "UnitPriceSpecification", "name": "1ヶ月", "price": "220000", "priceCurrency": "JPY", "unitCode": "MON" }
+            ],
+            "description": "24時間 税込24,000円。グリーンシーズン40%OFFで14,400円。3日以上10%OFF、7日以上20%OFF。1ヶ月220,000円。4WD・スタッドレスタイヤ標準装備、7〜8人乗り。",
+            "availability": "https://schema.org/InStock",
+            "url": "https://hakubarentacar.com/reservations/",
+            "itemOffered": { "@type": "Car", "name": "ワンボックス・ミニバン", "vehicleConfiguration": "4WD", "fuelType": "ガソリン", "seatingCapacity": 8 }
+          },
+          {
+            "@type": "Offer",
+            "name": "チャイルドシートレンタル",
+            "price": "1100",
+            "priceCurrency": "JPY",
+            "description": "1台あたり税込1,100円／24時間。6歳未満のお子様は使用が義務付けられています。"
+          },
+          {
+            "@type": "Offer",
+            "name": "スキーキャリアレンタル",
+            "price": "1100",
+            "priceCurrency": "JPY",
+            "description": "1台あたり税込1,100円／24時間。スノーボード最大4枚またはスキー最大6セットに対応。"
+          },
+          {
+            "@type": "Offer",
+            "name": "車両補償（オプションB）",
+            "price": "3300",
+            "priceCurrency": "JPY",
+            "description": "1日あたり税込3,300円。車両修理費用を補償。NOCは対象外。"
+          },
+          {
+            "@type": "Offer",
+            "name": "車両補償＋NOC免除（オプションC）",
+            "price": "5500",
+            "priceCurrency": "JPY",
+            "description": "1日あたり税込5,500円。車両修理費用を補償し、NOC（55,000円／110,000円）も全額免除。"
+          },
+          {
+            "@type": "Offer",
+            "name": "送迎サービス（白馬・小谷エリア）",
+            "price": "3000",
+            "priceCurrency": "JPY",
+            "description": "片道税込3,000円、往復6,000円。白馬駅、八方バスターミナル、栂池高原などに対応。大町エリアは片道6,000円。"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://hakubarentacar.com/deals/#faq",
+      "isPartOf": { "@id": "https://hakubarentacar.com/deals/#webpage" },
+      "mainEntity": [
+        { "@type": "Question", "name": "白馬レンタカーの一番安い車種はいくらですか？", "acceptedAnswer": { "@type": "Answer", "text": "白馬レンタカーで最も安い車種は軽自動車で、24時間あたり税込11,000円です。グリーンシーズン（4月〜11月）は40%OFFの税込6,600円でご利用いただけます。" } },
+        { "@type": "Question", "name": "表示料金に保険は含まれていますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。表示料金には対人補償（無制限）、対物補償（無制限・免責なし）、人身傷害補償（1名につき3,000万円まで）、ロードサービス（1事故につき15万円まで）が含まれています。ただし車両修理費用とNOCは含まれないため、車両補償（3,300円／日）または車両補償＋NOC免除（5,500円／日）の追加をおすすめします。" } },
+        { "@type": "Question", "name": "長期割引はありますか？", "acceptedAnswer": { "@type": "Answer", "text": "はい。通常期（12月〜3月）は3日以上のご利用で10%OFF、7日以上で20%OFFになります。1ヶ月の料金は軽自動車120,000円、コンパクトカー150,000円、ミニバン220,000円（税込）です。1ヶ月を超える長期レンタルは個別にお見積もりいたします。" } },
+        { "@type": "Question", "name": "グリーンシーズン割引と長期割引は併用できますか？", "acceptedAnswer": { "@type": "Answer", "text": "グリーンシーズン（4月〜11月）は日数にかかわらず一律40%OFFが適用されます。40%OFFは長期割引（10%・20%OFF）よりも割引率が大きいため、グリーンシーズン料金が適用されます。" } },
+        { "@type": "Question", "name": "NOC（ノン・オペレーション・チャージ）とは何ですか？", "acceptedAnswer": { "@type": "Answer", "text": "NOCとは、事故・盗難・汚損などにより車両の修理や清掃が必要になった際、その車両を営業に使用できない期間の休業補償として、実際の修理費とは別にお客様にご負担いただく費用です。白馬レンタカーでは、自走して返却できる場合は55,000円、レッカー移動が必要な場合は110,000円（いずれも税込）です。オプションC（車両補償＋NOC免除・5,500円／日）にご加入いただくと、このNOCが全額免除されます。" } },
+        { "@type": "Question", "name": "スタッドレスタイヤは別料金ですか？", "acceptedAnswer": { "@type": "Answer", "text": "いいえ、別料金はかかりません。白馬レンタカーでは12月〜3月の期間、全車両にスタッドレスタイヤを標準装備しており、追加料金なしでご利用いただけます。" } },
+        { "@type": "Question", "name": "キャンセルした場合、料金はかかりますか？", "acceptedAnswer": { "@type": "Answer", "text": "貸出の48時間前までのキャンセルは無料です。48時間以内のキャンセルは基本料金の50%、無断キャンセル（No-Show）は基本料金の100%を申し受けます。" } },
+        { "@type": "Question", "name": "支払いのタイミングと方法を教えてください。", "acceptedAnswer": { "@type": "Answer", "text": "お支払いは貸渡時（車両をお渡しする際）の前払いです。現金（日本円のみ）、クレジットカード（VISA・Mastercard・AMEX・JCB・Diners）、QR決済（PayPay・Alipay・WeChat Pay）に対応しています。" } }
+      ]
+    }
+  ]
+}
+</script>
