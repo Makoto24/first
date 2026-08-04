@@ -1,572 +1,121 @@
+<!-- 白馬レンタカー | このHTMLはスタイルを全て style 属性に埋め込んであります。
+     テーマや追加CSSの影響を受けません。WordPressの「カスタムHTML」ブロックに全文貼り付けてください。 -->
+<style>
+/* インライン style では表現できない :hover と details の開閉のみ。
+   このブロックが失われても、レイアウト・配色は一切崩れません。 */
+.hrc a[data-hrc-btn]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08);opacity:.95;}
+.hrc a[data-hrc-link]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08);}
+.hrc summary::-webkit-details-marker{display:none;}
+.hrc summary::marker{content:"";}
+.hrc details[open] [data-hrc-mark]{visibility:hidden;position:relative;}
+.hrc details[open] [data-hrc-mark]::after{content:"−";visibility:visible;position:absolute;right:0;top:0;}
+</style>
 <!-- ══════════════════════════════════════════════════════════════
   白馬レンタカー｜ご利用の流れ・免許証（日本語）  https://hakubarentacar.com/howtorent/
   WordPress「カスタムHTML」ブロックに全文貼り付けてください。
   ══════════════════════════════════════════════════════════════ -->
-<div class="hrc">
-<style>
-/* ══════════════════════════════════════════════════════════════
-   白馬レンタカー 共通デザイン v2.0（干渉対策版）
-
-   設計方針:
-   1. CSS変数を一切使わない  → var() が解決されず色が消える事故を防止
-   2. 色・背景・線・文字サイズは全て !important
-                            → テーマ／追加CSSの上書きを受けない
-   3. 100vw のフルブリードを使わない
-                            → テーマのコンテナと干渉して崩れるのを防止
-   4. font-family は指定しない
-                            → サイト全体のフォント設定をそのまま継承
-   5. 全セレクタを .hrc 配下にスコープ
-                            → 他ページ・テーマ本体に影響を出さない
-   ══════════════════════════════════════════════════════════════ */
-
-.hrc{
-  max-width:100% !important;
-  color:#111111 !important;
-  font-size:16px !important;
-  line-height:1.8 !important;
-  text-align:left !important;
-}
-.hrc *{box-sizing:border-box !important;}
-
-/* 見出しの初期化（クラス側で個別に上書き） */
-.hrc h1,.hrc h2,.hrc h3,.hrc h4,.hrc h5{
-  margin:0 !important;padding:0 !important;border:0 !important;
-  background:none !important;background-color:transparent !important;
-  box-shadow:none !important;text-shadow:none !important;
-  color:#111111 !important;font-weight:800 !important;
-  line-height:1.35 !important;letter-spacing:.02em !important;
-}
-.hrc p{margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.85 !important;}
-.hrc p:last-child{margin-bottom:0 !important;}
-.hrc ul,.hrc ol{margin:0 0 1em !important;padding-left:1.4em !important;}
-.hrc li{margin-bottom:.4em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.85 !important;}
-.hrc li:last-child{margin-bottom:0 !important;}
-.hrc a{color:#1a7a3c !important;text-decoration:none !important;}
-.hrc a:hover{color:#14612f !important;text-decoration:underline !important;}
-.hrc img{display:block !important;max-width:100% !important;height:auto !important;}
-.hrc table{border-collapse:collapse !important;width:100% !important;}
-.hrc strong{font-weight:800 !important;}
-.hrc figure{margin:0 !important;}
-.hrc figcaption{margin:0 !important;}
-.hrc hr{border:0 !important;border-top:1px solid #e8e8e6 !important;margin:0 !important;height:0 !important;}
-
-/* ── レイアウト ─────────────────────────── */
-.hrc-full{position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;}
-.hrc-container{max-width:1080px !important;margin:0 auto !important;padding:0 24px !important;}
-.hrc-container--narrow{max-width:840px !important;}
-.hrc-section{padding:52px 0 !important;}
-.hrc-section--tight{padding:32px 0 !important;}
-.hrc-section--bg{background:#f6f7f9 !important;border-radius:18px !important;margin:14px 0 !important;}
-.hrc-section--white{background:transparent !important;}
-.hrc-rule{border:0 !important;border-top:1px solid #e8e8e6 !important;margin:0 !important;}
-
-/* ── 見出し ─────────────────────────────── */
-.hrc .hrc-eyebrow{
-  font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;
-  color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.5 !important;
-}
-.hrc .hrc-h1{font-size:31px !important;margin:0 0 16px !important;line-height:1.4 !important;}
-.hrc .hrc-h2{
-  font-size:25px !important;margin:0 0 24px !important;padding:0 0 12px !important;
-  border-bottom:3px solid #fecc01 !important;display:inline-block !important;line-height:1.4 !important;
-}
-.hrc .hrc-h3{font-size:19px !important;margin:0 0 14px !important;line-height:1.45 !important;}
-.hrc .hrc-h4{font-size:16px !important;margin:0 0 10px !important;line-height:1.5 !important;}
-.hrc .hrc-lead{
-  color:#3f3f46 !important;font-size:15.5px !important;line-height:1.95 !important;
-  margin:0 0 28px !important;max-width:740px !important;
-}
-.hrc .hrc-center{text-align:center !important;}
-.hrc .hrc-center .hrc-lead{margin-left:auto !important;margin-right:auto !important;}
-@media(max-width:600px){
-  .hrc .hrc-h1{font-size:25px !important;}
-  .hrc .hrc-h2{font-size:21px !important;}
-  .hrc .hrc-h3{font-size:17.5px !important;}
-}
-
-/* ── ボタン ─────────────────────────────── */
-.hrc .hrc-btn{
-  display:inline-block !important;font-weight:800 !important;font-size:15px !important;
-  line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;
-  text-align:center !important;text-decoration:none !important;
-  border:1px solid transparent !important;cursor:pointer !important;
-  transition:transform .18s ease,box-shadow .18s ease !important;
-}
-.hrc .hrc-btn:hover{transform:translateY(-2px) !important;box-shadow:0 10px 24px rgba(0,0,0,.10) !important;text-decoration:none !important;}
-.hrc .hrc-btn--gold{background:#fecc01 !important;color:#111111 !important;border-color:rgba(0,0,0,.10) !important;}
-.hrc .hrc-btn--gold:hover{background:#f0c000 !important;color:#111111 !important;}
-.hrc .hrc-btn--green{background:#1a7a3c !important;color:#ffffff !important;}
-.hrc .hrc-btn--green:hover{background:#14612f !important;color:#ffffff !important;}
-.hrc .hrc-btn--dark{background:#111111 !important;color:#ffffff !important;}
-.hrc .hrc-btn--dark:hover{background:#2a2a2a !important;color:#ffffff !important;}
-.hrc .hrc-btn--ghost{background:#ffffff !important;color:#111111 !important;border-color:#b0b0b0 !important;}
-.hrc .hrc-btn--ghost:hover{background:#111111 !important;color:#ffffff !important;border-color:#111111 !important;}
-.hrc .hrc-btn--sm{padding:10px 18px !important;font-size:13px !important;border-radius:999px !important;}
-.hrc .hrc-btnrow{display:flex !important;flex-wrap:wrap !important;gap:12px !important;margin:0 !important;padding:0 !important;}
-.hrc .hrc-btnrow--center{justify-content:center !important;}
-
-/* ── パンくず ───────────────────────────── */
-.hrc .hrc-crumb{
-  font-size:12.5px !important;color:#767678 !important;padding:14px 0 !important;
-  border-bottom:1px solid #e8e8e6 !important;
-}
-.hrc .hrc-crumb ol{list-style:none !important;margin:0 !important;padding:0 !important;display:flex !important;flex-wrap:wrap !important;gap:8px !important;}
-.hrc .hrc-crumb li{margin:0 !important;font-size:12.5px !important;color:#767678 !important;}
-.hrc .hrc-crumb li+li::before{content:"›" !important;margin-right:8px !important;color:#bbbbbb !important;}
-.hrc .hrc-crumb a{color:#767678 !important;}
-
-/* ── バッジ ─────────────────────────────── */
-.hrc .hrc-badgebar{
-  background:#fecc01 !important;display:flex !important;flex-wrap:wrap !important;
-  justify-content:center !important;gap:10px 24px !important;padding:14px 20px !important;
-  border-radius:12px !important;margin-bottom:8px !important;
-}
-.hrc .hrc-badgebar span{
-  font-size:12.5px !important;font-weight:800 !important;color:#111111 !important;
-  letter-spacing:.05em !important;display:inline-flex !important;align-items:center !important;gap:6px !important;
-}
-.hrc .hrc-pill{
-  display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;
-  font-size:11.5px !important;font-weight:800 !important;letter-spacing:.05em !important;
-  padding:5px 12px !important;border-radius:999px !important;line-height:1.6 !important;
-}
-.hrc .hrc-pill--gold{background:#fecc01 !important;color:#111111 !important;}
-.hrc .hrc-pill--dark{background:#111111 !important;color:#ffffff !important;}
-
-/* ── 要点まとめ（AIO用） ─────────────────── */
-.hrc .hrc-keyfacts{
-  background:#ffffff !important;border:2px solid #1a7a3c !important;
-  border-radius:16px !important;padding:26px 28px !important;
-  box-shadow:0 12px 28px rgba(26,122,60,.10) !important;margin:0 0 36px !important;
-}
-.hrc .hrc-keyfacts-title{
-  font-size:15px !important;font-weight:800 !important;color:#1a7a3c !important;
-  margin:0 0 14px !important;letter-spacing:.06em !important;line-height:1.5 !important;
-}
-.hrc .hrc-keyfacts ul{list-style:none !important;margin:0 !important;padding:0 !important;}
-.hrc .hrc-keyfacts li{
-  position:relative !important;padding-left:26px !important;margin-bottom:9px !important;
-  font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;
-}
-.hrc .hrc-keyfacts li::before{
-  content:"✓" !important;position:absolute !important;left:0 !important;top:0 !important;
-  color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;
-}
-.hrc .hrc-keyfacts li strong{color:#111111 !important;}
-@media(max-width:600px){.hrc .hrc-keyfacts{padding:20px 18px !important;}}
-
-/* ── グリッド／カード ───────────────────── */
-.hrc .hrc-grid{display:grid !important;gap:20px !important;}
-.hrc .hrc-grid--2{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-.hrc .hrc-grid--3{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}
-.hrc .hrc-grid--4{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
-@media(max-width:960px){
-  .hrc .hrc-grid--3,.hrc .hrc-grid--4{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-}
-@media(max-width:700px){
-  .hrc .hrc-grid--2,.hrc .hrc-grid--3,.hrc .hrc-grid--4{grid-template-columns:minmax(0,1fr) !important;}
-}
-
-.hrc .hrc-card{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;
-  border-radius:14px !important;overflow:hidden !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.05) !important;
-  display:flex !important;flex-direction:column !important;
-}
-.hrc .hrc-card__img{width:100% !important;height:180px !important;object-fit:cover !important;}
-.hrc .hrc-card__body{padding:20px !important;display:flex !important;flex-direction:column !important;flex:1 1 auto !important;}
-.hrc .hrc-card__title{font-size:16.5px !important;margin:0 0 10px !important;line-height:1.5 !important;}
-.hrc .hrc-card__text{color:#3f3f46 !important;font-size:14.5px !important;line-height:1.9 !important;flex:1 1 auto !important;margin:0 0 16px !important;}
-
-/* ── 店舗カード ─────────────────────────── */
-.hrc .hrc-shop{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  overflow:hidden !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;
-  display:flex !important;flex-direction:column !important;
-}
-.hrc .hrc-shop__head{background:#1a7a3c !important;padding:22px 24px !important;}
-.hrc .hrc-shop__name{font-size:19px !important;color:#ffffff !important;margin:10px 0 0 !important;line-height:1.45 !important;}
-.hrc .hrc-shop__sub{font-size:13.5px !important;color:#e4f2e9 !important;margin:6px 0 0 !important;line-height:1.7 !important;}
-.hrc .hrc-shop__body{padding:24px !important;flex:1 1 auto !important;}
-.hrc .hrc-shop__map{
-  position:relative !important;padding-bottom:62% !important;height:0 !important;
-  overflow:hidden !important;border-top:1px solid #e8e8e6 !important;background:#eeeeee !important;
-}
-.hrc .hrc-shop__map iframe{position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;border:0 !important;}
-
-/* ── 定義リスト ─────────────────────────── */
-.hrc .hrc-dl{margin:0 0 20px !important;padding:0 !important;}
-.hrc .hrc-dl__row{
-  display:grid !important;grid-template-columns:104px minmax(0,1fr) !important;gap:12px !important;
-  padding:12px 0 !important;border-bottom:1px solid #efefed !important;align-items:start !important;
-}
-.hrc .hrc-dl__row:last-child{border-bottom:0 !important;}
-.hrc .hrc-dl dt{font-size:12px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.04em !important;margin:0 !important;padding-top:3px !important;line-height:1.7 !important;}
-.hrc .hrc-dl dd{margin:0 !important;font-size:14.5px !important;color:#3f3f46 !important;line-height:1.85 !important;}
-.hrc .hrc-dl dd strong{color:#111111 !important;}
-.hrc .hrc-hint{display:block !important;font-size:12.5px !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;font-weight:400 !important;}
-@media(max-width:600px){.hrc .hrc-dl__row{grid-template-columns:84px minmax(0,1fr) !important;gap:10px !important;}}
-
-/* ── テーブル ───────────────────────────── */
-.hrc .hrc-tablewrap{
-  overflow-x:auto !important;border:1px solid #e8e8e6 !important;
-  border-radius:12px !important;background:#ffffff !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;
-}
-.hrc .hrc-table{font-size:14px !important;min-width:520px !important;}
-.hrc .hrc-table caption{
-  caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;
-  color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;
-}
-.hrc .hrc-table thead th{
-  background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;
-  letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;
-  vertical-align:bottom !important;line-height:1.5 !important;border:0 !important;
-}
-.hrc .hrc-table thead th.num{text-align:right !important;}
-.hrc .hrc-table thead th.hl{background:#1a7a3c !important;color:#fecc01 !important;text-align:right !important;}
-.hrc .hrc-table thead .sub{display:block !important;margin-top:5px !important;font-size:10.5px !important;font-weight:400 !important;letter-spacing:.06em !important;color:#d9d9d9 !important;}
-.hrc .hrc-table thead th.hl .sub{color:#d8ecdf !important;}
-.hrc .hrc-table tbody th{
-  text-align:left !important;font-weight:700 !important;padding:14px 18px !important;
-  border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;
-  background:#ffffff !important;font-size:14px !important;line-height:1.7 !important;
-}
-.hrc .hrc-table tbody td{
-  padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;
-  vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;
-  background:#ffffff !important;line-height:1.7 !important;
-}
-.hrc .hrc-table tbody tr:last-child th,
-.hrc .hrc-table tbody tr:last-child td{border-bottom:0 !important;}
-.hrc .hrc-table tbody tr:nth-child(even) th,
-.hrc .hrc-table tbody tr:nth-child(even) td{background:#fbfbfa !important;}
-.hrc .hrc-table td.num{text-align:right !important;font-weight:700 !important;color:#111111 !important;white-space:nowrap !important;}
-.hrc .hrc-table td.hl{text-align:right !important;background:#f0faf4 !important;white-space:nowrap !important;}
-.hrc .hrc-table tbody tr:nth-child(even) td.hl{background:#e8f6ee !important;}
-.hrc .hrc-table .price{font-size:15px !important;font-weight:800 !important;color:#111111 !important;}
-.hrc .hrc-table .price-green{font-size:16px !important;font-weight:800 !important;color:#1a7a3c !important;}
-.hrc .hrc-table .strike{text-decoration:line-through !important;color:#ababab !important;font-size:12.5px !important;font-weight:400 !important;margin-right:5px !important;}
-.hrc .hrc-table .off{
-  display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;font-size:10px !important;
-  font-weight:700 !important;letter-spacing:.06em !important;padding:3px 7px !important;border-radius:4px !important;margin-right:6px !important;
-}
-.hrc .hrc-table .dnote{font-size:11.5px !important;color:#8e8e91 !important;font-weight:400 !important;margin-right:6px !important;}
-.hrc .hrc-table .foot td{text-align:center !important;font-size:13px !important;color:#767678 !important;font-style:italic !important;background:#ffffff !important;font-weight:400 !important;}
-.hrc .hrc-table .neg{color:#c0392b !important;font-weight:800 !important;}
-.hrc .hrc-table .pos{color:#1a7a3c !important;font-weight:800 !important;}
-.hrc .hrc-table a{color:#1a7a3c !important;font-weight:700 !important;}
-@media(max-width:600px){
-  .hrc .hrc-table thead th,.hrc .hrc-table tbody th,.hrc .hrc-table tbody td{padding:11px 12px !important;}
-  .hrc .hrc-table caption{padding:12px 12px 0 !important;}
-}
-
-/* ── 注意ボックス ───────────────────────── */
-.hrc .hrc-note{
-  border-radius:0 10px 10px 0 !important;padding:18px 22px !important;
-  font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;
-}
-.hrc .hrc-note p,.hrc .hrc-note li{font-size:14.5px !important;color:#3f3f46 !important;}
-.hrc .hrc-note strong{color:#111111 !important;}
-.hrc .hrc-note--info{background:#ffffff !important;border-left:4px solid #fecc01 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;}
-.hrc .hrc-note--warn{background:#fff8e1 !important;border-left:4px solid #fecc01 !important;}
-.hrc .hrc-note--danger{background:#fff5f5 !important;border:2px solid #c0392b !important;border-radius:10px !important;}
-.hrc .hrc-note--danger strong{color:#c0392b !important;}
-
-.hrc .hrc-alert{
-  background:#fff3cd !important;border:2px solid #f2b600 !important;border-radius:14px !important;
-  padding:24px 26px !important;box-shadow:0 10px 24px rgba(0,0,0,.06) !important;
-  max-width:760px !important;margin:0 auto !important;text-align:center !important;
-}
-.hrc .hrc-alert__title{font-size:16.5px !important;color:#8a6200 !important;margin:0 0 10px !important;line-height:1.6 !important;}
-.hrc .hrc-alert p{font-size:14.5px !important;color:#3f3f46 !important;margin:0 !important;}
-
-/* ── キャンペーン ───────────────────────── */
-.hrc .hrc-topbar{
-  background:#1a7a3c !important;padding:14px 22px !important;border-radius:12px !important;
-  display:flex !important;align-items:center !important;justify-content:center !important;
-  gap:14px !important;flex-wrap:wrap !important;
-}
-.hrc .hrc-topbar p{color:#ffffff !important;font-size:14.5px !important;font-weight:700 !important;margin:0 !important;text-align:center !important;line-height:1.7 !important;}
-.hrc .hrc-topbar strong{color:#fecc01 !important;}
-.hrc .hrc-topbar small{color:#d8ecdf !important;font-size:12.5px !important;font-weight:400 !important;}
-
-.hrc .hrc-campaign{
-  background:#1a7a3c !important;border-radius:16px !important;
-  border-left:5px solid #fecc01 !important;padding:26px 28px !important;
-  box-shadow:0 12px 28px rgba(26,122,60,.18) !important;
-}
-.hrc .hrc-campaign h2,.hrc .hrc-campaign h3{color:#ffffff !important;border:0 !important;padding:0 !important;}
-.hrc .hrc-campaign p{color:#ffffff !important;}
-.hrc .hrc-campaign strong{color:#fecc01 !important;}
-.hrc .hrc-campaign__excl{
-  font-size:13px !important;background:rgba(0,0,0,.24) !important;padding:12px 16px !important;
-  border-radius:8px !important;line-height:1.8 !important;margin:0 !important;color:#ffffff !important;
-}
-.hrc .hrc-campaign__excl strong{color:#fecc01 !important;}
-
-.hrc .hrc-ctaband{
-  background:#111111 !important;border-radius:16px !important;
-  border-left:5px solid #fecc01 !important;padding:26px 28px !important;
-  box-shadow:0 10px 24px rgba(0,0,0,.10) !important;
-}
-.hrc .hrc-ctaband h3{color:#ffffff !important;margin:0 0 8px !important;font-size:17px !important;}
-.hrc .hrc-ctaband p{color:#dcdcdc !important;font-size:14px !important;margin:0 0 18px !important;}
-.hrc .hrc-ctaband strong{color:#fecc01 !important;}
-
-.hrc .hrc-cta{display:flex !important;flex-wrap:wrap !important;gap:16px !important;align-items:center !important;justify-content:space-between !important;}
-.hrc .hrc-cta__title{font-size:20px !important;margin:0 0 8px !important;}
-.hrc .hrc-cta__text{color:#3f3f46 !important;margin:0 !important;}
-
-@media(max-width:600px){
-  .hrc .hrc-campaign,.hrc .hrc-ctaband{padding:20px 18px !important;}
-  .hrc .hrc-alert{padding:18px 16px !important;}
-}
-
-/* ── ステップ ───────────────────────────── */
-.hrc .hrc-step{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;
-}
-.hrc .hrc-step__num{
-  display:inline-flex !important;align-items:center !important;justify-content:center !important;
-  width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;
-  color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;
-}
-.hrc .hrc-step__title{font-size:16px !important;margin:0 0 10px !important;}
-.hrc .hrc-step p,.hrc .hrc-step li{font-size:14px !important;color:#3f3f46 !important;line-height:1.9 !important;}
-
-/* ── 保険プラン ─────────────────────────── */
-.hrc .hrc-plan{
-  background:#f6f7f9 !important;border:1px solid #e2e2e0 !important;
-  border-radius:12px !important;padding:28px 22px 30px !important;position:relative !important;
-}
-.hrc .hrc-plan--best{background:#111111 !important;border:2px solid #fecc01 !important;padding-top:46px !important;}
-.hrc .hrc-plan__ribbon{
-  position:absolute !important;top:0 !important;left:0 !important;right:0 !important;background:#fecc01 !important;
-  text-align:center !important;font-size:10.5px !important;font-weight:800 !important;letter-spacing:.14em !important;
-  color:#111111 !important;padding:7px 0 !important;border-radius:10px 10px 0 0 !important;line-height:1.4 !important;
-}
-.hrc .hrc-plan__label{font-size:10.5px !important;font-weight:800 !important;letter-spacing:.18em !important;text-transform:uppercase !important;color:#767678 !important;margin:0 0 6px !important;}
-.hrc .hrc-plan__name{font-size:14px !important;margin:0 0 16px !important;line-height:1.5 !important;}
-.hrc .hrc-plan__price{font-size:30px !important;font-weight:800 !important;line-height:1.1 !important;margin:0 0 4px !important;color:#111111 !important;}
-.hrc .hrc-plan__price span{font-size:12.5px !important;color:#767678 !important;font-weight:400 !important;}
-.hrc .hrc-plan hr{border-top:1px solid #e0e0de !important;margin:16px 0 !important;}
-.hrc .hrc-plan__row{display:flex !important;justify-content:space-between !important;margin-bottom:9px !important;font-size:12.5px !important;gap:8px !important;}
-.hrc .hrc-plan__row span:first-child{color:#767678 !important;}
-.hrc .hrc-plan__foot{font-size:12px !important;color:#767678 !important;line-height:1.7 !important;margin:8px 0 0 !important;}
-.hrc .hrc-plan--best .hrc-plan__label{color:#8f8f8f !important;}
-.hrc .hrc-plan--best .hrc-plan__name{color:#ffffff !important;}
-.hrc .hrc-plan--best .hrc-plan__price{color:#fecc01 !important;}
-.hrc .hrc-plan--best .hrc-plan__price span{color:#8f8f8f !important;}
-.hrc .hrc-plan--best hr{border-top:1px solid #333333 !important;}
-.hrc .hrc-plan--best .hrc-plan__row span:first-child{color:#a5a5a5 !important;}
-.hrc .hrc-plan--best .hrc-plan__foot{color:#a5a5a5 !important;}
-.hrc .hrc-plan--best .hrc-plan__foot strong{color:#fecc01 !important;}
-.hrc .hrc-yes{color:#1a7a3c !important;font-weight:800 !important;}
-.hrc .hrc-plan--best .hrc-yes{color:#4ec77a !important;}
-.hrc .hrc-no{color:#c0392b !important;font-weight:800 !important;}
-
-/* ── FAQ（details＝JS不要） ──────────────── */
-.hrc .hrc-faq{max-width:840px !important;margin:0 auto !important;}
-.hrc .hrc-faq details{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;
-  margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;overflow:hidden !important;
-}
-.hrc .hrc-faq summary{
-  cursor:pointer !important;list-style:none !important;padding:20px 54px 20px 22px !important;
-  font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;
-  position:relative !important;line-height:1.75 !important;background:#ffffff !important;
-}
-.hrc .hrc-faq summary::-webkit-details-marker{display:none !important;}
-.hrc .hrc-faq summary::after{
-  content:"+" !important;position:absolute !important;right:22px !important;top:50% !important;
-  transform:translateY(-50%) !important;font-size:22px !important;font-weight:700 !important;
-  color:#1a7a3c !important;line-height:1 !important;
-}
-.hrc .hrc-faq details[open] summary::after{content:"−" !important;}
-.hrc .hrc-faq details[open] summary{border-bottom:1px solid #e8e8e6 !important;}
-.hrc .hrc-faq .hrc-faq__a{padding:18px 22px 22px !important;background:#ffffff !important;}
-.hrc .hrc-faq .hrc-faq__a p{color:#3f3f46 !important;font-size:14.5px !important;line-height:2 !important;margin:0 !important;}
-
-/* ── 更新日 ─────────────────────────────── */
-.hrc .hrc-updated{font-size:12.5px !important;color:#767678 !important;margin:0 0 24px !important;}
-
-/* ── 相互リンク ─────────────────────────── */
-.hrc .hrc-links{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important;}
-@media(max-width:820px){.hrc .hrc-links{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
-@media(max-width:520px){.hrc .hrc-links{grid-template-columns:minmax(0,1fr) !important;}}
-.hrc .hrc-links a{
-  display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;
-  border-radius:12px !important;padding:16px 18px !important;
-  font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;
-  transition:transform .18s ease,box-shadow .18s ease !important;line-height:1.6 !important;
-}
-.hrc .hrc-links a:hover{transform:translateY(-2px) !important;box-shadow:0 10px 24px rgba(0,0,0,.09) !important;color:#111111 !important;text-decoration:none !important;}
-.hrc .hrc-links a span{display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.7 !important;}
-
-/* ── ヒーロー（絶対配置なし・崩れない実装） ─ */
-.hrc .hrc-hero{display:block !important;margin:0 0 8px !important;}
-.hrc .hrc-hero__img{
-  width:100% !important;height:auto !important;aspect-ratio:16/6 !important;
-  object-fit:cover !important;border-radius:16px !important;margin:0 0 26px !important;
-}
-.hrc .hrc-hero__logo{width:100% !important;max-width:300px !important;height:auto !important;margin:0 0 18px !important;}
-.hrc .hrc-hero__sub{font-size:16.5px !important;font-weight:700 !important;color:#111111 !important;line-height:1.85 !important;margin:0 0 18px !important;}
-.hrc .hrc-hero__list{margin:0 0 24px 1.3em !important;padding:0 !important;}
-.hrc .hrc-hero__list li{font-size:15px !important;color:#3f3f46 !important;line-height:1.95 !important;}
-.hrc .hrc-hero__card{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  padding:22px !important;box-shadow:0 10px 24px rgba(0,0,0,.07) !important;max-width:560px !important;margin:0 !important;
-}
-@media(max-width:600px){
-  .hrc .hrc-hero__img{aspect-ratio:16/9 !important;border-radius:12px !important;margin-bottom:20px !important;}
-  .hrc .hrc-hero__sub{font-size:15px !important;}
-}
-
-/* ── 画像・ギャラリー ───────────────────── */
-.hrc .hrc-gal img{border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;}
-
-/* 車種画像（定員バッジを右下に重ねる） */
-.hrc .hrc-figure{margin:0 0 24px !important;position:relative !important;}
-.hrc .hrc-figure img{width:100% !important;aspect-ratio:16/7 !important;object-fit:cover !important;border-radius:12px !important;}
-.hrc .hrc-figure figcaption{position:absolute !important;bottom:14px !important;right:14px !important;margin:0 !important;}
-
-/* 記事中の写真（キャプションは下） */
-.hrc .hrc-photo{margin:0 0 28px !important;}
-.hrc .hrc-photo img{width:100% !important;aspect-ratio:16/9 !important;object-fit:cover !important;border-radius:14px !important;}
-.hrc .hrc-photo figcaption{font-size:12.5px !important;color:#767678 !important;margin-top:8px !important;line-height:1.7 !important;text-align:left !important;}
-
-/* テーブル内の補助表現 */
-.hrc .hrc-table td.soft{color:#767678 !important;font-weight:600 !important;font-style:italic !important;}
-.hrc .hrc-table td.small{font-size:13px !important;}
-.hrc .hrc-table th .unit{font-size:12px !important;color:#999999 !important;font-weight:400 !important;}
-
-/* ── ユーティリティ ─────────────────────── */
-.hrc .hrc-sr{position:absolute !important;width:1px !important;height:1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;}
-.hrc .hrc-mb0{margin-bottom:0 !important;}
-.hrc .hrc-mt24{margin-top:24px !important;}
-.hrc .hrc-body-text{color:#3f3f46 !important;font-size:15.5px !important;line-height:1.95 !important;}
-.hrc .hrc-muted-text{color:#767678 !important;font-size:13.5px !important;line-height:1.85 !important;}
-.hrc .hrc-notelist{list-style:none !important;padding:0 !important;margin:20px 0 32px !important;}
-.hrc .hrc-notelist li{font-size:13.5px !important;color:#3f3f46 !important;line-height:1.85 !important;padding-left:20px !important;position:relative !important;margin-bottom:10px !important;}
-.hrc .hrc-notelist li::before{content:"*" !important;position:absolute !important;left:0 !important;color:#767678 !important;}
-.hrc .hrc-sign{text-align:right !important;color:#767678 !important;font-size:14px !important;margin-top:20px !important;}
-
-@media(prefers-reduced-motion:reduce){
-  .hrc *{transition:none !important;animation:none !important;}
-  .hrc .hrc-btn:hover,.hrc .hrc-links a:hover{transform:none !important;}
-}
-@media(max-width:600px){
-  .hrc .hrc-section{padding:38px 0 !important;}
-  .hrc .hrc-container{padding:0 16px !important;}
-  .hrc .hrc-card__body,.hrc .hrc-shop__body{padding:18px !important;}
-  .hrc .hrc-btn{padding:14px 20px !important;font-size:14px !important;}
-}
-
-</style>
+<div class="hrc" style="color:#111111 !important;line-height:1.8 !important;text-align:left !important;max-width:100% !important;box-sizing:border-box !important;overflow-wrap:break-word !important;">
 
 <!-- ═══ パンくず ═══ -->
-<div class="hrc-container">
-  <nav class="hrc-crumb" aria-label="パンくずリスト">
-    <ol>
-      <li><a href="https://hakubarentacar.com/">ホーム</a></li>
-      <li>ご利用の流れ・免許証</li>
+<div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+  <nav class="hrc-crumb" aria-label="パンくずリスト" style="margin:0 !important;padding:0 !important;font-size:12.5px !important;color:#767678 !important;padding:14px 0 !important;border-bottom:1px solid #e8e8e6 !important;margin:0 !important;">
+    <ol style="list-style:none !important;margin:0 !important;padding:0 !important;display:flex !important;flex-wrap:wrap !important;gap:8px !important;margin:0 0 1em !important;padding-left:1.5em !important;list-style:decimal !important;">
+      <li style="margin:0 !important;font-size:12.5px !important;color:#767678 !important;line-height:1.7 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><a href="https://hakubarentacar.com/" style="color:#1a7a3c !important;text-decoration:none !important;color:#767678 !important;">ホーム</a></li>
+      <li style="margin:0 !important;font-size:12.5px !important;color:#767678 !important;line-height:1.7 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="margin-right:8px !important;color:#bbbbbb !important;" aria-hidden="true">›</span>ご利用の流れ・免許証</li>
     </ol>
   </nav>
 </div>
 
 <!-- ═══ 導入 ═══ -->
-<div class="hrc-container hrc-section hrc-section--tight">
-  <p class="hrc-eyebrow">How to Rent</p>
-  <h1 class="hrc-h1">ご利用の流れ・免許証・トラブル時の対応</h1>
-  <p class="hrc-lead">
+<div class="hrc-container hrc-section hrc-section--tight" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;">
+  <p class="hrc-eyebrow" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.6 !important;">How to Rent</p>
+  <h1 class="hrc-h1" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(23px,3.4vw,31px) !important;margin:0 0 16px !important;line-height:1.45 !important;border:0 !important;padding:0 !important;">ご利用の流れ・免許証・トラブル時の対応</h1>
+  <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">
     白馬レンタカーのご予約から返却までの手順、運転免許証に関するルール、事故やトラブル発生時の対応についてご案内します。
   </p>
-  <p class="hrc-updated">🕒 最終更新：2026年8月</p>
+  <p class="hrc-updated" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:12.5px !important;color:#767678 !important;margin:0 0 24px !important;">🕒 最終更新：2026年8月</p>
 
-  <div class="hrc-note hrc-note--danger" style="margin-bottom:32px;">
-    <strong>【重要】</strong>保険の補償内容やキャンセル料については、ご予約前に必ず
-    <a href="https://hakubarentacar.com/terms-and-conditions/">利用規約・予約ポリシー</a>をご確認ください。
+  <div class="hrc-note hrc-note--danger" style="border-radius:0 10px 10px 0 !important;padding:18px 22px !important;font-size:14.5px !important;line-height:1.95 !important;color:#3f3f46 !important;background:#fff5f5 !important;border:2px solid #c0392b !important;border-radius:10px !important;margin-bottom:32px;">
+    <strong style="font-weight:800 !important;color:#111111 !important;">【重要】</strong>保険の補償内容やキャンセル料については、ご予約前に必ず
+    <a href="https://hakubarentacar.com/terms-and-conditions/" style="color:#1a7a3c !important;text-decoration:none !important;">利用規約・予約ポリシー</a>をご確認ください。
   </div>
 
-  <div class="hrc-keyfacts">
-    <h2 class="hrc-keyfacts-title">📌 ご利用手順の要点</h2>
-    <ul>
-      <li>白馬レンタカーは<strong>完全事前予約制</strong>です。当日の飛び込み利用はできません。</li>
-      <li>予約はWebフォームから送信し、<strong>2営業日以内</strong>に確認メールが届きます。</li>
-      <li>貸渡当日に必要なものは<strong>運転免許証の原本</strong>、訪日のお客様は<strong>パスポート</strong>、お支払い手段です。</li>
-      <li>お支払いは<strong>貸渡時の前払い</strong>。現金（日本円）・クレジットカード・QR決済に対応しています。</li>
-      <li>返却時は<strong>ガソリン満タン</strong>が必要です。</li>
-      <li>運転には、日本の免許証、<strong>1949年ジュネーブ条約</strong>の国際運転免許証、または対象国免許証＋日本語公式翻訳文のいずれかが必要です。</li>
-      <li><strong>1968年ウィーン条約</strong>の国際免許証は日本では使用できません。</li>
-      <li>事故の際は<strong>必ず警察（110番）に届け出</strong>てください。届け出がない場合、保険は適用されません。</li>
+  <div class="hrc-keyfacts" style="background:#ffffff !important;border:2px solid #1a7a3c !important;border-radius:16px !important;padding:clamp(18px,3vw,26px) clamp(16px,3vw,28px) !important;box-shadow:0 12px 28px rgba(26,122,60,.10) !important;margin:0 0 36px !important;">
+    <h2 class="hrc-keyfacts-title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:15px !important;font-weight:800 !important;color:#1a7a3c !important;margin:0 0 14px !important;letter-spacing:.06em !important;line-height:1.6 !important;border:0 !important;padding:0 !important;">📌 ご利用手順の要点</h2>
+    <ul style="list-style:none !important;margin:0 !important;padding:0 !important;margin:0 0 1em !important;padding-left:1.4em !important;list-style:disc !important;">
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">白馬レンタカーは<strong style="font-weight:800 !important;color:#111111 !important;">完全事前予約制</strong>です。当日の飛び込み利用はできません。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">予約はWebフォームから送信し、<strong style="font-weight:800 !important;color:#111111 !important;">2営業日以内</strong>に確認メールが届きます。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">貸渡当日に必要なものは<strong style="font-weight:800 !important;color:#111111 !important;">運転免許証の原本</strong>、訪日のお客様は<strong style="font-weight:800 !important;color:#111111 !important;">パスポート</strong>、お支払い手段です。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">お支払いは<strong style="font-weight:800 !important;color:#111111 !important;">貸渡時の前払い</strong>。現金（日本円）・クレジットカード・QR決済に対応しています。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">返却時は<strong style="font-weight:800 !important;color:#111111 !important;">ガソリン満タン</strong>が必要です。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">運転には、日本の免許証、<strong style="font-weight:800 !important;color:#111111 !important;">1949年ジュネーブ条約</strong>の国際運転免許証、または対象国免許証＋日本語公式翻訳文のいずれかが必要です。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;"><strong style="font-weight:800 !important;color:#111111 !important;">1968年ウィーン条約</strong>の国際免許証は日本では使用できません。</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">事故の際は<strong style="font-weight:800 !important;color:#111111 !important;">必ず警察（110番）に届け出</strong>てください。届け出がない場合、保険は適用されません。</span></li>
     </ul>
   </div>
 </div>
 
 <!-- ═══ ご利用の流れ ═══ -->
-<div class="hrc-full hrc-section hrc-section--bg">
-  <div class="hrc-container">
-    <h2 class="hrc-h2">ご利用の流れ（4ステップ）</h2>
+<div class="hrc-full hrc-section hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">ご利用の流れ（4ステップ）</h2>
 
-    <div class="hrc-grid hrc-grid--2">
-      <div class="hrc-step">
-        <span class="hrc-step__num">1</span>
-        <h3 class="hrc-step__title">予約リクエスト</h3>
-        <p>Webサイトの予約フォームよりお申し込みください。空車状況を確認のうえ、<strong>2営業日以内</strong>に確認メールをお送りします。
+    <div class="hrc-grid hrc-grid--2" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(300px,1fr)) !important;">
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">1</span>
+        <h3 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">予約リクエスト</h3>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Webサイトの予約フォームよりお申し込みください。空車状況を確認のうえ、<strong style="font-weight:800 !important;color:#111111 !important;">2営業日以内</strong>に確認メールをお送りします。
         返信は営業時間内（8:00〜18:00）に行います。</p>
       </div>
 
-      <div class="hrc-step">
-        <span class="hrc-step__num">2</span>
-        <h3 class="hrc-step__title">ご来店</h3>
-        <p>当日は以下のいずれかの方法でご来店ください。</p>
-        <ul>
-          <li><strong>直接来店：</strong>白馬駅前店（JR白馬駅から徒歩4分）または白馬乗鞍店（白馬コルチナロッジ内）へお越しください。</li>
-          <li><strong>送迎サービス：</strong>ご宿泊先や最寄り駅（白馬・小谷エリア内）までお迎えにあがります。片道3,000円（税込）。</li>
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">2</span>
+        <h3 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">ご来店</h3>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">当日は以下のいずれかの方法でご来店ください。</p>
+        <ul style="margin:0 0 1em !important;padding-left:1.4em !important;list-style:disc !important;">
+          <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><strong style="font-weight:800 !important;color:#111111 !important;">直接来店：</strong>白馬駅前店（JR白馬駅から徒歩4分）または白馬乗鞍店（白馬コルチナロッジ内）へお越しください。</li>
+          <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><strong style="font-weight:800 !important;color:#111111 !important;">送迎サービス：</strong>ご宿泊先や最寄り駅（白馬・小谷エリア内）までお迎えにあがります。片道3,000円（税込）。</li>
         </ul>
       </div>
 
-      <div class="hrc-step">
-        <span class="hrc-step__num">3</span>
-        <h3 class="hrc-step__title">貸渡手続き</h3>
-        <p><strong>当日必要なもの</strong></p>
-        <ul>
-          <li>運転免許証（原本）</li>
-          <li>パスポート（訪日外国人のお客様）</li>
-          <li>お支払い手段</li>
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">3</span>
+        <h3 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">貸渡手続き</h3>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;"><strong style="font-weight:800 !important;color:#111111 !important;">当日必要なもの</strong></p>
+        <ul style="margin:0 0 1em !important;padding-left:1.4em !important;list-style:disc !important;">
+          <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;">運転免許証（原本）</li>
+          <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;">パスポート（訪日外国人のお客様）</li>
+          <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;">お支払い手段</li>
         </ul>
-        <p>手続きの内容：契約書へのご署名、<strong>料金のお支払い</strong>、車体のキズ確認を行い、鍵をお渡しします。</p>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">手続きの内容：契約書へのご署名、<strong style="font-weight:800 !important;color:#111111 !important;">料金のお支払い</strong>、車体のキズ確認を行い、鍵をお渡しします。</p>
       </div>
 
-      <div class="hrc-step">
-        <span class="hrc-step__num">4</span>
-        <h3 class="hrc-step__title">ご返却</h3>
-        <p>返却時間に遅れないよう店舗へお戻りください。燃料は<strong>満タン返し</strong>をお願いします。
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">4</span>
+        <h3 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">ご返却</h3>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">返却時間に遅れないよう店舗へお戻りください。燃料は<strong style="font-weight:800 !important;color:#111111 !important;">満タン返し</strong>をお願いします。
         超過料金や燃料代がある場合はこの時点で精算します。</p>
-        <p><strong>送りサービス：</strong>ご返却後、ホテルや駅などの指定場所までお送りいたします。
-        また、<strong>店舗間の乗り捨て</strong>（白馬駅前店で借りて白馬乗鞍店で返却など）にも対応しています。</p>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;"><strong style="font-weight:800 !important;color:#111111 !important;">送りサービス：</strong>ご返却後、ホテルや駅などの指定場所までお送りいたします。
+        また、<strong style="font-weight:800 !important;color:#111111 !important;">店舗間の乗り捨て</strong>（白馬駅前店で借りて白馬乗鞍店で返却など）にも対応しています。</p>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ═══ お支払い方法 ═══ -->
-<div class="hrc-full hrc-section hrc-section--white">
-  <div class="hrc-container hrc-container--narrow">
-    <h2 class="hrc-h2">お支払い方法</h2>
-    <p class="hrc-lead">料金は<strong>貸渡時に前払い</strong>となります。以下のお支払い方法をご利用いただけます。</p>
+<div class="hrc-full hrc-section hrc-section--white" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:transparent !important;">
+  <div class="hrc-container hrc-container--narrow" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">お支払い方法</h2>
+    <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">料金は<strong style="font-weight:800 !important;color:#111111 !important;">貸渡時に前払い</strong>となります。以下のお支払い方法をご利用いただけます。</p>
 
-    <div class="hrc-tablewrap">
-      <table class="hrc-table">
-        <caption>白馬レンタカーのお支払い方法</caption>
-        <thead><tr><th scope="col">お支払い方法</th><th scope="col">対応内容</th></tr></thead>
+    <div class="hrc-tablewrap" style="overflow-x:auto !important;border:1px solid #e8e8e6 !important;border-radius:12px !important;background:#ffffff !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;max-width:100% !important;">
+      <table class="hrc-table" style="border-collapse:collapse !important;width:100% !important;margin:0 !important;font-size:14px !important;min-width:520px !important;border-collapse:collapse !important;width:100% !important;">
+        <caption style="caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;">白馬レンタカーのお支払い方法</caption>
+        <thead><tr><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">お支払い方法</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">対応内容</th></tr></thead>
         <tbody>
-          <tr><th scope="row">現金</th><td>日本円のみ</td></tr>
-          <tr><th scope="row">クレジットカード</th><td>VISA / Mastercard / AMEX / JCB / Diners</td></tr>
-          <tr><th scope="row">QR決済</th><td>PayPay / Alipay / WeChat Pay</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">現金</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;">日本円のみ</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">クレジットカード</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;">VISA / Mastercard / AMEX / JCB / Diners</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;border-bottom:0 !important;">QR決済</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;border-bottom:0 !important;">PayPay / Alipay / WeChat Pay</td></tr>
         </tbody>
       </table>
     </div>
@@ -574,86 +123,86 @@
 </div>
 
 <!-- ═══ 免許証 ═══ -->
-<div class="hrc-full hrc-section hrc-section--bg">
-  <div class="hrc-container hrc-container--narrow">
-    <h2 class="hrc-h2">運転免許証の要件</h2>
-    <p class="hrc-lead">
-      日本で運転するには、以下の<strong>いずれか1つ</strong>が必要です。
-      <strong>当日お忘れになった場合、車両をお貸しすることはできません。</strong>
+<div class="hrc-full hrc-section hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container hrc-container--narrow" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">運転免許証の要件</h2>
+    <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">
+      日本で運転するには、以下の<strong style="font-weight:800 !important;color:#111111 !important;">いずれか1つ</strong>が必要です。
+      <strong style="font-weight:800 !important;color:#111111 !important;">当日お忘れになった場合、車両をお貸しすることはできません。</strong>
       なお、コピーや画像データは受け付けておりません。
     </p>
 
-    <div class="hrc-grid hrc-grid--3" style="margin-bottom:28px;">
-      <article class="hrc-card"><div class="hrc-card__body">
-        <span class="hrc-pill">パターン 1</span>
-        <h3 class="hrc-card__title" style="margin-top:12px !important;">日本の運転免許証</h3>
-        <p class="hrc-card__text">日本国内で発行された有効な運転免許証の原本をご提示ください。年齢の上限はありません。</p>
+    <div class="hrc-grid hrc-grid--3" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(250px,1fr)) !important;margin-bottom:28px;">
+      <article class="hrc-card" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;overflow:hidden !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;display:flex !important;flex-direction:column !important;"><div class="hrc-card__body" style="padding:20px !important;display:flex !important;flex-direction:column !important;flex:1 1 auto !important;">
+        <span class="hrc-pill" style="display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;font-size:11.5px !important;font-weight:800 !important;letter-spacing:.05em !important;padding:5px 12px !important;border-radius:999px !important;line-height:1.7 !important;">パターン 1</span>
+        <h3 class="hrc-card__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16.5px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;margin-top:12px !important;">日本の運転免許証</h3>
+        <p class="hrc-card__text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:14.5px !important;line-height:1.95 !important;flex:1 1 auto !important;margin:0 0 16px !important;">日本国内で発行された有効な運転免許証の原本をご提示ください。年齢の上限はありません。</p>
       </div></article>
 
-      <article class="hrc-card"><div class="hrc-card__body">
-        <span class="hrc-pill">パターン 2</span>
-        <h3 class="hrc-card__title" style="margin-top:12px !important;">国際運転免許証（IDP）</h3>
-        <p class="hrc-card__text"><strong>1949年ジュネーブ条約</strong>に基づく国際運転免許証が必要です。免許証に「1949 GENEVA」の記載があることをご確認ください。</p>
+      <article class="hrc-card" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;overflow:hidden !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;display:flex !important;flex-direction:column !important;"><div class="hrc-card__body" style="padding:20px !important;display:flex !important;flex-direction:column !important;flex:1 1 auto !important;">
+        <span class="hrc-pill" style="display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;font-size:11.5px !important;font-weight:800 !important;letter-spacing:.05em !important;padding:5px 12px !important;border-radius:999px !important;line-height:1.7 !important;">パターン 2</span>
+        <h3 class="hrc-card__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16.5px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;margin-top:12px !important;">国際運転免許証（IDP）</h3>
+        <p class="hrc-card__text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:14.5px !important;line-height:1.95 !important;flex:1 1 auto !important;margin:0 0 16px !important;"><strong style="font-weight:800 !important;color:#111111 !important;">1949年ジュネーブ条約</strong>に基づく国際運転免許証が必要です。免許証に「1949 GENEVA」の記載があることをご確認ください。</p>
       </div></article>
 
-      <article class="hrc-card"><div class="hrc-card__body">
-        <span class="hrc-pill">パターン 3</span>
-        <h3 class="hrc-card__title" style="margin-top:12px !important;">外国免許証＋公式翻訳文</h3>
-        <p class="hrc-card__text">対象国発行の免許証原本と、日本語の公式翻訳文をセットでご提示ください（国際免許証は不要です）。</p>
+      <article class="hrc-card" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;overflow:hidden !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;display:flex !important;flex-direction:column !important;"><div class="hrc-card__body" style="padding:20px !important;display:flex !important;flex-direction:column !important;flex:1 1 auto !important;">
+        <span class="hrc-pill" style="display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;font-size:11.5px !important;font-weight:800 !important;letter-spacing:.05em !important;padding:5px 12px !important;border-radius:999px !important;line-height:1.7 !important;">パターン 3</span>
+        <h3 class="hrc-card__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16.5px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;margin-top:12px !important;">外国免許証＋公式翻訳文</h3>
+        <p class="hrc-card__text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:14.5px !important;line-height:1.95 !important;flex:1 1 auto !important;margin:0 0 16px !important;">対象国発行の免許証原本と、日本語の公式翻訳文をセットでご提示ください（国際免許証は不要です）。</p>
       </div></article>
     </div>
 
-    <div class="hrc-note hrc-note--danger" style="margin-bottom:24px;">
-      <strong>【ご出発前に必ずご確認ください】</strong>
-      <ul style="margin-top:10px;margin-bottom:0;">
-        <li>❌ <strong>1968年ウィーン条約</strong>に基づく国際免許証（EU諸国で多く発行）は、日本では無効です。「1949 GENEVA」の記載が必要です。</li>
-        <li>❌ デジタルデータやコピーは不可です。必ず<strong>紙の冊子の原本</strong>をご持参ください。</li>
+    <div class="hrc-note hrc-note--danger" style="border-radius:0 10px 10px 0 !important;padding:18px 22px !important;font-size:14.5px !important;line-height:1.95 !important;color:#3f3f46 !important;background:#fff5f5 !important;border:2px solid #c0392b !important;border-radius:10px !important;margin-bottom:24px;">
+      <strong style="font-weight:800 !important;color:#111111 !important;">【ご出発前に必ずご確認ください】</strong>
+      <ul style="margin:0 0 1em !important;padding-left:1.4em !important;list-style:disc !important;margin-top:10px;margin-bottom:0;">
+        <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;">❌ <strong style="font-weight:800 !important;color:#111111 !important;">1968年ウィーン条約</strong>に基づく国際免許証（EU諸国で多く発行）は、日本では無効です。「1949 GENEVA」の記載が必要です。</li>
+        <li style="margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;">❌ デジタルデータやコピーは不可です。必ず<strong style="font-weight:800 !important;color:#111111 !important;">紙の冊子の原本</strong>をご持参ください。</li>
       </ul>
     </div>
 
-    <div class="hrc-note hrc-note--info">
-      <strong>外国免許証＋公式翻訳文で運転できる対象国・地域</strong><br>
+    <div class="hrc-note hrc-note--info" style="border-radius:0 10px 10px 0 !important;padding:18px 22px !important;font-size:14.5px !important;line-height:1.95 !important;color:#3f3f46 !important;background:#ffffff !important;border-left:4px solid #fecc01 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+      <strong style="font-weight:800 !important;color:#111111 !important;">外国免許証＋公式翻訳文で運転できる対象国・地域</strong><br>
       スイス、ドイツ、フランス、ベルギー、スロベニア、モナコ、台湾
     </div>
   </div>
 </div>
 
 <!-- ═══ 緊急時 ═══ -->
-<div class="hrc-full hrc-section hrc-section--white">
-  <div class="hrc-container hrc-container--narrow">
-    <h2 class="hrc-h2">緊急時・トラブルについて</h2>
-    <p class="hrc-lead">
+<div class="hrc-full hrc-section hrc-section--white" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:transparent !important;">
+  <div class="hrc-container hrc-container--narrow" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">緊急時・トラブルについて</h2>
+    <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">
       万が一、事故や故障に遭われた場合は、落ち着いて以下の手順で対応してください。
-      <strong>警察への届け出がない場合、保険は一切適用されませんのでご注意ください。</strong>
+      <strong style="font-weight:800 !important;color:#111111 !important;">警察への届け出がない場合、保険は一切適用されませんのでご注意ください。</strong>
     </p>
 
-    <h3 class="hrc-h3">事故発生時の対応手順</h3>
-    <div class="hrc-grid hrc-grid--3" style="margin-bottom:28px;">
-      <div class="hrc-step">
-        <span class="hrc-step__num">1</span>
-        <h4 class="hrc-step__title">負傷者の救護（119番）</h4>
-        <p>怪我人がいる場合は、すぐに救急車を呼んでください。</p>
+    <h3 class="hrc-h3" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(17px,2vw,19px) !important;margin:0 0 14px !important;line-height:1.5 !important;border:0 !important;padding:0 !important;">事故発生時の対応手順</h3>
+    <div class="hrc-grid hrc-grid--3" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(250px,1fr)) !important;margin-bottom:28px;">
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">1</span>
+        <h4 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">負傷者の救護（119番）</h4>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">怪我人がいる場合は、すぐに救急車を呼んでください。</p>
       </div>
-      <div class="hrc-step">
-        <span class="hrc-step__num">2</span>
-        <h4 class="hrc-step__title">警察へ連絡（110番）</h4>
-        <p>軽微なキズであっても、必ず警察へ連絡し事故証明を取得してください。</p>
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">2</span>
+        <h4 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">警察へ連絡（110番）</h4>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">軽微なキズであっても、必ず警察へ連絡し事故証明を取得してください。</p>
       </div>
-      <div class="hrc-step">
-        <span class="hrc-step__num">3</span>
-        <h4 class="hrc-step__title">店舗・保険会社へ連絡</h4>
-        <p>下記の窓口へ状況をご報告ください。</p>
+      <div class="hrc-step" style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;">
+        <span class="hrc-step__num" style="display:inline-flex !important;align-items:center !important;justify-content:center !important;width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;">3</span>
+        <h4 class="hrc-step__title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:16px !important;margin:0 0 10px !important;line-height:1.55 !important;border:0 !important;padding:0 !important;">店舗・保険会社へ連絡</h4>
+        <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">下記の窓口へ状況をご報告ください。</p>
       </div>
     </div>
 
-    <div class="hrc-tablewrap">
-      <table class="hrc-table">
-        <caption>緊急連絡先</caption>
-        <thead><tr><th scope="col">連絡先</th><th scope="col">電話番号</th><th scope="col">内容</th></tr></thead>
+    <div class="hrc-tablewrap" style="overflow-x:auto !important;border:1px solid #e8e8e6 !important;border-radius:12px !important;background:#ffffff !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;max-width:100% !important;">
+      <table class="hrc-table" style="border-collapse:collapse !important;width:100% !important;margin:0 !important;font-size:14px !important;min-width:520px !important;border-collapse:collapse !important;width:100% !important;">
+        <caption style="caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;">緊急連絡先</caption>
+        <thead><tr><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">連絡先</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">電話番号</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">内容</th></tr></thead>
         <tbody>
-          <tr><th scope="row">白馬レンタカー（店舗）</th><td><a href="tel:05017930205">050-1793-0205</a></td><td>事故・故障・遅延のご報告</td></tr>
-          <tr><th scope="row">事故サポートセンター</th><td><a href="tel:0120256110">0120-256-110</a></td><td>事故対応の相談窓口</td></tr>
-          <tr><th scope="row">ロードアシスタンス専用デスク</th><td><a href="tel:0120365110">0120-365-110</a></td><td>事故・故障等により走行不能となった場合</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">白馬レンタカー（店舗）</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;"><a href="tel:05017930205" style="color:#1a7a3c !important;text-decoration:none !important;">050-1793-0205</a></td><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;">事故・故障・遅延のご報告</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">事故サポートセンター</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;"><a href="tel:0120256110" style="color:#1a7a3c !important;text-decoration:none !important;">0120-256-110</a></td><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;">事故対応の相談窓口</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;border-bottom:0 !important;">ロードアシスタンス専用デスク</th><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;border-bottom:0 !important;"><a href="tel:0120365110" style="color:#1a7a3c !important;text-decoration:none !important;">0120-365-110</a></td><td style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;border-bottom:0 !important;">事故・故障等により走行不能となった場合</td></tr>
         </tbody>
       </table>
     </div>
@@ -661,76 +210,76 @@
 </div>
 
 <!-- ═══ FAQ ═══ -->
-<div class="hrc-full hrc-section hrc-section--bg">
-  <div class="hrc-container">
-    <div class="hrc-center">
-      <p class="hrc-eyebrow">FAQ</p>
-      <h2 class="hrc-h2">ご利用方法についてのよくあるご質問</h2>
+<div class="hrc-full hrc-section hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <div class="hrc-center" style="text-align:center !important;">
+      <p class="hrc-eyebrow" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.6 !important;text-align:center !important;">FAQ</p>
+      <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;text-align:center !important;display:inline-block !important;text-align:center !important;">ご利用方法についてのよくあるご質問</h2>
     </div>
 
-    <div class="hrc-faq">
-      <details open>
-        <summary>予約はどのくらい前にすればよいですか？</summary>
-        <div class="hrc-faq__a"><p>白馬レンタカーの予約フォームは24時間受け付けています。ご予約後、空車状況を確認のうえ2営業日以内に確認メールをお送りします。特にウィンターシーズン（12月〜3月）やゴールデンウィーク、お盆などの繁忙期は早めのご予約をおすすめします。次のシーズンのご予約も受け付けており、早期予約割引もご用意しています。</p></div>
+    <div class="hrc-faq" style="max-width:840px !important;margin:0 auto !important;">
+      <details open style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">予約はどのくらい前にすればよいですか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">白馬レンタカーの予約フォームは24時間受け付けています。ご予約後、空車状況を確認のうえ2営業日以内に確認メールをお送りします。特にウィンターシーズン（12月〜3月）やゴールデンウィーク、お盆などの繁忙期は早めのご予約をおすすめします。次のシーズンのご予約も受け付けており、早期予約割引もご用意しています。</p></div>
       </details>
-      <details>
-        <summary>当日の飛び込みでレンタルできますか？</summary>
-        <div class="hrc-faq__a"><p>いいえ、できません。白馬レンタカーは完全事前予約制です。ご予約のないご来店では、車両の空きがあっても貸し出しできません。必ず事前に予約リクエストをお送りください。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">当日の飛び込みでレンタルできますか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">いいえ、できません。白馬レンタカーは完全事前予約制です。ご予約のないご来店では、車両の空きがあっても貸し出しできません。必ず事前に予約リクエストをお送りください。</p></div>
       </details>
-      <details>
-        <summary>貸渡当日に必要なものは何ですか？</summary>
-        <div class="hrc-faq__a"><p>運転免許証の原本、訪日外国人のお客様はパスポート、そしてお支払い手段（現金・クレジットカード・QR決済のいずれか）が必要です。免許証のコピーや画像データは受け付けておりません。原本をお忘れの場合、車両をお貸しできません。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">貸渡当日に必要なものは何ですか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">運転免許証の原本、訪日外国人のお客様はパスポート、そしてお支払い手段（現金・クレジットカード・QR決済のいずれか）が必要です。免許証のコピーや画像データは受け付けておりません。原本をお忘れの場合、車両をお貸しできません。</p></div>
       </details>
-      <details>
-        <summary>ヨーロッパの国際免許証は使えますか？</summary>
-        <div class="hrc-faq__a"><p>1949年ジュネーブ条約に基づく国際運転免許証であれば使用できます。免許証に「1949 GENEVA」と記載があるかご確認ください。一方、1968年ウィーン条約に基づく国際免許証（EU諸国で多く発行されています）は日本では無効です。なお、スイス、ドイツ、フランス、ベルギー、スロベニア、モナコ、台湾で発行された免許証をお持ちの方は、免許証原本と日本語の公式翻訳文をご用意いただければ、国際免許証なしで運転できます。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">ヨーロッパの国際免許証は使えますか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">1949年ジュネーブ条約に基づく国際運転免許証であれば使用できます。免許証に「1949 GENEVA」と記載があるかご確認ください。一方、1968年ウィーン条約に基づく国際免許証（EU諸国で多く発行されています）は日本では無効です。なお、スイス、ドイツ、フランス、ベルギー、スロベニア、モナコ、台湾で発行された免許証をお持ちの方は、免許証原本と日本語の公式翻訳文をご用意いただければ、国際免許証なしで運転できます。</p></div>
       </details>
-      <details>
-        <summary>年齢制限はありますか？</summary>
-        <div class="hrc-faq__a"><p>日本国内で有効な運転免許証をお持ちであれば、年齢の上限なくご利用いただけます。ただし、保険・補償はすべて21歳以上の運転者にのみ適用されますのでご注意ください。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">年齢制限はありますか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">日本国内で有効な運転免許証をお持ちであれば、年齢の上限なくご利用いただけます。ただし、保険・補償はすべて21歳以上の運転者にのみ適用されますのでご注意ください。</p></div>
       </details>
-      <details>
-        <summary>返却時にガソリンを満タンにしないとどうなりますか？</summary>
-        <div class="hrc-faq__a"><p>満タンでご返却いただけない場合は、当社所定の計算式に基づき燃料代を精算・ご請求いたします。なお、白馬周辺エリアはガソリンスタンドの数が限られているため、返却時間に余裕を持ってご給油ください。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">返却時にガソリンを満タンにしないとどうなりますか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">満タンでご返却いただけない場合は、当社所定の計算式に基づき燃料代を精算・ご請求いたします。なお、白馬周辺エリアはガソリンスタンドの数が限られているため、返却時間に余裕を持ってご給油ください。</p></div>
       </details>
-      <details>
-        <summary>返却が遅れそうな場合はどうすればよいですか？</summary>
-        <div class="hrc-faq__a"><p>返却時間に遅れそうな場合は、事前に白馬レンタカー（050-1793-0205）までご連絡ください。無断の遅延返却には追加料金が発生する場合があります。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">返却が遅れそうな場合はどうすればよいですか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">返却時間に遅れそうな場合は、事前に白馬レンタカー（050-1793-0205）までご連絡ください。無断の遅延返却には追加料金が発生する場合があります。</p></div>
       </details>
-      <details>
-        <summary>事故を起こしてしまったらどうすればよいですか？</summary>
-        <div class="hrc-faq__a"><p>まず負傷者がいる場合は119番で救急車を呼んでください。次に、軽微なキズであっても必ず110番で警察に連絡し、事故証明を取得してください。警察への届け出がない場合、保険は一切適用されません。その後、白馬レンタカー（050-1793-0205）、事故サポートセンター（0120-256-110）へご連絡ください。走行不能の場合はロードアシスタンス専用デスク（0120-365-110）へご連絡ください。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">事故を起こしてしまったらどうすればよいですか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">まず負傷者がいる場合は119番で救急車を呼んでください。次に、軽微なキズであっても必ず110番で警察に連絡し、事故証明を取得してください。警察への届け出がない場合、保険は一切適用されません。その後、白馬レンタカー（050-1793-0205）、事故サポートセンター（0120-256-110）へご連絡ください。走行不能の場合はロードアシスタンス専用デスク（0120-365-110）へご連絡ください。</p></div>
       </details>
-      <details>
-        <summary>車内は禁煙ですか？ペットは乗せられますか？</summary>
-        <div class="hrc-faq__a"><p>白馬レンタカーの車両はすべて禁煙です。また、ペットのご乗車はお断りしております。</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">車内は禁煙ですか？ペットは乗せられますか？<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">白馬レンタカーの車両はすべて禁煙です。また、ペットのご乗車はお断りしております。</p></div>
       </details>
     </div>
   </div>
 </div>
 
 <!-- ═══ CTA ═══ -->
-<div class="hrc-full hrc-section hrc-section--tight hrc-section--white">
-  <div class="hrc-container">
-    <div class="hrc-ctaband">
-      <h3>ご不明な点はお気軽にお問い合わせください</h3>
-      <p>予約フォームは<strong>24時間受付</strong>。ご返信は営業時間内（8:00〜18:00）に行います。</p>
-      <div class="hrc-btnrow">
-        <a href="https://hakubarentacar.com/reservations/" class="hrc-btn hrc-btn--gold">予約リクエストを送る</a>
-        <a href="https://hakubarentacar.com/terms-and-conditions/" class="hrc-btn hrc-btn--green">利用規約を読む</a>
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--white" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;background:transparent !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <div class="hrc-ctaband" style="background:#111111 !important;border-radius:16px !important;border-left:5px solid #fecc01 !important;padding:clamp(20px,3vw,26px) clamp(18px,3vw,28px) !important;box-shadow:0 10px 24px rgba(0,0,0,.08) !important;">
+      <h3 style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;color:#ffffff !important;border:0 !important;">ご不明な点はお気軽にお問い合わせください</h3>
+      <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#dcdcdc !important;">予約フォームは<strong style="font-weight:800 !important;color:#111111 !important;color:#fecc01 !important;">24時間受付</strong>。ご返信は営業時間内（8:00〜18:00）に行います。</p>
+      <div class="hrc-btnrow" style="display:flex !important;flex-wrap:wrap !important;gap:12px !important;margin:0 !important;padding:0 !important;list-style:none !important;">
+        <a href="https://hakubarentacar.com/reservations/" class="hrc-btn hrc-btn--gold" style="color:#1a7a3c !important;text-decoration:none !important;display:inline-block !important;font-weight:800 !important;font-size:15px !important;line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;text-align:center !important;text-decoration:none !important;border:1px solid transparent !important;cursor:pointer !important;box-sizing:border-box !important;background:#fecc01 !important;color:#111111 !important;border-color:rgba(0,0,0,.10) !important;" data-hrc-btn="">予約リクエストを送る</a>
+        <a href="https://hakubarentacar.com/terms-and-conditions/" class="hrc-btn hrc-btn--green" style="color:#1a7a3c !important;text-decoration:none !important;display:inline-block !important;font-weight:800 !important;font-size:15px !important;line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;text-align:center !important;text-decoration:none !important;border:1px solid transparent !important;cursor:pointer !important;box-sizing:border-box !important;background:#1a7a3c !important;color:#ffffff !important;border-color:#1a7a3c !important;" data-hrc-btn="">利用規約を読む</a>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ═══ 関連ページ ═══ -->
-<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg">
-  <div class="hrc-container">
-    <h2 class="hrc-h3">関連ページ</h2>
-    <nav class="hrc-links" aria-label="サイト内関連ページ">
-      <a href="https://hakubarentacar.com/deals/">車種・料金<span>3クラスの料金表・保険・オプション</span></a>
-      <a href="https://hakubarentacar.com/access/">店舗案内・アクセス<span>白馬駅前店／白馬乗鞍店</span></a>
-      <a href="https://hakubarentacar.com/terms-and-conditions/">利用規約・予約ポリシー<span>キャンセル料・保険・NOC</span></a>
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <h2 class="hrc-h3" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(17px,2vw,19px) !important;margin:0 0 14px !important;line-height:1.5 !important;border:0 !important;padding:0 !important;">関連ページ</h2>
+    <nav class="hrc-links" aria-label="サイト内関連ページ" style="margin:0 !important;padding:0 !important;display:grid !important;gap:12px !important;grid-template-columns:repeat(auto-fit,minmax(240px,1fr)) !important;margin:0 !important;padding:0 !important;">
+      <a href="https://hakubarentacar.com/deals/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">車種・料金<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">3クラスの料金表・保険・オプション</span></a>
+      <a href="https://hakubarentacar.com/access/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">店舗案内・アクセス<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">白馬駅前店／白馬乗鞍店</span></a>
+      <a href="https://hakubarentacar.com/terms-and-conditions/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">利用規約・予約ポリシー<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">キャンセル料・保険・NOC</span></a>
     </nav>
   </div>
 </div>

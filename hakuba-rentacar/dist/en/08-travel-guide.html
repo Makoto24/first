@@ -1,616 +1,165 @@
+<!-- 白馬レンタカー | このHTMLはスタイルを全て style 属性に埋め込んであります。
+     テーマや追加CSSの影響を受けません。WordPressの「カスタムHTML」ブロックに全文貼り付けてください。 -->
+<style>
+/* インライン style では表現できない :hover と details の開閉のみ。
+   このブロックが失われても、レイアウト・配色は一切崩れません。 */
+.hrc a[data-hrc-btn]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08);opacity:.95;}
+.hrc a[data-hrc-link]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.08);}
+.hrc summary::-webkit-details-marker{display:none;}
+.hrc summary::marker{content:"";}
+.hrc details[open] [data-hrc-mark]{visibility:hidden;position:relative;}
+.hrc details[open] [data-hrc-mark]::after{content:"−";visibility:visible;position:absolute;right:0;top:0;}
+</style>
 <!-- ══════════════════════════════════════════════════════════════
   Hakuba Rent a Car | Local Travel Guide (English)
   https://hakubarentacar.com/en/local-travel-guide-2/
   Paste the whole file into a WordPress "Custom HTML" block.
   ══════════════════════════════════════════════════════════════ -->
-<div class="hrc">
-<style>
-/* ══════════════════════════════════════════════════════════════
-   白馬レンタカー 共通デザイン v2.0（干渉対策版）
-
-   設計方針:
-   1. CSS変数を一切使わない  → var() が解決されず色が消える事故を防止
-   2. 色・背景・線・文字サイズは全て !important
-                            → テーマ／追加CSSの上書きを受けない
-   3. 100vw のフルブリードを使わない
-                            → テーマのコンテナと干渉して崩れるのを防止
-   4. font-family は指定しない
-                            → サイト全体のフォント設定をそのまま継承
-   5. 全セレクタを .hrc 配下にスコープ
-                            → 他ページ・テーマ本体に影響を出さない
-   ══════════════════════════════════════════════════════════════ */
-
-.hrc{
-  max-width:100% !important;
-  color:#111111 !important;
-  font-size:16px !important;
-  line-height:1.8 !important;
-  text-align:left !important;
-}
-.hrc *{box-sizing:border-box !important;}
-
-/* 見出しの初期化（クラス側で個別に上書き） */
-.hrc h1,.hrc h2,.hrc h3,.hrc h4,.hrc h5{
-  margin:0 !important;padding:0 !important;border:0 !important;
-  background:none !important;background-color:transparent !important;
-  box-shadow:none !important;text-shadow:none !important;
-  color:#111111 !important;font-weight:800 !important;
-  line-height:1.35 !important;letter-spacing:.02em !important;
-}
-.hrc p{margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.85 !important;}
-.hrc p:last-child{margin-bottom:0 !important;}
-.hrc ul,.hrc ol{margin:0 0 1em !important;padding-left:1.4em !important;}
-.hrc li{margin-bottom:.4em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.85 !important;}
-.hrc li:last-child{margin-bottom:0 !important;}
-.hrc a{color:#1a7a3c !important;text-decoration:none !important;}
-.hrc a:hover{color:#14612f !important;text-decoration:underline !important;}
-.hrc img{display:block !important;max-width:100% !important;height:auto !important;}
-.hrc table{border-collapse:collapse !important;width:100% !important;}
-.hrc strong{font-weight:800 !important;}
-.hrc figure{margin:0 !important;}
-.hrc figcaption{margin:0 !important;}
-.hrc hr{border:0 !important;border-top:1px solid #e8e8e6 !important;margin:0 !important;height:0 !important;}
-
-/* ── レイアウト ─────────────────────────── */
-.hrc-full{position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;}
-.hrc-container{max-width:1080px !important;margin:0 auto !important;padding:0 24px !important;}
-.hrc-container--narrow{max-width:840px !important;}
-.hrc-section{padding:52px 0 !important;}
-.hrc-section--tight{padding:32px 0 !important;}
-.hrc-section--bg{background:#f6f7f9 !important;border-radius:18px !important;margin:14px 0 !important;}
-.hrc-section--white{background:transparent !important;}
-.hrc-rule{border:0 !important;border-top:1px solid #e8e8e6 !important;margin:0 !important;}
-
-/* ── 見出し ─────────────────────────────── */
-.hrc .hrc-eyebrow{
-  font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;
-  color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.5 !important;
-}
-.hrc .hrc-h1{font-size:31px !important;margin:0 0 16px !important;line-height:1.4 !important;}
-.hrc .hrc-h2{
-  font-size:25px !important;margin:0 0 24px !important;padding:0 0 12px !important;
-  border-bottom:3px solid #fecc01 !important;display:inline-block !important;line-height:1.4 !important;
-}
-.hrc .hrc-h3{font-size:19px !important;margin:0 0 14px !important;line-height:1.45 !important;}
-.hrc .hrc-h4{font-size:16px !important;margin:0 0 10px !important;line-height:1.5 !important;}
-.hrc .hrc-lead{
-  color:#3f3f46 !important;font-size:15.5px !important;line-height:1.95 !important;
-  margin:0 0 28px !important;max-width:740px !important;
-}
-.hrc .hrc-center{text-align:center !important;}
-.hrc .hrc-center .hrc-lead{margin-left:auto !important;margin-right:auto !important;}
-@media(max-width:600px){
-  .hrc .hrc-h1{font-size:25px !important;}
-  .hrc .hrc-h2{font-size:21px !important;}
-  .hrc .hrc-h3{font-size:17.5px !important;}
-}
-
-/* ── ボタン ─────────────────────────────── */
-.hrc .hrc-btn{
-  display:inline-block !important;font-weight:800 !important;font-size:15px !important;
-  line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;
-  text-align:center !important;text-decoration:none !important;
-  border:1px solid transparent !important;cursor:pointer !important;
-  transition:transform .18s ease,box-shadow .18s ease !important;
-}
-.hrc .hrc-btn:hover{transform:translateY(-2px) !important;box-shadow:0 10px 24px rgba(0,0,0,.10) !important;text-decoration:none !important;}
-.hrc .hrc-btn--gold{background:#fecc01 !important;color:#111111 !important;border-color:rgba(0,0,0,.10) !important;}
-.hrc .hrc-btn--gold:hover{background:#f0c000 !important;color:#111111 !important;}
-.hrc .hrc-btn--green{background:#1a7a3c !important;color:#ffffff !important;}
-.hrc .hrc-btn--green:hover{background:#14612f !important;color:#ffffff !important;}
-.hrc .hrc-btn--dark{background:#111111 !important;color:#ffffff !important;}
-.hrc .hrc-btn--dark:hover{background:#2a2a2a !important;color:#ffffff !important;}
-.hrc .hrc-btn--ghost{background:#ffffff !important;color:#111111 !important;border-color:#b0b0b0 !important;}
-.hrc .hrc-btn--ghost:hover{background:#111111 !important;color:#ffffff !important;border-color:#111111 !important;}
-.hrc .hrc-btn--sm{padding:10px 18px !important;font-size:13px !important;border-radius:999px !important;}
-.hrc .hrc-btnrow{display:flex !important;flex-wrap:wrap !important;gap:12px !important;margin:0 !important;padding:0 !important;}
-.hrc .hrc-btnrow--center{justify-content:center !important;}
-
-/* ── パンくず ───────────────────────────── */
-.hrc .hrc-crumb{
-  font-size:12.5px !important;color:#767678 !important;padding:14px 0 !important;
-  border-bottom:1px solid #e8e8e6 !important;
-}
-.hrc .hrc-crumb ol{list-style:none !important;margin:0 !important;padding:0 !important;display:flex !important;flex-wrap:wrap !important;gap:8px !important;}
-.hrc .hrc-crumb li{margin:0 !important;font-size:12.5px !important;color:#767678 !important;}
-.hrc .hrc-crumb li+li::before{content:"›" !important;margin-right:8px !important;color:#bbbbbb !important;}
-.hrc .hrc-crumb a{color:#767678 !important;}
-
-/* ── バッジ ─────────────────────────────── */
-.hrc .hrc-badgebar{
-  background:#fecc01 !important;display:flex !important;flex-wrap:wrap !important;
-  justify-content:center !important;gap:10px 24px !important;padding:14px 20px !important;
-  border-radius:12px !important;margin-bottom:8px !important;
-}
-.hrc .hrc-badgebar span{
-  font-size:12.5px !important;font-weight:800 !important;color:#111111 !important;
-  letter-spacing:.05em !important;display:inline-flex !important;align-items:center !important;gap:6px !important;
-}
-.hrc .hrc-pill{
-  display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;
-  font-size:11.5px !important;font-weight:800 !important;letter-spacing:.05em !important;
-  padding:5px 12px !important;border-radius:999px !important;line-height:1.6 !important;
-}
-.hrc .hrc-pill--gold{background:#fecc01 !important;color:#111111 !important;}
-.hrc .hrc-pill--dark{background:#111111 !important;color:#ffffff !important;}
-
-/* ── 要点まとめ（AIO用） ─────────────────── */
-.hrc .hrc-keyfacts{
-  background:#ffffff !important;border:2px solid #1a7a3c !important;
-  border-radius:16px !important;padding:26px 28px !important;
-  box-shadow:0 12px 28px rgba(26,122,60,.10) !important;margin:0 0 36px !important;
-}
-.hrc .hrc-keyfacts-title{
-  font-size:15px !important;font-weight:800 !important;color:#1a7a3c !important;
-  margin:0 0 14px !important;letter-spacing:.06em !important;line-height:1.5 !important;
-}
-.hrc .hrc-keyfacts ul{list-style:none !important;margin:0 !important;padding:0 !important;}
-.hrc .hrc-keyfacts li{
-  position:relative !important;padding-left:26px !important;margin-bottom:9px !important;
-  font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;
-}
-.hrc .hrc-keyfacts li::before{
-  content:"✓" !important;position:absolute !important;left:0 !important;top:0 !important;
-  color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;
-}
-.hrc .hrc-keyfacts li strong{color:#111111 !important;}
-@media(max-width:600px){.hrc .hrc-keyfacts{padding:20px 18px !important;}}
-
-/* ── グリッド／カード ───────────────────── */
-.hrc .hrc-grid{display:grid !important;gap:20px !important;}
-.hrc .hrc-grid--2{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-.hrc .hrc-grid--3{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}
-.hrc .hrc-grid--4{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
-@media(max-width:960px){
-  .hrc .hrc-grid--3,.hrc .hrc-grid--4{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
-}
-@media(max-width:700px){
-  .hrc .hrc-grid--2,.hrc .hrc-grid--3,.hrc .hrc-grid--4{grid-template-columns:minmax(0,1fr) !important;}
-}
-
-.hrc .hrc-card{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;
-  border-radius:14px !important;overflow:hidden !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.05) !important;
-  display:flex !important;flex-direction:column !important;
-}
-.hrc .hrc-card__img{width:100% !important;height:180px !important;object-fit:cover !important;}
-.hrc .hrc-card__body{padding:20px !important;display:flex !important;flex-direction:column !important;flex:1 1 auto !important;}
-.hrc .hrc-card__title{font-size:16.5px !important;margin:0 0 10px !important;line-height:1.5 !important;}
-.hrc .hrc-card__text{color:#3f3f46 !important;font-size:14.5px !important;line-height:1.9 !important;flex:1 1 auto !important;margin:0 0 16px !important;}
-
-/* ── 店舗カード ─────────────────────────── */
-.hrc .hrc-shop{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  overflow:hidden !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;
-  display:flex !important;flex-direction:column !important;
-}
-.hrc .hrc-shop__head{background:#1a7a3c !important;padding:22px 24px !important;}
-.hrc .hrc-shop__name{font-size:19px !important;color:#ffffff !important;margin:10px 0 0 !important;line-height:1.45 !important;}
-.hrc .hrc-shop__sub{font-size:13.5px !important;color:#e4f2e9 !important;margin:6px 0 0 !important;line-height:1.7 !important;}
-.hrc .hrc-shop__body{padding:24px !important;flex:1 1 auto !important;}
-.hrc .hrc-shop__map{
-  position:relative !important;padding-bottom:62% !important;height:0 !important;
-  overflow:hidden !important;border-top:1px solid #e8e8e6 !important;background:#eeeeee !important;
-}
-.hrc .hrc-shop__map iframe{position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;border:0 !important;}
-
-/* ── 定義リスト ─────────────────────────── */
-.hrc .hrc-dl{margin:0 0 20px !important;padding:0 !important;}
-.hrc .hrc-dl__row{
-  display:grid !important;grid-template-columns:104px minmax(0,1fr) !important;gap:12px !important;
-  padding:12px 0 !important;border-bottom:1px solid #efefed !important;align-items:start !important;
-}
-.hrc .hrc-dl__row:last-child{border-bottom:0 !important;}
-.hrc .hrc-dl dt{font-size:12px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.04em !important;margin:0 !important;padding-top:3px !important;line-height:1.7 !important;}
-.hrc .hrc-dl dd{margin:0 !important;font-size:14.5px !important;color:#3f3f46 !important;line-height:1.85 !important;}
-.hrc .hrc-dl dd strong{color:#111111 !important;}
-.hrc .hrc-hint{display:block !important;font-size:12.5px !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;font-weight:400 !important;}
-@media(max-width:600px){.hrc .hrc-dl__row{grid-template-columns:84px minmax(0,1fr) !important;gap:10px !important;}}
-
-/* ── テーブル ───────────────────────────── */
-.hrc .hrc-tablewrap{
-  overflow-x:auto !important;border:1px solid #e8e8e6 !important;
-  border-radius:12px !important;background:#ffffff !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;
-}
-.hrc .hrc-table{font-size:14px !important;min-width:520px !important;}
-.hrc .hrc-table caption{
-  caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;
-  color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;
-}
-.hrc .hrc-table thead th{
-  background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;
-  letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;
-  vertical-align:bottom !important;line-height:1.5 !important;border:0 !important;
-}
-.hrc .hrc-table thead th.num{text-align:right !important;}
-.hrc .hrc-table thead th.hl{background:#1a7a3c !important;color:#fecc01 !important;text-align:right !important;}
-.hrc .hrc-table thead .sub{display:block !important;margin-top:5px !important;font-size:10.5px !important;font-weight:400 !important;letter-spacing:.06em !important;color:#d9d9d9 !important;}
-.hrc .hrc-table thead th.hl .sub{color:#d8ecdf !important;}
-.hrc .hrc-table tbody th{
-  text-align:left !important;font-weight:700 !important;padding:14px 18px !important;
-  border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;
-  background:#ffffff !important;font-size:14px !important;line-height:1.7 !important;
-}
-.hrc .hrc-table tbody td{
-  padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;
-  vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;
-  background:#ffffff !important;line-height:1.7 !important;
-}
-.hrc .hrc-table tbody tr:last-child th,
-.hrc .hrc-table tbody tr:last-child td{border-bottom:0 !important;}
-.hrc .hrc-table tbody tr:nth-child(even) th,
-.hrc .hrc-table tbody tr:nth-child(even) td{background:#fbfbfa !important;}
-.hrc .hrc-table td.num{text-align:right !important;font-weight:700 !important;color:#111111 !important;white-space:nowrap !important;}
-.hrc .hrc-table td.hl{text-align:right !important;background:#f0faf4 !important;white-space:nowrap !important;}
-.hrc .hrc-table tbody tr:nth-child(even) td.hl{background:#e8f6ee !important;}
-.hrc .hrc-table .price{font-size:15px !important;font-weight:800 !important;color:#111111 !important;}
-.hrc .hrc-table .price-green{font-size:16px !important;font-weight:800 !important;color:#1a7a3c !important;}
-.hrc .hrc-table .strike{text-decoration:line-through !important;color:#ababab !important;font-size:12.5px !important;font-weight:400 !important;margin-right:5px !important;}
-.hrc .hrc-table .off{
-  display:inline-block !important;background:#1a7a3c !important;color:#ffffff !important;font-size:10px !important;
-  font-weight:700 !important;letter-spacing:.06em !important;padding:3px 7px !important;border-radius:4px !important;margin-right:6px !important;
-}
-.hrc .hrc-table .dnote{font-size:11.5px !important;color:#8e8e91 !important;font-weight:400 !important;margin-right:6px !important;}
-.hrc .hrc-table .foot td{text-align:center !important;font-size:13px !important;color:#767678 !important;font-style:italic !important;background:#ffffff !important;font-weight:400 !important;}
-.hrc .hrc-table .neg{color:#c0392b !important;font-weight:800 !important;}
-.hrc .hrc-table .pos{color:#1a7a3c !important;font-weight:800 !important;}
-.hrc .hrc-table a{color:#1a7a3c !important;font-weight:700 !important;}
-@media(max-width:600px){
-  .hrc .hrc-table thead th,.hrc .hrc-table tbody th,.hrc .hrc-table tbody td{padding:11px 12px !important;}
-  .hrc .hrc-table caption{padding:12px 12px 0 !important;}
-}
-
-/* ── 注意ボックス ───────────────────────── */
-.hrc .hrc-note{
-  border-radius:0 10px 10px 0 !important;padding:18px 22px !important;
-  font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;
-}
-.hrc .hrc-note p,.hrc .hrc-note li{font-size:14.5px !important;color:#3f3f46 !important;}
-.hrc .hrc-note strong{color:#111111 !important;}
-.hrc .hrc-note--info{background:#ffffff !important;border-left:4px solid #fecc01 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;}
-.hrc .hrc-note--warn{background:#fff8e1 !important;border-left:4px solid #fecc01 !important;}
-.hrc .hrc-note--danger{background:#fff5f5 !important;border:2px solid #c0392b !important;border-radius:10px !important;}
-.hrc .hrc-note--danger strong{color:#c0392b !important;}
-
-.hrc .hrc-alert{
-  background:#fff3cd !important;border:2px solid #f2b600 !important;border-radius:14px !important;
-  padding:24px 26px !important;box-shadow:0 10px 24px rgba(0,0,0,.06) !important;
-  max-width:760px !important;margin:0 auto !important;text-align:center !important;
-}
-.hrc .hrc-alert__title{font-size:16.5px !important;color:#8a6200 !important;margin:0 0 10px !important;line-height:1.6 !important;}
-.hrc .hrc-alert p{font-size:14.5px !important;color:#3f3f46 !important;margin:0 !important;}
-
-/* ── キャンペーン ───────────────────────── */
-.hrc .hrc-topbar{
-  background:#1a7a3c !important;padding:14px 22px !important;border-radius:12px !important;
-  display:flex !important;align-items:center !important;justify-content:center !important;
-  gap:14px !important;flex-wrap:wrap !important;
-}
-.hrc .hrc-topbar p{color:#ffffff !important;font-size:14.5px !important;font-weight:700 !important;margin:0 !important;text-align:center !important;line-height:1.7 !important;}
-.hrc .hrc-topbar strong{color:#fecc01 !important;}
-.hrc .hrc-topbar small{color:#d8ecdf !important;font-size:12.5px !important;font-weight:400 !important;}
-
-.hrc .hrc-campaign{
-  background:#1a7a3c !important;border-radius:16px !important;
-  border-left:5px solid #fecc01 !important;padding:26px 28px !important;
-  box-shadow:0 12px 28px rgba(26,122,60,.18) !important;
-}
-.hrc .hrc-campaign h2,.hrc .hrc-campaign h3{color:#ffffff !important;border:0 !important;padding:0 !important;}
-.hrc .hrc-campaign p{color:#ffffff !important;}
-.hrc .hrc-campaign strong{color:#fecc01 !important;}
-.hrc .hrc-campaign__excl{
-  font-size:13px !important;background:rgba(0,0,0,.24) !important;padding:12px 16px !important;
-  border-radius:8px !important;line-height:1.8 !important;margin:0 !important;color:#ffffff !important;
-}
-.hrc .hrc-campaign__excl strong{color:#fecc01 !important;}
-
-.hrc .hrc-ctaband{
-  background:#111111 !important;border-radius:16px !important;
-  border-left:5px solid #fecc01 !important;padding:26px 28px !important;
-  box-shadow:0 10px 24px rgba(0,0,0,.10) !important;
-}
-.hrc .hrc-ctaband h3{color:#ffffff !important;margin:0 0 8px !important;font-size:17px !important;}
-.hrc .hrc-ctaband p{color:#dcdcdc !important;font-size:14px !important;margin:0 0 18px !important;}
-.hrc .hrc-ctaband strong{color:#fecc01 !important;}
-
-.hrc .hrc-cta{display:flex !important;flex-wrap:wrap !important;gap:16px !important;align-items:center !important;justify-content:space-between !important;}
-.hrc .hrc-cta__title{font-size:20px !important;margin:0 0 8px !important;}
-.hrc .hrc-cta__text{color:#3f3f46 !important;margin:0 !important;}
-
-@media(max-width:600px){
-  .hrc .hrc-campaign,.hrc .hrc-ctaband{padding:20px 18px !important;}
-  .hrc .hrc-alert{padding:18px 16px !important;}
-}
-
-/* ── ステップ ───────────────────────────── */
-.hrc .hrc-step{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  padding:24px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;
-}
-.hrc .hrc-step__num{
-  display:inline-flex !important;align-items:center !important;justify-content:center !important;
-  width:34px !important;height:34px !important;border-radius:50% !important;background:#1a7a3c !important;
-  color:#ffffff !important;font-weight:800 !important;font-size:15px !important;margin-bottom:12px !important;line-height:1 !important;
-}
-.hrc .hrc-step__title{font-size:16px !important;margin:0 0 10px !important;}
-.hrc .hrc-step p,.hrc .hrc-step li{font-size:14px !important;color:#3f3f46 !important;line-height:1.9 !important;}
-
-/* ── 保険プラン ─────────────────────────── */
-.hrc .hrc-plan{
-  background:#f6f7f9 !important;border:1px solid #e2e2e0 !important;
-  border-radius:12px !important;padding:28px 22px 30px !important;position:relative !important;
-}
-.hrc .hrc-plan--best{background:#111111 !important;border:2px solid #fecc01 !important;padding-top:46px !important;}
-.hrc .hrc-plan__ribbon{
-  position:absolute !important;top:0 !important;left:0 !important;right:0 !important;background:#fecc01 !important;
-  text-align:center !important;font-size:10.5px !important;font-weight:800 !important;letter-spacing:.14em !important;
-  color:#111111 !important;padding:7px 0 !important;border-radius:10px 10px 0 0 !important;line-height:1.4 !important;
-}
-.hrc .hrc-plan__label{font-size:10.5px !important;font-weight:800 !important;letter-spacing:.18em !important;text-transform:uppercase !important;color:#767678 !important;margin:0 0 6px !important;}
-.hrc .hrc-plan__name{font-size:14px !important;margin:0 0 16px !important;line-height:1.5 !important;}
-.hrc .hrc-plan__price{font-size:30px !important;font-weight:800 !important;line-height:1.1 !important;margin:0 0 4px !important;color:#111111 !important;}
-.hrc .hrc-plan__price span{font-size:12.5px !important;color:#767678 !important;font-weight:400 !important;}
-.hrc .hrc-plan hr{border-top:1px solid #e0e0de !important;margin:16px 0 !important;}
-.hrc .hrc-plan__row{display:flex !important;justify-content:space-between !important;margin-bottom:9px !important;font-size:12.5px !important;gap:8px !important;}
-.hrc .hrc-plan__row span:first-child{color:#767678 !important;}
-.hrc .hrc-plan__foot{font-size:12px !important;color:#767678 !important;line-height:1.7 !important;margin:8px 0 0 !important;}
-.hrc .hrc-plan--best .hrc-plan__label{color:#8f8f8f !important;}
-.hrc .hrc-plan--best .hrc-plan__name{color:#ffffff !important;}
-.hrc .hrc-plan--best .hrc-plan__price{color:#fecc01 !important;}
-.hrc .hrc-plan--best .hrc-plan__price span{color:#8f8f8f !important;}
-.hrc .hrc-plan--best hr{border-top:1px solid #333333 !important;}
-.hrc .hrc-plan--best .hrc-plan__row span:first-child{color:#a5a5a5 !important;}
-.hrc .hrc-plan--best .hrc-plan__foot{color:#a5a5a5 !important;}
-.hrc .hrc-plan--best .hrc-plan__foot strong{color:#fecc01 !important;}
-.hrc .hrc-yes{color:#1a7a3c !important;font-weight:800 !important;}
-.hrc .hrc-plan--best .hrc-yes{color:#4ec77a !important;}
-.hrc .hrc-no{color:#c0392b !important;font-weight:800 !important;}
-
-/* ── FAQ（details＝JS不要） ──────────────── */
-.hrc .hrc-faq{max-width:840px !important;margin:0 auto !important;}
-.hrc .hrc-faq details{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;
-  margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;overflow:hidden !important;
-}
-.hrc .hrc-faq summary{
-  cursor:pointer !important;list-style:none !important;padding:20px 54px 20px 22px !important;
-  font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;
-  position:relative !important;line-height:1.75 !important;background:#ffffff !important;
-}
-.hrc .hrc-faq summary::-webkit-details-marker{display:none !important;}
-.hrc .hrc-faq summary::after{
-  content:"+" !important;position:absolute !important;right:22px !important;top:50% !important;
-  transform:translateY(-50%) !important;font-size:22px !important;font-weight:700 !important;
-  color:#1a7a3c !important;line-height:1 !important;
-}
-.hrc .hrc-faq details[open] summary::after{content:"−" !important;}
-.hrc .hrc-faq details[open] summary{border-bottom:1px solid #e8e8e6 !important;}
-.hrc .hrc-faq .hrc-faq__a{padding:18px 22px 22px !important;background:#ffffff !important;}
-.hrc .hrc-faq .hrc-faq__a p{color:#3f3f46 !important;font-size:14.5px !important;line-height:2 !important;margin:0 !important;}
-
-/* ── 更新日 ─────────────────────────────── */
-.hrc .hrc-updated{font-size:12.5px !important;color:#767678 !important;margin:0 0 24px !important;}
-
-/* ── 相互リンク ─────────────────────────── */
-.hrc .hrc-links{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important;}
-@media(max-width:820px){.hrc .hrc-links{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
-@media(max-width:520px){.hrc .hrc-links{grid-template-columns:minmax(0,1fr) !important;}}
-.hrc .hrc-links a{
-  display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;
-  border-radius:12px !important;padding:16px 18px !important;
-  font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;
-  box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;
-  transition:transform .18s ease,box-shadow .18s ease !important;line-height:1.6 !important;
-}
-.hrc .hrc-links a:hover{transform:translateY(-2px) !important;box-shadow:0 10px 24px rgba(0,0,0,.09) !important;color:#111111 !important;text-decoration:none !important;}
-.hrc .hrc-links a span{display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.7 !important;}
-
-/* ── ヒーロー（絶対配置なし・崩れない実装） ─ */
-.hrc .hrc-hero{display:block !important;margin:0 0 8px !important;}
-.hrc .hrc-hero__img{
-  width:100% !important;height:auto !important;aspect-ratio:16/6 !important;
-  object-fit:cover !important;border-radius:16px !important;margin:0 0 26px !important;
-}
-.hrc .hrc-hero__logo{width:100% !important;max-width:300px !important;height:auto !important;margin:0 0 18px !important;}
-.hrc .hrc-hero__sub{font-size:16.5px !important;font-weight:700 !important;color:#111111 !important;line-height:1.85 !important;margin:0 0 18px !important;}
-.hrc .hrc-hero__list{margin:0 0 24px 1.3em !important;padding:0 !important;}
-.hrc .hrc-hero__list li{font-size:15px !important;color:#3f3f46 !important;line-height:1.95 !important;}
-.hrc .hrc-hero__card{
-  background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:14px !important;
-  padding:22px !important;box-shadow:0 10px 24px rgba(0,0,0,.07) !important;max-width:560px !important;margin:0 !important;
-}
-@media(max-width:600px){
-  .hrc .hrc-hero__img{aspect-ratio:16/9 !important;border-radius:12px !important;margin-bottom:20px !important;}
-  .hrc .hrc-hero__sub{font-size:15px !important;}
-}
-
-/* ── 画像・ギャラリー ───────────────────── */
-.hrc .hrc-gal img{border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;}
-
-/* 車種画像（定員バッジを右下に重ねる） */
-.hrc .hrc-figure{margin:0 0 24px !important;position:relative !important;}
-.hrc .hrc-figure img{width:100% !important;aspect-ratio:16/7 !important;object-fit:cover !important;border-radius:12px !important;}
-.hrc .hrc-figure figcaption{position:absolute !important;bottom:14px !important;right:14px !important;margin:0 !important;}
-
-/* 記事中の写真（キャプションは下） */
-.hrc .hrc-photo{margin:0 0 28px !important;}
-.hrc .hrc-photo img{width:100% !important;aspect-ratio:16/9 !important;object-fit:cover !important;border-radius:14px !important;}
-.hrc .hrc-photo figcaption{font-size:12.5px !important;color:#767678 !important;margin-top:8px !important;line-height:1.7 !important;text-align:left !important;}
-
-/* テーブル内の補助表現 */
-.hrc .hrc-table td.soft{color:#767678 !important;font-weight:600 !important;font-style:italic !important;}
-.hrc .hrc-table td.small{font-size:13px !important;}
-.hrc .hrc-table th .unit{font-size:12px !important;color:#999999 !important;font-weight:400 !important;}
-
-/* ── ユーティリティ ─────────────────────── */
-.hrc .hrc-sr{position:absolute !important;width:1px !important;height:1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;}
-.hrc .hrc-mb0{margin-bottom:0 !important;}
-.hrc .hrc-mt24{margin-top:24px !important;}
-.hrc .hrc-body-text{color:#3f3f46 !important;font-size:15.5px !important;line-height:1.95 !important;}
-.hrc .hrc-muted-text{color:#767678 !important;font-size:13.5px !important;line-height:1.85 !important;}
-.hrc .hrc-notelist{list-style:none !important;padding:0 !important;margin:20px 0 32px !important;}
-.hrc .hrc-notelist li{font-size:13.5px !important;color:#3f3f46 !important;line-height:1.85 !important;padding-left:20px !important;position:relative !important;margin-bottom:10px !important;}
-.hrc .hrc-notelist li::before{content:"*" !important;position:absolute !important;left:0 !important;color:#767678 !important;}
-.hrc .hrc-sign{text-align:right !important;color:#767678 !important;font-size:14px !important;margin-top:20px !important;}
-
-@media(prefers-reduced-motion:reduce){
-  .hrc *{transition:none !important;animation:none !important;}
-  .hrc .hrc-btn:hover,.hrc .hrc-links a:hover{transform:none !important;}
-}
-@media(max-width:600px){
-  .hrc .hrc-section{padding:38px 0 !important;}
-  .hrc .hrc-container{padding:0 16px !important;}
-  .hrc .hrc-card__body,.hrc .hrc-shop__body{padding:18px !important;}
-  .hrc .hrc-btn{padding:14px 20px !important;font-size:14px !important;}
-}
-
-</style>
+<div class="hrc" style="color:#111111 !important;line-height:1.8 !important;text-align:left !important;max-width:100% !important;box-sizing:border-box !important;overflow-wrap:break-word !important;">
 
 <!-- ═══ Breadcrumb ═══ -->
-<div class="hrc-container">
-  <nav class="hrc-crumb" aria-label="Breadcrumb">
-    <ol>
-      <li><a href="https://hakubarentacar.com/en/">Home</a></li>
-      <li>Local Travel Guide</li>
+<div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+  <nav class="hrc-crumb" aria-label="Breadcrumb" style="margin:0 !important;padding:0 !important;font-size:12.5px !important;color:#767678 !important;padding:14px 0 !important;border-bottom:1px solid #e8e8e6 !important;margin:0 !important;">
+    <ol style="list-style:none !important;margin:0 !important;padding:0 !important;display:flex !important;flex-wrap:wrap !important;gap:8px !important;margin:0 0 1em !important;padding-left:1.5em !important;list-style:decimal !important;">
+      <li style="margin:0 !important;font-size:12.5px !important;color:#767678 !important;line-height:1.7 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><a href="https://hakubarentacar.com/en/" style="color:#1a7a3c !important;text-decoration:none !important;color:#767678 !important;">Home</a></li>
+      <li style="margin:0 !important;font-size:12.5px !important;color:#767678 !important;line-height:1.7 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="margin-right:8px !important;color:#bbbbbb !important;" aria-hidden="true">›</span>Local Travel Guide</li>
     </ol>
   </nav>
 </div>
 
 <!-- ═══ Intro ═══ -->
-<div class="hrc-container hrc-container--narrow hrc-section hrc-section--tight">
-  <p class="hrc-eyebrow">Local Travel Guide</p>
-  <h1 class="hrc-h1">Hakuba &amp; Otari Local Travel Guide</h1>
-  <p class="hrc-lead">
+<div class="hrc-container hrc-container--narrow hrc-section hrc-section--tight" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;">
+  <p class="hrc-eyebrow" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.6 !important;">Local Travel Guide</p>
+  <h1 class="hrc-h1" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(23px,3.4vw,31px) !important;margin:0 0 16px !important;line-height:1.45 !important;border:0 !important;padding:0 !important;">Hakuba &amp; Otari Local Travel Guide</h1>
+  <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">
     Hakuba and Otari are among Japan's most stunning alpine destinations, attracting visitors from around the world
     for both winter sports and year-round adventures. Just a few hours from Tokyo, these villages offer the perfect
     balance of natural beauty, outdoor activities and authentic Japanese culture.
   </p>
-  <p class="hrc-updated">🕒 Last updated: August 2026</p>
+  <p class="hrc-updated" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:12.5px !important;color:#767678 !important;margin:0 0 24px !important;">🕒 Last updated: August 2026</p>
 
-  <div class="hrc-keyfacts">
-    <h2 class="hrc-keyfacts-title">📌 Key facts about the Hakuba area</h2>
-    <ul>
-      <li>Hakuba and Otari sit at the foot of the <strong>Northern Japan Alps in north-west Nagano</strong>, a few hours from Tokyo.</li>
-      <li>Hakuba hosted events during the <strong>1998 Nagano Winter Olympics</strong> and is a world-famous ski destination.</li>
-      <li>The main resorts are <strong>Happo-one, Iwatake, Hakuba Goryu, Hakuba 47, Tsugaike Kogen, Hakuba Norikura and Cortina</strong>.</li>
-      <li>In summer and autumn the area offers <strong>hiking, cycling, rafting, canyoning and autumn foliage</strong>.</li>
-      <li>The area is known for <strong>hot springs, traditional ryokan inns, handmade soba and sanzokuyaki</strong>.</li>
-      <li>Facilities are spread across a wide mountain valley with infrequent buses, so <strong>a rental car is the most flexible way to get around</strong>.</li>
-      <li>Day trips from Hakuba include <strong>Jigokudani Monkey Park, the Tateyama Kurobe Alpine Route, Kamikochi, Matsumoto Castle and the Sea of Japan</strong>.</li>
+  <div class="hrc-keyfacts" style="background:#ffffff !important;border:2px solid #1a7a3c !important;border-radius:16px !important;padding:clamp(18px,3vw,26px) clamp(16px,3vw,28px) !important;box-shadow:0 12px 28px rgba(26,122,60,.10) !important;margin:0 0 36px !important;">
+    <h2 class="hrc-keyfacts-title" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:15px !important;font-weight:800 !important;color:#1a7a3c !important;margin:0 0 14px !important;letter-spacing:.06em !important;line-height:1.6 !important;border:0 !important;padding:0 !important;">📌 Key facts about the Hakuba area</h2>
+    <ul style="list-style:none !important;margin:0 !important;padding:0 !important;margin:0 0 1em !important;padding-left:1.4em !important;list-style:disc !important;">
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">Hakuba and Otari sit at the foot of the <strong style="font-weight:800 !important;color:#111111 !important;">Northern Japan Alps in north-west Nagano</strong>, a few hours from Tokyo.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">Hakuba hosted events during the <strong style="font-weight:800 !important;color:#111111 !important;">1998 Nagano Winter Olympics</strong> and is a world-famous ski destination.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">The main resorts are <strong style="font-weight:800 !important;color:#111111 !important;">Happo-one, Iwatake, Hakuba Goryu, Hakuba 47, Tsugaike Kogen, Hakuba Norikura and Cortina</strong>.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">In summer and autumn the area offers <strong style="font-weight:800 !important;color:#111111 !important;">hiking, cycling, rafting, canyoning and autumn foliage</strong>.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">The area is known for <strong style="font-weight:800 !important;color:#111111 !important;">hot springs, traditional ryokan inns, handmade soba and sanzokuyaki</strong>.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">Facilities are spread across a wide mountain valley with infrequent buses, so <strong style="font-weight:800 !important;color:#111111 !important;">a rental car is the most flexible way to get around</strong>.</span></li>
+      <li style="display:flex !important;gap:10px !important;align-items:flex-start !important;margin:0 0 9px !important;font-size:14.5px !important;line-height:1.9 !important;color:#3f3f46 !important;margin:0 0 .45em !important;color:#3f3f46 !important;font-size:15px !important;line-height:1.9 !important;text-align:left !important;"><span style="color:#1a7a3c !important;font-weight:900 !important;font-size:14px !important;flex:0 0 auto !important;line-height:1.9 !important;" aria-hidden="true">✓</span><span style="flex:1 1 auto !important;display:block !important;">Day trips from Hakuba include <strong style="font-weight:800 !important;color:#111111 !important;">Jigokudani Monkey Park, the Tateyama Kurobe Alpine Route, Kamikochi, Matsumoto Castle and the Sea of Japan</strong>.</span></li>
     </ul>
   </div>
 </div>
 
 <!-- ═══ Winter ═══ -->
-<div class="hrc-container hrc-container--narrow hrc-section">
-  <h2 class="hrc-h2">Winter wonderland</h2>
-  <p class="hrc-body-text">
-    Hakuba is world-famous for its ski resorts, having hosted events during the <strong>1998 Winter Olympics</strong>.
+<div class="hrc-container hrc-container--narrow hrc-section" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;">
+  <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">Winter wonderland</h2>
+  <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
+    Hakuba is world-famous for its ski resorts, having hosted events during the <strong style="font-weight:800 !important;color:#111111 !important;">1998 Winter Olympics</strong>.
     With reliable snowfall, well-maintained slopes and breathtaking mountain views, it is a paradise for skiers
     and snowboarders of all levels. Otari, a quieter neighbour, provides a more relaxed atmosphere with charming
     local ski fields and hidden hot springs.
   </p>
-  <p class="hrc-body-text">
+  <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
     Because the resorts are spread across the valley, having a car means you can pick your mountain each morning
     based on snow and conditions. Every Hakuba Rent a Car vehicle is 4WD with winter tyres fitted from December to March,
     and ski carriers are available.
   </p>
 
-  <div class="hrc-tablewrap hrc-mt24" style="margin-bottom:28px;">
-    <table class="hrc-table">
-      <caption>Ski resorts in the Hakuba and Otari area, and the nearer branch</caption>
-      <thead><tr><th scope="col">Resort</th><th scope="col">Village</th><th scope="col">Nearer branch</th></tr></thead>
+  <div class="hrc-tablewrap hrc-mt24" style="overflow-x:auto !important;border:1px solid #e8e8e6 !important;border-radius:12px !important;background:#ffffff !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;max-width:100% !important;margin-top:24px !important;margin-bottom:28px;">
+    <table class="hrc-table" style="border-collapse:collapse !important;width:100% !important;margin:0 !important;font-size:14px !important;min-width:520px !important;border-collapse:collapse !important;width:100% !important;">
+      <caption style="caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;">Ski resorts in the Hakuba and Otari area, and the nearer branch</caption>
+      <thead><tr><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Resort</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Village</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Nearer branch</th></tr></thead>
       <tbody>
-        <tr><th scope="row">Hakuba Happo-one</th><td class="small">Hakuba</td><td class="small">Hakuba Station Branch</td></tr>
-        <tr><th scope="row">Hakuba Iwatake</th><td class="small">Hakuba</td><td class="small">Hakuba Station Branch</td></tr>
-        <tr><th scope="row">Hakuba Goryu &amp; Hakuba 47</th><td class="small">Hakuba</td><td class="small">Hakuba Station Branch</td></tr>
-        <tr><th scope="row">Tsugaike Kogen</th><td class="small">Otari</td><td class="small">Hakuba Norikura Branch</td></tr>
-        <tr><th scope="row">Hakuba Norikura Onsen</th><td class="small">Otari</td><td class="small">Hakuba Norikura Branch</td></tr>
-        <tr><th scope="row">Hakuba Cortina</th><td class="small">Otari</td><td class="small">Hakuba Norikura Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Hakuba Happo-one</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Hakuba</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Hakuba Station Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">Hakuba Iwatake</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">Hakuba</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">Hakuba Station Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Hakuba Goryu &amp; Hakuba 47</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Hakuba</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Hakuba Station Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">Tsugaike Kogen</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">Otari</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">Hakuba Norikura Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Hakuba Norikura Onsen</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Otari</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Hakuba Norikura Branch</td></tr>
+        <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;border-bottom:0 !important;">Hakuba Cortina</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;border-bottom:0 !important;">Otari</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;border-bottom:0 !important;">Hakuba Norikura Branch</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="hrc-grid hrc-grid--4 hrc-gal">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/5071384_m-1024x683.jpg" alt="Ski slopes in Hakuba with the snow-covered Northern Japan Alps behind">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/4441319_m-1024x574.jpg" alt="Panoramic view of a ski resort in the Hakuba valley">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/23546953_m-1024x683.jpg" alt="The Hakuba ski jump venue from the 1998 Nagano Winter Olympics">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/31549832_m-1024x683.jpg" alt="A skier riding powder snow in Hakuba">
+  <div class="hrc-grid hrc-grid--4 hrc-gal" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(210px,1fr)) !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/5071384_m-1024x683.jpg" alt="Ski slopes in Hakuba with the snow-covered Northern Japan Alps behind" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/4441319_m-1024x574.jpg" alt="Panoramic view of a ski resort in the Hakuba valley" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/23546953_m-1024x683.jpg" alt="The Hakuba ski jump venue from the 1998 Nagano Winter Olympics" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/31549832_m-1024x683.jpg" alt="A skier riding powder snow in Hakuba" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
   </div>
 </div>
 
 <!-- ═══ Summer & autumn ═══ -->
-<div class="hrc-full hrc-section hrc-section--bg">
-  <div class="hrc-container hrc-container--narrow">
-    <h2 class="hrc-h2">Summer &amp; autumn adventures</h2>
-    <p class="hrc-body-text">
+<div class="hrc-full hrc-section hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container hrc-container--narrow" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">Summer &amp; autumn adventures</h2>
+    <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
       When the snow melts, the Japanese Alps transform into a hiker's paradise. Scenic trails lead to alpine lakes,
       lush forests and panoramic peaks. Cycling, river rafting and canyoning are also popular ways to explore the valleys
       during the warmer months. In autumn the mountains come alive with brilliant red and gold leaves,
       making it one of the best times to visit.
     </p>
-    <p class="hrc-body-text">
-      This is also when Hakuba Rent a Car runs its <strong>green season campaign: 40% off all vehicle classes from April to November</strong>.
+    <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
+      This is also when Hakuba Rent a Car runs its <strong style="font-weight:800 !important;color:#111111 !important;">green season campaign: 40% off all vehicle classes from April to November</strong>.
       A kei car starts at ¥6,600 per 24 hours including tax.
       Golden Week, Obon and other peak periods are excluded.
     </p>
 
-    <div class="hrc-grid hrc-grid--4 hrc-gal hrc-mt24">
-      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/27481891_m-1024x683.jpg" alt="A summer hiking trail in the Northern Japan Alps">
-      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/33154519_m-1024x575.jpg" alt="Alpine flowers and mountain ridges above Hakuba">
-      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25017687_m-1024x889.jpg" alt="Autumn foliage colouring the mountains around Hakuba">
-      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25947128_m-1024x768.jpg" alt="A river valley in the Hakuba area used for rafting and canyoning">
+    <div class="hrc-grid hrc-grid--4 hrc-gal hrc-mt24" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(210px,1fr)) !important;margin-top:24px !important;">
+      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/27481891_m-1024x683.jpg" alt="A summer hiking trail in the Northern Japan Alps" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/33154519_m-1024x575.jpg" alt="Alpine flowers and mountain ridges above Hakuba" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25017687_m-1024x889.jpg" alt="Autumn foliage colouring the mountains around Hakuba" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+      <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25947128_m-1024x768.jpg" alt="A river valley in the Hakuba area used for rafting and canyoning" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
     </div>
   </div>
 </div>
 
 <!-- ═══ Culture ═══ -->
-<div class="hrc-container hrc-container--narrow hrc-section">
-  <h2 class="hrc-h2">Local culture &amp; relaxation</h2>
-  <p class="hrc-body-text">
+<div class="hrc-container hrc-container--narrow hrc-section" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;">
+  <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">Local culture &amp; relaxation</h2>
+  <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
     Beyond the outdoors, Hakuba and Otari offer soothing hot springs, traditional ryokan inns and locally sourced cuisine.
     Visitors can enjoy everything from handmade soba noodles to hearty mountain dishes such as sanzokuyaki,
     a Nagano speciality of chicken marinated in garlic soy sauce and fried.
     Seasonal festivals and cultural events give travellers a chance to experience Japan's traditions up close.
   </p>
-  <p class="hrc-body-text">
+  <p class="hrc-body-text" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 1em !important;">
     Whether you are chasing powder in winter, hiking through alpine trails in summer, or soaking in an onsen
     after a long day, Hakuba and Otari promise an unforgettable journey in every season.
   </p>
 
-  <div class="hrc-grid hrc-grid--4 hrc-gal hrc-mt24">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/22319863_m-1024x779.jpg" alt="An open-air hot spring surrounded by snow in the Hakuba area">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/29570381_m-1024x768.jpg" alt="A traditional Japanese ryokan room in Hakuba">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/22785429_m-1-1024x683.jpg" alt="Green season highland scenery in Hakuba">
-    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25629860_m-1024x768.jpg" alt="Local Nagano cuisine made with regional ingredients">
+  <div class="hrc-grid hrc-grid--4 hrc-gal hrc-mt24" style="display:grid !important;gap:20px !important;grid-template-columns:repeat(auto-fit,minmax(210px,1fr)) !important;margin-top:24px !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/22319863_m-1024x779.jpg" alt="An open-air hot spring surrounded by snow in the Hakuba area" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/29570381_m-1024x768.jpg" alt="A traditional Japanese ryokan room in Hakuba" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/22785429_m-1-1024x683.jpg" alt="Green season highland scenery in Hakuba" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
+    <img loading="lazy" src="https://hakubarentacar.com/wp-content/uploads/2025/09/25629860_m-1024x768.jpg" alt="Local Nagano cuisine made with regional ingredients" style="border-radius:12px !important;aspect-ratio:4/3 !important;object-fit:cover !important;width:100% !important;display:block !important;max-width:100% !important;height:auto !important;">
   </div>
 </div>
 
 <!-- ═══ Day trips ═══ -->
-<div class="hrc-full hrc-section hrc-section--bg">
-  <div class="hrc-container hrc-container--narrow">
-    <h2 class="hrc-h2">Day trips from Hakuba by car</h2>
-    <p class="hrc-lead">With a rental car, Hakuba works well as a base for day trips across Nagano and into Toyama.</p>
+<div class="hrc-full hrc-section hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container hrc-container--narrow" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;max-width:840px !important;">
+    <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;">Day trips from Hakuba by car</h2>
+    <p class="hrc-lead" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:2 !important;margin:0 0 28px !important;max-width:740px !important;">With a rental car, Hakuba works well as a base for day trips across Nagano and into Toyama.</p>
 
-    <div class="hrc-tablewrap">
-      <table class="hrc-table">
-        <caption>Popular day trips from Hakuba</caption>
-        <thead><tr><th scope="col">Destination</th><th scope="col">Highlights</th><th scope="col">Best season</th></tr></thead>
+    <div class="hrc-tablewrap" style="overflow-x:auto !important;border:1px solid #e8e8e6 !important;border-radius:12px !important;background:#ffffff !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;-webkit-overflow-scrolling:touch !important;max-width:100% !important;">
+      <table class="hrc-table" style="border-collapse:collapse !important;width:100% !important;margin:0 !important;font-size:14px !important;min-width:520px !important;border-collapse:collapse !important;width:100% !important;">
+        <caption style="caption-side:top !important;text-align:left !important;font-size:11.5px !important;font-weight:800 !important;color:#767678 !important;letter-spacing:.09em !important;padding:14px 18px 0 !important;">Popular day trips from Hakuba</caption>
+        <thead><tr><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Destination</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Highlights</th><th scope="col" style="background:#111111 !important;color:#ffffff !important;font-weight:700 !important;font-size:11.5px !important;letter-spacing:.09em !important;padding:14px 18px !important;text-align:left !important;vertical-align:bottom !important;line-height:1.6 !important;border:0 !important;">Best season</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Jigokudani Monkey Park</th><td class="small">Wild snow monkeys bathing in a hot spring</td><td class="small">All year (winter is popular)</td></tr>
-          <tr><th scope="row">Tateyama Kurobe Alpine Route</th><td class="small">The Snow Wall, Kurobe Dam, 3,000 m peaks</td><td class="small">April – November</td></tr>
-          <tr><th scope="row">Kamikochi</th><td class="small">Kappa Bridge, Taisho Pond, the Hotaka range</td><td class="small">Late April – mid November</td></tr>
-          <tr><th scope="row">Matsumoto Castle</th><td class="small">A National Treasure keep and its castle town</td><td class="small">All year</td></tr>
-          <tr><th scope="row">Sea of Japan (Itoigawa)</th><td class="small">Fresh seafood, sushi and coastal sunsets</td><td class="small">All year</td></tr>
-          <tr><th scope="row">Omachi Onsenkyo</th><td class="small">A hot spring town at the foot of the Alps</td><td class="small">All year</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Jigokudani Monkey Park</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Wild snow monkeys bathing in a hot spring</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">All year (winter is popular)</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">Tateyama Kurobe Alpine Route</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">The Snow Wall, Kurobe Dam, 3,000 m peaks</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">April – November</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Kamikochi</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Kappa Bridge, Taisho Pond, the Hotaka range</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Late April – mid November</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;">Matsumoto Castle</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">A National Treasure keep and its castle town</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;">All year</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;">Sea of Japan (Itoigawa)</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">Fresh seafood, sushi and coastal sunsets</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;font-size:13px !important;">All year</td></tr>
+          <tr><th scope="row" style="text-align:left !important;font-weight:700 !important;padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;color:#2a2a2a !important;background:#ffffff !important;font-size:14px !important;line-height:1.75 !important;vertical-align:top !important;background:#fbfbfa !important;border-bottom:0 !important;">Omachi Onsenkyo</th><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;border-bottom:0 !important;">A hot spring town at the foot of the Alps</td><td class="small" style="padding:14px 18px !important;border-bottom:1px solid #e8e8e6 !important;vertical-align:middle !important;color:#3f3f46 !important;font-size:14px !important;background:#ffffff !important;line-height:1.75 !important;background:#fbfbfa !important;font-size:13px !important;border-bottom:0 !important;">All year</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="hrc-note hrc-note--warn" style="margin-top:20px;">
-      <strong>[Winter note]</strong> The Tateyama Kurobe Alpine Route and Kamikochi close for the winter.
+    <div class="hrc-note hrc-note--warn" style="border-radius:0 10px 10px 0 !important;padding:18px 22px !important;font-size:14.5px !important;line-height:1.95 !important;color:#3f3f46 !important;background:#fff8e1 !important;border-left:4px solid #fecc01 !important;margin-top:20px;">
+      <strong style="font-weight:800 !important;color:#111111 !important;">[Winter note]</strong> The Tateyama Kurobe Alpine Route and Kamikochi close for the winter.
       Mountain roads in the area can be snowy and icy, so allow extra time.
       Every Hakuba Rent a Car vehicle is 4WD, with winter tyres fitted as standard from December to March.
     </div>
@@ -618,68 +167,68 @@
 </div>
 
 <!-- ═══ FAQ ═══ -->
-<div class="hrc-full hrc-section hrc-section--white">
-  <div class="hrc-container">
-    <div class="hrc-center">
-      <p class="hrc-eyebrow">FAQ</p>
-      <h2 class="hrc-h2">Questions about visiting Hakuba</h2>
+<div class="hrc-full hrc-section hrc-section--white" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;background:transparent !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <div class="hrc-center" style="text-align:center !important;">
+      <p class="hrc-eyebrow" style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;font-size:11px !important;letter-spacing:.26em !important;text-transform:uppercase !important;color:#b89000 !important;font-weight:700 !important;margin:0 0 10px !important;line-height:1.6 !important;text-align:center !important;">FAQ</p>
+      <h2 class="hrc-h2" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(20px,2.6vw,25px) !important;margin:0 0 24px !important;line-height:1.45 !important;padding:0 0 12px !important;border:0 !important;border-bottom:3px solid #fecc01 !important;display:inline-block !important;text-align:center !important;display:inline-block !important;text-align:center !important;">Questions about visiting Hakuba</h2>
     </div>
 
-    <div class="hrc-faq">
-      <details open>
-        <summary>Do I need a car to explore Hakuba?</summary>
-        <div class="hrc-faq__a"><p>Hakuba and Otari are spread across a wide mountain valley and local buses are infrequent, so a rental car is by far the most flexible way to get around. It lets you reach ski resorts, hot springs, hiking trailheads and restaurants at your own pace, and makes day trips to Jigokudani Monkey Park or Matsumoto Castle practical.</p></div>
+    <div class="hrc-faq" style="max-width:840px !important;margin:0 auto !important;">
+      <details open style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">Do I need a car to explore Hakuba?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Hakuba and Otari are spread across a wide mountain valley and local buses are infrequent, so a rental car is by far the most flexible way to get around. It lets you reach ski resorts, hot springs, hiking trailheads and restaurants at your own pace, and makes day trips to Jigokudani Monkey Park or Matsumoto Castle practical.</p></div>
       </details>
-      <details>
-        <summary>Which ski resorts are in the Hakuba area?</summary>
-        <div class="hrc-faq__a"><p>Hakuba Village has Happo-one, Iwatake, Hakuba Goryu and Hakuba 47. Otari Village has Tsugaike Kogen, Hakuba Norikura Onsen and Cortina. Happo-one hosted events during the 1998 Nagano Winter Olympics and is the area's flagship resort. With a car you can choose your resort each day based on conditions.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">Which ski resorts are in the Hakuba area?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Hakuba Village has Happo-one, Iwatake, Hakuba Goryu and Hakuba 47. Otari Village has Tsugaike Kogen, Hakuba Norikura Onsen and Cortina. Happo-one hosted events during the 1998 Nagano Winter Olympics and is the area's flagship resort. With a car you can choose your resort each day based on conditions.</p></div>
       </details>
-      <details>
-        <summary>What is there to do in Hakuba in summer?</summary>
-        <div class="hrc-faq__a"><p>Once the snow melts, Hakuba offers hiking in the Northern Japan Alps, cycling, river rafting and canyoning. Trails lead through alpine flowers and forests to panoramic peaks, and autumn brings brilliant red and gold foliage. Hakuba Rent a Car runs a green season campaign with 40% off all vehicle classes from April to November.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">What is there to do in Hakuba in summer?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Once the snow melts, Hakuba offers hiking in the Northern Japan Alps, cycling, river rafting and canyoning. Trails lead through alpine flowers and forests to panoramic peaks, and autumn brings brilliant red and gold foliage. Hakuba Rent a Car runs a green season campaign with 40% off all vehicle classes from April to November.</p></div>
       </details>
-      <details>
-        <summary>Can I visit the snow monkeys from Hakuba?</summary>
-        <div class="hrc-faq__a"><p>Yes. Jigokudani Monkey Park is within day-trip range of Hakuba by car, and is famous for wild Japanese macaques bathing in a hot spring. It is open all year, though winter — when the monkeys sit in the steaming water surrounded by snow — is the most popular time. Mountain roads can be snowy and icy in winter, so a 4WD vehicle is recommended.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">Can I visit the snow monkeys from Hakuba?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Yes. Jigokudani Monkey Park is within day-trip range of Hakuba by car, and is famous for wild Japanese macaques bathing in a hot spring. It is open all year, though winter — when the monkeys sit in the steaming water surrounded by snow — is the most popular time. Mountain roads can be snowy and icy in winter, so a 4WD vehicle is recommended.</p></div>
       </details>
-      <details>
-        <summary>What local food should I try?</summary>
-        <div class="hrc-faq__a"><p>Nagano is famous for handmade soba noodles, and there are many soba restaurants across Hakuba and Otari. Sanzokuyaki — chicken marinated in garlic soy sauce and fried — is another regional speciality. Drive out towards Itoigawa on the coast and you can also enjoy fresh seafood and sushi from the Sea of Japan.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">What local food should I try?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Nagano is famous for handmade soba noodles, and there are many soba restaurants across Hakuba and Otari. Sanzokuyaki — chicken marinated in garlic soy sauce and fried — is another regional speciality. Drive out towards Itoigawa on the coast and you can also enjoy fresh seafood and sushi from the Sea of Japan.</p></div>
       </details>
-      <details>
-        <summary>Can I reach the Tateyama Kurobe Alpine Route or Kamikochi?</summary>
-        <div class="hrc-faq__a"><p>Both are within day-trip range of Hakuba. Note that the Tateyama Kurobe Alpine Route operates from April to November and Kamikochi from late April to mid November — both close in winter. Kamikochi also restricts private vehicles, so you park at Sawando or Hirayu and transfer to a shuttle bus.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">Can I reach the Tateyama Kurobe Alpine Route or Kamikochi?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Both are within day-trip range of Hakuba. Note that the Tateyama Kurobe Alpine Route operates from April to November and Kamikochi from late April to mid November — both close in winter. Kamikochi also restricts private vehicles, so you park at Sawando or Hirayu and transfer to a shuttle bus.</p></div>
       </details>
-      <details>
-        <summary>Is it safe to drive in Hakuba in winter?</summary>
-        <div class="hrc-faq__a"><p>Roads in Hakuba and Otari are snowy and icy through winter. Every Hakuba Rent a Car vehicle is 4WD with studless winter tyres fitted from December to March, which gives stable traction, and tyre chains are also available. Mountain roads can still be narrow with limited visibility, so allow extra time and drive carefully.</p></div>
+      <details style="background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;margin:0 0 12px !important;box-shadow:0 6px 18px rgba(0,0,0,.05) !important;overflow:hidden !important;">
+        <summary style="display:flex !important;justify-content:space-between !important;align-items:flex-start !important;gap:16px !important;cursor:pointer !important;padding:20px 22px !important;font-size:15.5px !important;font-weight:800 !important;color:#111111 !important;line-height:1.75 !important;background:#ffffff !important;text-align:left !important;">Is it safe to drive in Hakuba in winter?<span style="color:#1a7a3c !important;font-size:20px !important;font-weight:700 !important;line-height:1.4 !important;flex:0 0 auto !important;" aria-hidden="true" data-hrc-mark="">＋</span></summary>
+        <div class="hrc-faq__a" style="padding:18px 22px 22px !important;background:#ffffff !important;border-top:1px solid #e8e8e6 !important;"><p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;">Roads in Hakuba and Otari are snowy and icy through winter. Every Hakuba Rent a Car vehicle is 4WD with studless winter tyres fitted from December to March, which gives stable traction, and tyre chains are also available. Mountain roads can still be narrow with limited visibility, so allow extra time and drive carefully.</p></div>
       </details>
     </div>
   </div>
 </div>
 
 <!-- ═══ CTA ═══ -->
-<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg">
-  <div class="hrc-container">
-    <div class="hrc-ctaband">
-      <h3>See Hakuba at your own pace.</h3>
-      <p>The green season brings <strong>40% OFF all vehicle classes</strong>, and every car is 4WD for the mountain roads.</p>
-      <div class="hrc-btnrow">
-        <a href="https://hakubarentacar.com/en/reservations-2/" class="hrc-btn hrc-btn--gold">Request a Booking</a>
-        <a href="https://hakubarentacar.com/en/cars-deals/" class="hrc-btn hrc-btn--green">View vehicles &amp; rates</a>
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--bg" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;background:#f6f7f9 !important;border-radius:18px !important;margin-top:14px !important;margin-bottom:14px !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <div class="hrc-ctaband" style="background:#111111 !important;border-radius:16px !important;border-left:5px solid #fecc01 !important;padding:clamp(20px,3vw,26px) clamp(18px,3vw,28px) !important;box-shadow:0 10px 24px rgba(0,0,0,.08) !important;">
+      <h3 style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;color:#ffffff !important;border:0 !important;">See Hakuba at your own pace.</h3>
+      <p style="margin:0 0 1em !important;color:#3f3f46 !important;font-size:15.5px !important;line-height:1.9 !important;text-align:left !important;color:#dcdcdc !important;">The green season brings <strong style="font-weight:800 !important;color:#111111 !important;color:#fecc01 !important;">40% OFF all vehicle classes</strong>, and every car is 4WD for the mountain roads.</p>
+      <div class="hrc-btnrow" style="display:flex !important;flex-wrap:wrap !important;gap:12px !important;margin:0 !important;padding:0 !important;list-style:none !important;">
+        <a href="https://hakubarentacar.com/en/reservations-2/" class="hrc-btn hrc-btn--gold" style="color:#1a7a3c !important;text-decoration:none !important;display:inline-block !important;font-weight:800 !important;font-size:15px !important;line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;text-align:center !important;text-decoration:none !important;border:1px solid transparent !important;cursor:pointer !important;box-sizing:border-box !important;background:#fecc01 !important;color:#111111 !important;border-color:rgba(0,0,0,.10) !important;" data-hrc-btn="">Request a Booking</a>
+        <a href="https://hakubarentacar.com/en/cars-deals/" class="hrc-btn hrc-btn--green" style="color:#1a7a3c !important;text-decoration:none !important;display:inline-block !important;font-weight:800 !important;font-size:15px !important;line-height:1 !important;padding:15px 26px !important;border-radius:10px !important;text-align:center !important;text-decoration:none !important;border:1px solid transparent !important;cursor:pointer !important;box-sizing:border-box !important;background:#1a7a3c !important;color:#ffffff !important;border-color:#1a7a3c !important;" data-hrc-btn="">View vehicles &amp; rates</a>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ═══ Related pages ═══ -->
-<div class="hrc-full hrc-section hrc-section--tight hrc-section--white">
-  <div class="hrc-container">
-    <h2 class="hrc-h3">Related pages</h2>
-    <nav class="hrc-links" aria-label="Related pages">
-      <a href="https://hakubarentacar.com/en/access/">Locations &amp; Access<span>Both branches, maps and shuttle</span></a>
-      <a href="https://hakubarentacar.com/en/cars-deals/">Vehicles &amp; Rates<span>Three classes, insurance and options</span></a>
-      <a href="https://hakubarentacar.com/en/why-choose-us-2/">Why Choose Us<span>What sets us apart</span></a>
+<div class="hrc-full hrc-section hrc-section--tight hrc-section--white" style="position:relative !important;width:auto !important;left:auto !important;margin-left:0 !important;padding-top:clamp(34px,5vw,52px) !important;padding-bottom:clamp(34px,5vw,52px) !important;padding-top:clamp(22px,3vw,32px) !important;padding-bottom:clamp(22px,3vw,32px) !important;background:transparent !important;">
+  <div class="hrc-container" style="max-width:1080px !important;margin-left:auto !important;margin-right:auto !important;padding-left:clamp(16px,4vw,24px) !important;padding-right:clamp(16px,4vw,24px) !important;box-sizing:border-box !important;">
+    <h2 class="hrc-h3" style="margin:0 !important;padding:0 !important;border:0 !important;background:none !important;background-color:transparent !important;box-shadow:none !important;text-shadow:none !important;text-transform:none !important;text-align:left !important;font-weight:800 !important;color:#111111 !important;letter-spacing:.02em !important;line-height:1.4 !important;font-size:clamp(17px,2vw,19px) !important;margin:0 0 14px !important;line-height:1.5 !important;border:0 !important;padding:0 !important;">Related pages</h2>
+    <nav class="hrc-links" aria-label="Related pages" style="margin:0 !important;padding:0 !important;display:grid !important;gap:12px !important;grid-template-columns:repeat(auto-fit,minmax(240px,1fr)) !important;margin:0 !important;padding:0 !important;">
+      <a href="https://hakubarentacar.com/en/access/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">Locations &amp; Access<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">Both branches, maps and shuttle</span></a>
+      <a href="https://hakubarentacar.com/en/cars-deals/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">Vehicles &amp; Rates<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">Three classes, insurance and options</span></a>
+      <a href="https://hakubarentacar.com/en/why-choose-us-2/" style="display:block !important;background:#ffffff !important;border:1px solid #e2e2e0 !important;border-radius:12px !important;padding:16px 18px !important;font-size:14.5px !important;font-weight:800 !important;color:#111111 !important;box-shadow:0 6px 18px rgba(0,0,0,.04) !important;text-decoration:none !important;line-height:1.65 !important;color:#1a7a3c !important;text-decoration:none !important;" data-hrc-link="">Why Choose Us<span style="display:block !important;font-size:12.5px !important;font-weight:400 !important;color:#767678 !important;margin-top:5px !important;line-height:1.75 !important;">What sets us apart</span></a>
     </nav>
   </div>
 </div>
