@@ -38,6 +38,12 @@ LDJSON = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 LEFTOVER = re.compile(r"\{\{[A-Z_]+\}\}|【要入力】|\[TO BE ADDED\]")
 
 
+def cls(name: str) -> str:
+    """クラス名の完全一致を判定する XPath 述語。
+    {cls("hrc-hero")} は hrc-hero__inner などにも当たってしまうため必須。"""
+    return f'contains(concat(" ",normalize-space(@class)," ")," {name} ")'
+
+
 def important(decls: str) -> str:
     """`a:1;b:2` → `a:1 !important;b:2 !important`"""
     out = []
@@ -64,8 +70,8 @@ def apply_base(el) -> None:
     tag_default = S.TAG_DEFAULTS.get(el.tag)
     if tag_default:
         pre += tag_default
-    for cls in (el.get("class") or "").split():
-        pre += S.CLASS_STYLES.get(cls, "")
+    for name in (el.get("class") or "").split():
+        pre += S.CLASS_STYLES.get(name, "")
     if pre:
         add_style(el, pre, front=True)
 
@@ -73,7 +79,7 @@ def apply_base(el) -> None:
 def style_tables(root) -> None:
     """テーブルは文脈（thead/tbody・行の偶奇・最終行）で見た目が変わるため個別に処理"""
     T = S.TABLE
-    for table in root.xpath('//table[contains(@class,"hrc-table")]'):
+    for table in root.xpath(f'//table[{cls("hrc-table")}]'):
         for th in table.xpath("./thead//th"):
             css = T["thead_th"]
             classes = (th.get("class") or "").split()
@@ -81,7 +87,7 @@ def style_tables(root) -> None:
                 css += T["thead_th_num"]
             if "hl" in classes:
                 css += T["thead_th_hl"]
-                for sub in th.xpath('.//span[contains(@class,"sub")]'):
+                for sub in th.xpath(f'.//span[{cls("sub")}]'):
                     add_style(sub, T["thead_sub_hl"])
             add_style(th, css, front=True)
 
@@ -116,7 +122,7 @@ def style_structures(root) -> None:
     # 要点まとめ: ::before の代わりに実体の ✓ を置く。
     # li を flex にすると <strong> ごとに flex アイテム化して文が分断されるため、
     # 本文は必ず 1つの span にまとめてから並べる。
-    for box in root.xpath('//*[contains(@class,"hrc-keyfacts")]'):
+    for box in root.xpath(f'//*[{cls("hrc-keyfacts")}]'):
         for ul in box.xpath(".//ul"):
             add_style(ul, S.CLASS_STYLES["hrc-kf-list"], front=True)
             for li in ul.xpath("./li"):
@@ -138,14 +144,14 @@ def style_structures(root) -> None:
                 li.append(wrap)
 
     # 定義リスト: dt/dd に幅を与える（grid ではなく flex で折返し対応）
-    for dl in root.xpath('//dl[contains(@class,"hrc-dl")]'):
+    for dl in root.xpath(f'//dl[{cls("hrc-dl")}]'):
         for dt in dl.xpath(".//dt"):
             add_style(dt, S.CLASS_STYLES["hrc-dt"], front=True)
         for dd in dl.xpath(".//dd"):
             add_style(dd, S.CLASS_STYLES["hrc-dd"], front=True)
 
     # パンくず: ol/li を横並びにし、区切り記号を実体で入れる
-    for nav in root.xpath('//nav[contains(@class,"hrc-crumb")]'):
+    for nav in root.xpath(f'//nav[{cls("hrc-crumb")}]'):
         for ol in nav.xpath(".//ol"):
             add_style(ol, "list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;", front=True)
             for i, li in enumerate(ol.xpath("./li")):
@@ -162,7 +168,7 @@ def style_structures(root) -> None:
                     li.insert(0, sep)
 
     # 相互リンク: nav > a をカード化し、中の span を補足行にする
-    for nav in root.xpath('//nav[contains(@class,"hrc-links")]'):
+    for nav in root.xpath(f'//nav[{cls("hrc-links")}]'):
         for a in nav.xpath("./a"):
             add_style(a, S.CLASS_STYLES["hrc-linkcard"], front=True)
             a.set("data-hrc-link", "")
@@ -170,36 +176,58 @@ def style_structures(root) -> None:
                 add_style(sp, S.CLASS_STYLES["hrc-linkcard__sub"], front=True)
 
     # 注記リスト
-    for ul in root.xpath('//ul[contains(@class,"hrc-notelist")]'):
+    for ul in root.xpath(f'//ul[{cls("hrc-notelist")}]'):
         for li in ul.xpath("./li"):
             add_style(li, S.CLASS_STYLES["hrc-notelist__item"], front=True)
 
     # ギャラリー・記事写真・車種写真
-    for g in root.xpath('//*[contains(@class,"hrc-gal")]'):
+    for g in root.xpath(f'//*[{cls("hrc-gal")}]'):
         for img in g.xpath("./img"):
             add_style(img, "border-radius:12px;aspect-ratio:4/3;object-fit:cover;width:100%;", front=True)
-    for f in root.xpath('//figure[contains(@class,"hrc-photo")]'):
+    for f in root.xpath(f'//figure[{cls("hrc-photo")}]'):
         for img in f.xpath("./img"):
             add_style(img, "width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:14px;", front=True)
         for cap in f.xpath("./figcaption"):
             add_style(cap, "margin-top:8px;", front=True)
-    for f in root.xpath('//figure[contains(@class,"hrc-figure")]'):
+    for f in root.xpath(f'//figure[{cls("hrc-figure")}]'):
         for img in f.xpath("./img"):
             add_style(img, "width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:12px;", front=True)
         for cap in f.xpath("./figcaption"):
             add_style(cap, "position:absolute;bottom:14px;right:14px;margin:0;", front=True)
 
     # 地図の iframe
-    for box in root.xpath('//*[contains(@class,"hrc-shop__map")]'):
+    for box in root.xpath(f'//*[{cls("hrc-shop__map")}]'):
         for fr in box.xpath("./iframe"):
             add_style(fr, "position:absolute;top:0;left:0;width:100%;height:100%;border:0;", front=True)
 
+    # ヒーロー: 背景画像とスクリムを絶対配置で敷く
+    for hero in root.xpath(f'//*[{cls("hrc-hero")}]'):
+        for img in hero.xpath("./img"):
+            add_style(img, S.CLASS_STYLES["hrc-hero__bg"], front=True)
+        scrim = etree.Element("div")
+        scrim.set("style", important(S.CLASS_STYLES["hrc-hero__scrim"]))
+        scrim.set("aria-hidden", "true")
+        imgs = hero.xpath("./img")
+        hero.insert(hero.index(imgs[-1]) + 1 if imgs else 0, scrim)
+
+    # 実績ストリップ
+    for strip in root.xpath(f'//*[{cls("hrc-stats")}]'):
+        for cell in strip.xpath("./div"):
+            add_style(cell, S.CLASS_STYLES["hrc-stat"], front=True)
+            for v in cell.xpath(f'./*[{cls("hrc-stat__value")}]'):
+                add_style(v, S.CLASS_STYLES["hrc-stat__value"], front=True)
+            for l in cell.xpath(f'./*[{cls("hrc-stat__label")}]'):
+                add_style(l, S.CLASS_STYLES["hrc-stat__label"], front=True)
+
     # ボタンに hover 用フックを付ける
-    for a in root.xpath('//a[contains(@class,"hrc-btn")]'):
+    for a in root.xpath(f'//a[{cls("hrc-btn")}]'):
         a.set("data-hrc-btn", "")
+    for el in root.xpath(f'//*[{cls("hrc-card")}]|//*[{cls("hrc-step")}]'):
+        if "hrc-card__body" not in (el.get("class") or "") and "hrc-card__text" not in (el.get("class") or ""):
+            el.set("data-hrc-card", "")
 
     # FAQ: summary に開閉マークを足す
-    for faq in root.xpath('//*[contains(@class,"hrc-faq")]'):
+    for faq in root.xpath(f'//*[{cls("hrc-faq")}]'):
         for summary in faq.xpath(".//summary"):
             mark = etree.Element("span")
             mark.set("style", important(S.CLASS_STYLES["hrc-faq__mark"]))
@@ -208,17 +236,30 @@ def style_structures(root) -> None:
             mark.text = "＋"
             summary.append(mark)
 
-    # キャンペーン／CTA帯／店舗ヘッダ／ダークプラン内の文字色を白系へ
+    # 暗い面の上に乗る文字色を反転させる
     inverse = [
-        ('//*[contains(@class,"hrc-campaign")]', S.WHITE, S.GOLD),
-        ('//*[contains(@class,"hrc-ctaband")]', "#dcdcdc", S.GOLD),
-        ('//*[contains(@class,"hrc-topbar")]', S.WHITE, S.GOLD),
-        ('//*[contains(@class,"hrc-shop__head")]', "#e4f2e9", S.WHITE),
-        ('//*[contains(@class,"hrc-plan--best")]', "#a5a5a5", S.GOLD),
+        (f'//*[{cls("hrc-campaign")}]', "rgba(255,255,255,.86)", S.GOLD),
+        (f'//*[{cls("hrc-ctaband")}]', "rgba(255,255,255,.72)", S.GOLD),
+        (f'//*[{cls("hrc-topbar")}]', S.WHITE, S.GOLD),
+        (f'//*[{cls("hrc-shop__head")}]', "rgba(255,255,255,.72)", S.WHITE),
+        (f'//*[{cls("hrc-plan--best")}]', "rgba(255,255,255,.58)", S.GOLD),
+        (f'//*[{cls("hrc-hero__inner")}]', "rgba(255,255,255,.86)", S.GOLD),
     ]
+    # 独自の色を持つクラスは反転の対象外にする
+    KEEP_OWN_COLOR = {
+        "hrc-hero__eyebrow", "hrc-hero__titlesub", "hrc-hero__lead",
+        "hrc-campaign__excl", "hrc-plan__price", "hrc-plan__label",
+        "hrc-shop__sub", "hrc-stat__value", "hrc-stat__label", "hrc-btn",
+    }
+
+    def keeps_own(el):
+        return bool(KEEP_OWN_COLOR & set((el.get("class") or "").split()))
+
     for xp, text_color, strong_color in inverse:
         for box in root.xpath(xp):
             for el in box.xpath(".//p|.//li|.//h2|.//h3|.//h4|.//small"):
+                if keeps_own(el):
+                    continue
                 if el.tag in ("h2", "h3", "h4"):
                     add_style(el, f"color:{S.WHITE};border:0;")
                 elif el.tag == "small":
@@ -226,25 +267,29 @@ def style_structures(root) -> None:
                 else:
                     add_style(el, f"color:{text_color};")
             for st in box.xpath(".//strong"):
-                add_style(st, f"color:{strong_color};")
+                if not keeps_own(st):
+                    add_style(st, f"color:{strong_color};")
+            # 暗い面の上ではアウトラインボタンを白抜きにする
+            for gh in box.xpath(f'.//a[{cls("hrc-btn--ghost")}]'):
+                add_style(gh, f"color:{S.WHITE};border-color:rgba(255,255,255,.55);background:transparent;")
     # 除外期間ボックスと推奨プランは個別に微調整
-    for el in root.xpath('//*[contains(@class,"hrc-campaign__excl")]'):
+    for el in root.xpath(f'//*[{cls("hrc-campaign__excl")}]'):
         add_style(el, f"color:{S.WHITE};")
-    for box in root.xpath('//*[contains(@class,"hrc-plan--best")]'):
-        for el in box.xpath('.//*[contains(@class,"hrc-plan__price")]'):
+    for box in root.xpath(f'//*[{cls("hrc-plan--best")}]'):
+        for el in box.xpath(f'.//*[{cls("hrc-plan__price")}]'):
             add_style(el, f"color:{S.GOLD};")
-        for el in box.xpath('.//*[contains(@class,"hrc-plan__label")]'):
+        for el in box.xpath(f'.//*[{cls("hrc-plan__label")}]'):
             add_style(el, "color:#8f8f8f;")
-        for el in box.xpath('.//*[contains(@class,"hrc-yes")]'):
+        for el in box.xpath(f'.//*[{cls("hrc-yes")}]'):
             add_style(el, "color:#4ec77a;")
         for el in box.xpath("./hr"):
             add_style(el, "border-top:1px solid #333333;")
 
     # 中央寄せ指定は子孫の見出し・段落にも及ぼす
-    for box in root.xpath('//*[contains(@class,"hrc-center")]'):
+    for box in root.xpath(f'//*[{cls("hrc-center")}]'):
         for el in box.xpath(".//p|.//h1|.//h2|.//h3"):
             add_style(el, "text-align:center;")
-        for el in box.xpath('.//*[contains(@class,"hrc-h2")]'):
+        for el in box.xpath(f'.//*[{cls("hrc-h2")}]'):
             add_style(el, "display:inline-block;text-align:center;")
 
 

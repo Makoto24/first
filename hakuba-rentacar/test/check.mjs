@@ -54,6 +54,11 @@ for (const f of files) {
       pillBg:     g('.hrc-pill', 'backgroundColor'),
       gridCols:   g('.hrc-grid--4', 'gridTemplateColumns'),
       linkBg:     g('nav.hrc-links a', 'backgroundColor'),
+      heroBg:     g('.hrc-hero', 'backgroundColor'),
+      heroTitleFg:g('.hrc-hero__title', 'color'),
+      heroScrim:  g('.hrc-hero__inner', 'zIndex'),
+      statBg:     g('.hrc-stats > div', 'backgroundColor'),
+      statFg:     g('.hrc-stat__value', 'color'),
       overflow:   document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
@@ -67,19 +72,23 @@ for (const f of files) {
   bg(r.alertBg, 'アラート');       bg(r.keyfactsBg, '要点');   bg(r.theadBg, '表ヘッダ');
   bg(r.cardBg, 'カード');          bg(r.stepNumBg, 'ステップ番号');
   bg(r.shopHeadBg, '店舗ヘッダ');  bg(r.pillBg, 'ピル');       bg(r.linkBg, '関連リンク');
-  bg(r.btnBg, 'ボタン');
-  eq(r.theadFg,   'rgb(255, 255, 255)', '表ヘッダ文字色');
-  eq(r.campaignFg,'rgb(255, 255, 255)', 'キャンペーン文字色');
-  eq(r.btnBg,     'rgb(254, 204, 1)',   'ゴールドボタン背景');
-  eq(r.btnPadTop, '15px',               'ボタン上余白');
+  bg(r.btnBg, 'ボタン'); bg(r.heroBg, 'ヒーロー'); bg(r.statBg, '実績ストリップ');
+  eq(r.heroTitleFg, 'rgb(255, 255, 255)', 'ヒーロー見出し色');
+  eq(r.heroScrim,   '2',                  'ヒーロー本文の重ね順');
+  eq(r.statFg,      'rgb(22, 24, 29)',    '実績の数値色');
+  // 期待値は src/styles.py と一致させること
+  eq(r.theadFg,   'rgb(255, 255, 255)',        '表ヘッダ文字色');
+  eq(r.campaignFg,'rgba(255, 255, 255, 0.86)', 'キャンペーン文字色');
+  eq(r.btnBg,     'rgb(254, 204, 1)',          'ゴールドボタン背景');
+  eq(r.btnPadTop, '17px',                      'ボタン上余白');
   // flex の子は display が block に正規化される（仕様どおり）ため両方許容
   if (r.btnDisplay !== null && !['inline-block','block'].includes(r.btnDisplay))
     p.push(`ボタンdisplay=${r.btnDisplay}`);
-  eq(r.btnRadius, '10px',               'ボタン角丸');
-  eq(r.h2Bd,      'rgb(254, 204, 1)',   'h2下線');
-  eq(r.h1BdTop,   '0px',                'h1の上線(テーマ由来)');
-  eq(r.keyfactsBd,'rgb(26, 122, 60)',   '要点の枠');
-  eq(r.tdBorder,  'rgb(232, 232, 230)', '表の罫線');
+  eq(r.btnRadius, '4px',                       'ボタン角丸');
+  eq(r.h2Bd,      'rgb(254, 204, 1)',          'h2下線');
+  eq(r.h1BdTop,   '0px',                       'h1の上線(テーマ由来)');
+  eq(r.keyfactsBd,'rgb(26, 122, 60)',          '要点の上罫');
+  eq(r.tdBorder,  'rgb(240, 240, 236)',        '表の罫線');
   if (r.gridCols && r.gridCols.split(' ').length < 2) p.push(`グリッド段組=${r.gridCols}`);
   if (r.overflow > 0) p.push(`横スクロール ${r.overflow}px`);
 
