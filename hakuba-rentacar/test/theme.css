@@ -28,3 +28,15 @@ div,section,article,figure,nav,dl{
 }
 img{border-radius:0 !important;aspect-ratio:auto !important;}
 details,summary{background:none !important;border:0 !important;padding:0 !important;}
+
+/* Lightning の見出し装飾は border ではなく擬似要素で入る。
+   これはインライン style では絶対に消せないため、残置 <style> で潰せているか検証する。 */
+h1::after,h2::after,h3::after,h4::after,h5::after{
+  content:"" !important;display:block !important;
+  width:64px !important;height:3px !important;
+  background:#fecc01 !important;margin-top:12px !important;
+}
+h1::before,h2::before,h3::before,h4::before,h5::before{
+  content:"■" !important;color:#fecc01 !important;margin-right:8px !important;
+}
+li::before{content:"▶" !important;color:#fecc01 !important;margin-right:6px !important;}

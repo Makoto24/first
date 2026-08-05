@@ -92,6 +92,41 @@ for (const f of files) {
   if (r.gridCols && r.gridCols.split(' ').length < 2) p.push(`グリッド段組=${r.gridCols}`);
   if (r.overflow > 0) p.push(`横スクロール ${r.overflow}px`);
 
+  // ── 第2パス：残置 <style> を残したまま描画し、擬似要素の打ち消しを検証する ──
+  // テーマの見出し装飾は ::before/::after で入るため style 属性では消せない。
+  // 消せているのは残置 <style> の打ち消し規則だけなので、そこだけ別に確かめる。
+  const doc2 = `<!doctype html><html lang="ja"><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"></head>
+    <body style="margin:0"><div class="entry-content" style="max-width:1140px;margin:0 auto">${
+      fs.readFileSync(f, 'utf8')}</div>
+    <style>${theme}</style></body></html>`;
+  await page.setContent(doc2, { waitUntil: 'domcontentloaded' });
+
+  const q = await page.evaluate(() => {
+    const pseudo = (sel, which, prop) => {
+      const el = document.querySelector(sel);
+      return el ? getComputedStyle(el, which)[prop] : null;
+    };
+    const gone = v => v === null || v === 'none' || v === 'normal';
+    const bad = [];
+    for (const sel of ['.hrc-h2', '.hrc-h3', '.hrc-h1', '.hrc-keyfacts .hrc-kf-item']) {
+      for (const which of ['::before', '::after']) {
+        if (!gone(pseudo(sel, which, 'content'))) bad.push(`${sel}${which} が残っている`);
+        else if (!gone(pseudo(sel, which, 'display'))) bad.push(`${sel}${which} の箱が残っている`);
+      }
+    }
+    // 自前の擬似要素（FAQ の開閉マーク）まで巻き込んでいないか
+    const d = document.querySelector('.hrc-faq details');
+    if (d) {
+      d.open = true;
+      const m = d.querySelector('[data-hrc-mark]');
+      if (m && getComputedStyle(m, '::after').content === 'none')
+        bad.push('FAQ開閉マークまで消えている');
+    }
+    return bad;
+  });
+  p.push(...q);
+
   const name = f.split('/').slice(-2).join('/');
   console.log(`${p.length ? 'NG' : 'OK'}  ${name}`);
   if (p.length) { fail++; p.forEach(x => console.log('        → ' + x)); }

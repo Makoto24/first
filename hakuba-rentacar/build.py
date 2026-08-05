@@ -64,22 +64,26 @@ def add_style(el, decls: str, *, front: bool = False) -> None:
     el.set("style", (new + cur) if front or not cur else (cur.rstrip(";") + ";" + new))
 
 
-ORIG = {}   # 元のインライン style を退避する場所
+# 元のインライン style は要素自身の属性に退避する。
+# dict に id(el) で入れると、lxml の要素プロキシは都度生成・破棄されるため
+# Python が id を再利用し、後から作った要素に他人の style が付く事故が起きる。
+ORIG_ATTR = "data-hrc-orig"
 
 
 def stash_inline(root) -> None:
     """元の style 属性を退避して外す。最後に付け直すことで必ず最優先になる。"""
-    ORIG.clear()
     for el in root.iter():
         if isinstance(el.tag, str) and el.get("style"):
-            ORIG[id(el)] = el.get("style")
+            el.set(ORIG_ATTR, el.get("style"))
             del el.attrib["style"]
 
 
 def restore_inline(root) -> None:
     for el in root.iter():
-        if isinstance(el.tag, str) and id(el) in ORIG:
-            add_style(el, ORIG[id(el)])
+        if isinstance(el.tag, str) and el.get(ORIG_ATTR) is not None:
+            saved = el.get(ORIG_ATTR)
+            del el.attrib[ORIG_ATTR]
+            add_style(el, saved)
 
 
 def dedupe(style: str) -> str:
@@ -317,6 +321,37 @@ def style_structures(root) -> None:
             add_style(el, "display:inline-block;text-align:center;")
 
 
+TAG_RE = re.compile(r"<[^>]*>")
+# 日本語（かな・漢字・全角記号）。この文字の隣では改行を空白に変えてはいけない。
+CJK_RE = re.compile(
+    r"[　-〿぀-ゟ゠-ヿ㐀-䶿"
+    r"一-鿿豈-﫿＀-￯]"
+)
+LOOK = 400   # 前後を見る文字数。タグ1つ分より十分長ければよい。
+CJK_SPACE = re.compile(f"{CJK_RE.pattern} {CJK_RE.pattern}")
+
+
+def kill_newlines(html: str) -> str:
+    """改行を1つ残らず除去する。wpautop に <br>/<p> を挿し込ませないため。
+
+    単純に空白へ置換すると、日本語の文中に半角スペースが見えてしまう
+    （日本語は単語を空白で区切らないため）。改行の前後にある実際の文字を
+    タグを飛ばして調べ、どちらかが日本語なら詰め、英文なら空白1つを残す。
+    """
+    lines = html.split("\n")
+    out = lines[0].rstrip()
+    for nxt in lines[1:]:
+        nxt = nxt.strip()
+        if not nxt:
+            continue
+        left = TAG_RE.sub("", out[-LOOK:]).rstrip()
+        right = TAG_RE.sub("", nxt[:LOOK]).lstrip()
+        lc, rc = left[-1:], right[:1]
+        joiner = " " if (lc and rc and not CJK_RE.match(lc) and not CJK_RE.match(rc)) else ""
+        out = out.rstrip() + joiner + nxt
+    return out
+
+
 def build_page(src_path: Path) -> tuple[str, list[str]]:
     raw = src_path.read_text(encoding="utf-8")
 
@@ -360,9 +395,11 @@ def build_page(src_path: Path) -> tuple[str, list[str]]:
     # WordPress は本文の改行を <p></p> や <br> に変換する（wpautop）。
     # これが flex の中に <br> を差し込んだり JSON-LD を壊すため、
     # 出力から改行を1つ残らず取り除く。
-    out = re.sub(r">\s*\n\s*<", "><", out)      # タグとタグの間の改行は詰める
-    out = re.sub(r"\s*\n\s*", " ", out)          # 本文中の改行は空白1つに
+    before = out
+    out = kill_newlines(out)
     out = re.sub(r"<!--(?!HRC_LD_).*?-->", "", out, flags=re.S)   # コメントも除去
+    # 改行を詰める過程で日本語の文中に半角スペースを作っていないか
+    spacing_added = len(CJK_SPACE.findall(out)) - len(CJK_SPACE.findall(before))
 
     header = ("<!-- 白馬レンタカー | スタイルは全て style 属性に埋め込み済み。"
               "テーマ・追加CSSの影響を受けません。WordPressの「カスタムHTML」ブロックに全文貼り付けてください。 -->")
@@ -376,10 +413,14 @@ def build_page(src_path: Path) -> tuple[str, list[str]]:
             errors.append(f"invalid JSON-LD ({exc})")
     if "\n" in out:
         errors.append("改行が残っている（wpautop に <br> を挿し込まれる）")
+    if spacing_added > 0:
+        errors.append(f"日本語の文中に半角スペースが{spacing_added}個入った（改行の詰め方が誤り）")
+    if ORIG_ATTR in out:
+        errors.append(f"{ORIG_ATTR} が出力に残っている（退避した style を戻し損ねている）")
     for stray in set(LEFTOVER.findall(out)):
         errors.append(f"unresolved placeholder {stray}")
-    for cls in set(re.findall(r'class="([^"]*)"', out)):
-        for c in cls.split():
+    for names in set(re.findall(r'class="([^"]*)"', out)):
+        for c in names.split():
             if c.startswith("hrc-") and c not in S.CLASS_STYLES:
                 errors.append(f"style未定義のクラス: {c}")
 

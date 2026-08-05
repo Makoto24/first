@@ -153,10 +153,14 @@ CLASS_STYLES = {
                        f"margin:0 0 32px;max-width:500px;font-weight:500;"),
 
     # ── 実績ストリップ ────────────────────────
-    "hrc-stats": (f"display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));"
-                  f"gap:1px;background:{LINE};border:1px solid {LINE};border-radius:6px;"
-                  f"overflow:hidden;margin:0;"),
-    "hrc-stat": f"background:{WHITE};padding:26px 20px;text-align:center;",
+    # grid + gap で罫線を作ると、折り返しで余ったマスに下地の灰色がそのまま出る。
+    # flex にして各セルに罫線を持たせると、最終行の項目が伸びて隙間が生まれない。
+    "hrc-stats": (f"display:flex;flex-wrap:wrap;background:{WHITE};"
+                  f"border:1px solid {LINE};border-radius:6px;overflow:hidden;margin:0;"),
+    "hrc-stat": (f"flex:1 1 158px;box-sizing:border-box;background:{WHITE};"
+                 f"padding:26px 18px;text-align:center;"
+                 f"border-left:1px solid {LINE};border-top:1px solid {LINE};"
+                 f"margin:-1px 0 0 -1px;"),   # 外枠と重ねて二重線を防ぐ
     "hrc-stat__value": (f"display:block;font-size:clamp(19px,2.2vw,25px);font-weight:800;"
                         f"color:{INK};line-height:1.3;margin:0 0 8px;letter-spacing:-.01em;"),
     "hrc-stat__label": (f"display:block;font-size:11.5px;color:{MUTED};letter-spacing:.14em;"
@@ -172,7 +176,11 @@ CLASS_STYLES = {
                     "grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:0 44px;"),
     "hrc-kf-item": (f"display:flex;gap:12px;align-items:flex-start;margin:0;padding:13px 0;"
                     f"border-bottom:1px solid {LINE_SOFT};font-size:14px;line-height:1.95;color:{BODY};"),
-    "hrc-kf-check": f"color:{GREEN};font-weight:700;font-size:12px;flex:0 0 auto;line-height:2.2;",
+    # 1行目の行ボックス（14px × 1.95 ≒ 27px）と同じ高さの箱に入れて中央寄せする。
+    # line-height での目分量合わせだと文字サイズが変わった途端にずれるため。
+    "hrc-kf-check": (f"color:{GREEN};font-weight:700;font-size:11px;flex:0 0 auto;"
+                     f"display:inline-flex;align-items:center;justify-content:center;"
+                     f"width:15px;height:27px;line-height:1;"),
 
     # ── グリッド ──────────────────────────────
     "hrc-grid": "display:grid;gap:clamp(16px,2vw,26px);",
@@ -325,8 +333,27 @@ TABLE = {
 #  残す <style>（:hover と details の開閉のみ）
 # ══════════════════════════════════════════════════
 RESIDUAL_CSS = f"""
-/* インライン style では表現できない :hover と開閉状態のみ。
-   このブロックが失われても、レイアウト・配色は一切崩れません。 */
+/* インライン style では表現できないものだけ（:hover・開閉状態・擬似要素の打ち消し）。
+   このブロックが失われてもレイアウトと配色は崩れません。
+   ただしテーマ由来の見出し装飾（下線など）は復活します。 */
+
+/* テーマの ::before/::after による見出し装飾を消す。
+   擬似要素は style 属性から一切触れないため、ここでしか止められない。
+   本文側で使っている擬似要素は [data-hrc-mark]::after だけなので巻き込まない。 */
+.hrc h1::before,.hrc h1::after,.hrc h2::before,.hrc h2::after,
+.hrc h3::before,.hrc h3::after,.hrc h4::before,.hrc h4::after,
+.hrc h5::before,.hrc h5::after,
+.hrc p::before,.hrc p::after,
+.hrc li::before,.hrc li::after,
+.hrc dt::before,.hrc dt::after,.hrc dd::before,.hrc dd::after,
+.hrc a::before,.hrc a::after,
+.hrc table::before,.hrc table::after,
+.hrc th::before,.hrc th::after,.hrc td::before,.hrc td::after,
+.hrc figure::before,.hrc figure::after,
+.hrc figcaption::before,.hrc figcaption::after,
+.hrc blockquote::before,.hrc blockquote::after
+{{content:none !important;display:none !important;border:0 !important;
+  background:none !important;width:0 !important;height:0 !important;}}
 .hrc a[data-hrc-btn]{{transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease;}}
 .hrc a[data-hrc-btn]:hover{{transform:translateY(-2px);box-shadow:{SH};opacity:.94;}}
 .hrc a[data-hrc-link]{{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;}}
