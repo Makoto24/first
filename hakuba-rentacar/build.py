@@ -134,7 +134,11 @@ def style_tables(root) -> None:
                 if "num" in classes:
                     css += T["td_num"]
                 if "hl" in classes:
-                    css += T["td_hl_even"] if even else T["td_hl"]
+                    # 偶数行は背景だけ差し替える。td_hl と入れ替えてしまうと
+                    # 右寄せと nowrap が落ちて、その行だけ数字が左に寄る。
+                    css += T["td_hl"]
+                    if even:
+                        css += T["td_hl_even"]
                 if "small" in classes:
                     css += T["td_small"]
                 if "soft" in classes:
@@ -148,29 +152,37 @@ def style_tables(root) -> None:
 
 def style_structures(root) -> None:
     """クラス名だけでは表現しきれない構造にスタイルとフックを付ける"""
-    # 要点まとめ: ::before の代わりに実体の ✓ を置く。
+    # 行頭記号つきリスト: ::before の代わりに実体の記号を置く。
     # li を flex にすると <strong> ごとに flex アイテム化して文が分断されるため、
     # 本文は必ず 1つの span にまとめてから並べる。
+    def mark_list(ul, item_css, mark_css, glyph):
+        for li in ul.xpath("./li"):
+            add_style(li, item_css)
+
+            wrap = etree.Element("span")
+            wrap.set("style", important("flex:1 1 auto;display:block;"))
+            wrap.text = li.text
+            li.text = None
+            for child in list(li):
+                wrap.append(child)          # 子要素と tail をまとめて移動
+
+            mark = etree.Element("span")
+            mark.set("style", important(mark_css))
+            mark.set("aria-hidden", "true")
+            mark.text = glyph
+
+            li.append(mark)
+            li.append(wrap)
+
     for box in root.xpath(f'//*[{cls("hrc-keyfacts")}]'):
         for ul in box.xpath(".//ul"):
             add_style(ul, S.CLASS_STYLES["hrc-kf-list"])
-            for li in ul.xpath("./li"):
-                add_style(li, S.CLASS_STYLES["hrc-kf-item"])
+            mark_list(ul, S.CLASS_STYLES["hrc-kf-item"],
+                      S.CLASS_STYLES["hrc-kf-check"], "✓")
 
-                wrap = etree.Element("span")
-                wrap.set("style", important("flex:1 1 auto;display:block;"))
-                wrap.text = li.text
-                li.text = None
-                for child in list(li):
-                    wrap.append(child)      # 子要素と tail をまとめて移動
-
-                mark = etree.Element("span")
-                mark.set("style", important(S.CLASS_STYLES["hrc-kf-check"]))
-                mark.set("aria-hidden", "true")
-                mark.text = "✓"
-
-                li.append(mark)
-                li.append(wrap)
+    for ul in root.xpath(f'//ul[{cls("hrc-xlist")}]'):
+        mark_list(ul, S.CLASS_STYLES["hrc-xlist__item"],
+                  S.CLASS_STYLES["hrc-x-mark"], "✕")
 
     # 定義リスト: dt/dd に幅を与える（grid ではなく flex で折返し対応）
     for dl in root.xpath(f'//dl[{cls("hrc-dl")}]'):
@@ -251,6 +263,11 @@ def style_structures(root) -> None:
     # ボタンに hover 用フックを付ける
     for a in root.xpath(f'//a[{cls("hrc-btn")}]'):
         a.set("data-hrc-btn", "")
+        # カードの中身は縦の flex なので、直下に置いたボタンは flex アイテムとして
+        # 横幅いっぱいに引き伸ばされる。btnrow に入っていないものだけ縮ませる。
+        parent = a.getparent()
+        if parent is not None and "hrc-btnrow" not in (parent.get("class") or ""):
+            add_style(a, "align-self:flex-start;width:auto;")
     for el in root.xpath(f'//*[{cls("hrc-card")}]|//*[{cls("hrc-step")}]'):
         if "hrc-card__body" not in (el.get("class") or "") and "hrc-card__text" not in (el.get("class") or ""):
             el.set("data-hrc-card", "")
@@ -313,10 +330,13 @@ def style_structures(root) -> None:
         for el in box.xpath("./hr"):
             add_style(el, "border-top:1px solid #333333;")
 
-    # 中央寄せ指定は子孫の見出し・段落にも及ぼす
+    # 中央寄せ指定は子孫の見出し・段落にも及ぼす。
+    # text-align だけでは足りない: max-width を持つ要素（hrc-lead など）は
+    # 左端に置かれたままなので、中の文字だけが箱の中で中央になり、
+    # ページ全体では左にずれて見える。左右マージンを auto にして箱ごと中央に置く。
     for box in root.xpath(f'//*[{cls("hrc-center")}]'):
-        for el in box.xpath(".//p|.//h1|.//h2|.//h3"):
-            add_style(el, "text-align:center;")
+        for el in box.xpath(".//p|.//h1|.//h2|.//h3|.//h4"):
+            add_style(el, "text-align:center;margin-left:auto;margin-right:auto;")
         for el in box.xpath(f'.//*[{cls("hrc-h2")}]'):
             add_style(el, "display:inline-block;text-align:center;")
 

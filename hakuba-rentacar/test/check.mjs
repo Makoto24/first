@@ -60,6 +60,44 @@ for (const f of files) {
       statBg:     g('.hrc-stats > div', 'backgroundColor'),
       statFg:     g('.hrc-stat__value', 'color'),
       overflow:   document.documentElement.scrollWidth - document.documentElement.clientWidth,
+
+      // 中央寄せ指定の中身が、本当に箱ごと中央に来ているか。
+      // text-align だけだと max-width を持つ要素が左端に残り、
+      // 文字だけ箱の中で中央になってページ全体では左にずれる。
+      offCenter: [...document.querySelectorAll('.hrc-center')].flatMap(box => {
+        const b = box.getBoundingClientRect();
+        return [...box.querySelectorAll('p,h1,h2,h3')]
+          .filter(el => {
+            const r = el.getBoundingClientRect();
+            return r.width > 0 && Math.abs((r.left + r.right) / 2 - (b.left + b.right) / 2) > 2;
+          })
+          .map(el => el.className || el.tagName);
+      }),
+
+      // 強調列のセルが行ごとに寄せ方を変えていないか（偶数行だけ左寄せになる不具合）
+      hlAlign: [...new Set([...document.querySelectorAll('.hrc-table tbody td.hl')]
+        .map(td => getComputedStyle(td).textAlign))],
+
+      // クラスなしの見出しが本文と密着していないか
+      bareHeadGap: [...document.querySelectorAll('h1,h2,h3,h4,h5')]
+        .filter(h => !/\bhrc-/.test(h.className || '') &&
+                     parseFloat(getComputedStyle(h).marginBottom) < 8).length,
+
+      // hrc-grid--N が本当に N 列で収まっているか。
+      // minmax の下限を上げすぎると4枚目だけ次の行に落ちて不揃いに見える。
+      gridShort: [...document.querySelectorAll('[class*="hrc-grid--"]')]
+        .map(g => {
+          const want = +g.className.match(/hrc-grid--(\d)/)[1];
+          const cols = getComputedStyle(g).gridTemplateColumns.split(' ').length;
+          const items = g.children.length;
+          return (items >= want && cols < want) ? `${g.className.match(/hrc-grid--\d/)[0]}=${cols}列` : null;
+        }).filter(Boolean),
+
+      // 縦 flex の直下に置いたボタンが横いっぱいに伸びていないか
+      stretchedBtn: [...document.querySelectorAll('a.hrc-btn')]
+        .filter(a => !/hrc-btnrow/.test(a.parentElement?.className || '') &&
+                     a.getBoundingClientRect().width >
+                       a.parentElement.getBoundingClientRect().width * 0.9).length,
     };
   });
 
@@ -91,6 +129,11 @@ for (const f of files) {
   eq(r.tdBorder,  'rgb(240, 240, 236)',        '表の罫線');
   if (r.gridCols && r.gridCols.split(' ').length < 2) p.push(`グリッド段組=${r.gridCols}`);
   if (r.overflow > 0) p.push(`横スクロール ${r.overflow}px`);
+  if (r.offCenter.length) p.push(`中央寄せがずれている: ${[...new Set(r.offCenter)].join(', ')}`);
+  if (r.hlAlign.length > 1) p.push(`強調列の寄せが行ごとに違う: ${r.hlAlign.join(' / ')}`);
+  if (r.bareHeadGap) p.push(`下余白のない見出しが${r.bareHeadGap}個（本文と密着する）`);
+  if (r.stretchedBtn) p.push(`横いっぱいに伸びたボタンが${r.stretchedBtn}個`);
+  if (r.gridShort.length) p.push(`グリッドが規定の列数に届かない: ${r.gridShort.join(', ')}`);
 
   // ── 第2パス：残置 <style> を残したまま描画し、擬似要素の打ち消しを検証する ──
   // テーマの見出し装飾は ::before/::after で入るため style 属性では消せない。

@@ -44,11 +44,14 @@ _H = (f"margin:0;padding:0;border:0;background:none;background-color:transparent
 #  タグ既定値
 # ══════════════════════════════════════════════════
 TAG_DEFAULTS = {
-    "h1": _H + "font-weight:800;line-height:1.35;",
-    "h2": _H + "font-weight:800;line-height:1.4;",
-    "h3": _H + "font-weight:800;line-height:1.5;",
-    "h4": _H + "font-weight:700;line-height:1.55;",
-    "h5": _H + "font-weight:700;line-height:1.6;",
+    # クラスを付けない見出しでも成立するよう、既定でサイズと下余白を持たせる。
+    # margin:0 のままだと CTA帯のような素の <h3> が本文と密着する。
+    # hrc-h1〜hrc-h4 は後から上書きするので影響しない。
+    "h1": _H + "font-weight:800;line-height:1.35;font-size:clamp(27px,4.2vw,42px);margin:0 0 20px;",
+    "h2": _H + "font-weight:800;line-height:1.4;font-size:clamp(21px,3vw,30px);margin:0 0 18px;",
+    "h3": _H + "font-weight:800;line-height:1.5;font-size:clamp(17px,2.1vw,21px);margin:0 0 14px;",
+    "h4": _H + "font-weight:700;line-height:1.55;font-size:16px;margin:0 0 12px;",
+    "h5": _H + "font-weight:700;line-height:1.6;font-size:14.5px;margin:0 0 10px;",
     "p":  f"margin:0 0 1.15em;color:{BODY};font-size:15.5px;line-height:2;text-align:left;letter-spacing:.01em;",
     "ul": "margin:0 0 1.15em;padding-left:1.35em;list-style:disc;",
     "ol": "margin:0 0 1.15em;padding-left:1.45em;list-style:decimal;",
@@ -182,20 +185,28 @@ CLASS_STYLES = {
                      f"display:inline-flex;align-items:center;justify-content:center;"
                      f"width:15px;height:27px;line-height:1;"),
 
+    # ── 禁止事項リスト（要点の ✓ と同じ作りの × 版） ──
+    "hrc-xlist": "list-style:none;margin:0;padding:0;",
+    "hrc-xlist__item": (f"display:flex;gap:11px;align-items:flex-start;margin:0 0 9px;"
+                        f"padding:0;font-size:14px;line-height:1.95;color:{BODY};"),
+    "hrc-x-mark": (f"color:{DANGER};font-weight:700;font-size:11px;flex:0 0 auto;"
+                   f"display:inline-flex;align-items:center;justify-content:center;"
+                   f"width:15px;height:27px;line-height:1;"),
+
     # ── グリッド ──────────────────────────────
     "hrc-grid": "display:grid;gap:clamp(16px,2vw,26px);",
     "hrc-grid--2": "grid-template-columns:repeat(auto-fit,minmax(320px,1fr));",
-    "hrc-grid--3": "grid-template-columns:repeat(auto-fit,minmax(268px,1fr));",
-    "hrc-grid--4": "grid-template-columns:repeat(auto-fit,minmax(224px,1fr));",
-    "hrc-links": "display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:0;padding:0;",
+    "hrc-grid--3": "grid-template-columns:repeat(auto-fit,minmax(230px,1fr));",
+    "hrc-grid--4": "grid-template-columns:repeat(auto-fit,minmax(240px,1fr));",
+    "hrc-links": "display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin:0;padding:0;",
     "hrc-gal": "",
 
     # ── カード ────────────────────────────────
     "hrc-card": (f"background:{WHITE};border:1px solid {LINE};border-radius:4px;"
                  f"overflow:hidden;box-shadow:{SH_XS};display:flex;flex-direction:column;"),
     "hrc-card__body": "padding:clamp(22px,2.4vw,28px);display:flex;flex-direction:column;flex:1 1 auto;",
-    "hrc-card__title": "font-size:17px;margin:0 0 12px;line-height:1.6;border:0;padding:0;font-weight:800;",
-    "hrc-card__text": f"color:{BODY};font-size:14px;line-height:2;flex:1 1 auto;margin:0 0 20px;",
+    "hrc-card__title": "font-size:16.5px;margin:0 0 13px;line-height:1.65;border:0;padding:0;font-weight:700;letter-spacing:.015em;",
+    "hrc-card__text": f"color:{BODY};font-size:14px;line-height:1.92;flex:1 1 auto;margin:0 0 20px;",
 
     # ── 店舗カード ────────────────────────────
     "hrc-shop": (f"background:{WHITE};border:1px solid {LINE};border-radius:4px;"
@@ -248,7 +259,7 @@ CLASS_STYLES = {
     "hrc-step__num": (f"display:inline-flex;align-items:center;justify-content:center;"
                       f"width:30px;height:30px;border-radius:50%;background:{GREEN};"
                       f"color:{WHITE};font-weight:700;font-size:13px;margin-bottom:16px;line-height:1;"),
-    "hrc-step__title": "font-size:16px;margin:0 0 12px;line-height:1.6;border:0;padding:0;font-weight:800;",
+    "hrc-step__title": "font-size:16px;margin:0 0 13px;line-height:1.65;border:0;padding:0;font-weight:700;letter-spacing:.015em;",
 
     # ── 保険プラン ────────────────────────────
     "hrc-plan": f"background:{WHITE};border:1px solid {LINE};border-radius:4px;padding:32px 26px 34px;position:relative;",
