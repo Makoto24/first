@@ -132,25 +132,25 @@ CLASS_STYLES = {
     # ── パンくず ──────────────────────────────
     "hrc-crumb": f"font-size:12px;color:{MUTED};padding:16px 0;border-bottom:1px solid {LINE_SOFT};margin:0;",
 
-    # ── ヒーロー ──────────────────────────────
-    "hrc-hero": (f"position:relative;border-radius:6px;overflow:hidden;"
-                 f"background:{BG_DEEP};box-shadow:{SH_LG};margin:0;isolation:isolate;"),
+    # ── ヒーロー（明るいスクリム＋濃い文字：ブランドに合わせた配色） ──
+    "hrc-hero": (f"position:relative;border-radius:6px;overflow:hidden;background:#e9edf1;"
+                 f"border:1px solid {LINE};margin:0;isolation:isolate;"),
     "hrc-hero__bg": ("position:absolute;top:0;left:0;width:100%;height:100%;"
-                     "object-fit:cover;opacity:.42;z-index:0;"),
+                     "object-fit:cover;object-position:center 42%;z-index:0;"),
     "hrc-hero__scrim": ("position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;"
-                        "background:linear-gradient(100deg,rgba(16,19,25,.92) 0%,"
-                        "rgba(16,19,25,.72) 46%,rgba(16,19,25,.32) 100%);"),
-    "hrc-hero__inner": ("position:relative;z-index:2;padding:clamp(34px,6.5vw,80px) clamp(22px,5vw,64px);"
-                        "max-width:740px;"),
+                        "background:linear-gradient(100deg,rgba(255,255,255,.96) 0%,"
+                        "rgba(255,255,255,.90) 38%,rgba(255,255,255,.55) 66%,"
+                        "rgba(255,255,255,.10) 100%);"),
+    "hrc-hero__inner": ("position:relative;z-index:2;padding:clamp(34px,6.5vw,76px) clamp(22px,5vw,60px);"
+                        "max-width:660px;"),
     "hrc-hero__eyebrow": (f"font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;"
-                          f"color:{GOLD};font-weight:700;margin:0 0 16px;line-height:1.7;"),
-    "hrc-hero__title": (f"font-size:clamp(26px,4.4vw,44px);line-height:1.32;color:{WHITE};"
+                          f"color:{GOLD_DEEP};font-weight:700;margin:0 0 16px;line-height:1.7;"),
+    "hrc-hero__title": (f"font-size:clamp(26px,4.4vw,44px);line-height:1.32;color:{INK};"
                         f"margin:0 0 20px;font-weight:800;letter-spacing:-.005em;border:0;padding:0;"),
-    "hrc-hero__titlesub": ("display:block;font-size:clamp(13px,1.3vw,16px);font-weight:500;"
-                           "color:rgba(255,255,255,.72);margin-top:14px;line-height:1.8;"
-                           "letter-spacing:.04em;"),
-    "hrc-hero__lead": ("font-size:clamp(14.5px,1.4vw,17px);line-height:2;color:rgba(255,255,255,.86);"
-                       "margin:0 0 32px;max-width:560px;"),
+    "hrc-hero__titlesub": (f"display:block;font-size:clamp(13px,1.3vw,16px);font-weight:600;"
+                           f"color:{BODY};margin-top:14px;line-height:1.8;letter-spacing:.04em;"),
+    "hrc-hero__lead": (f"font-size:clamp(14.5px,1.4vw,16.5px);line-height:2;color:{BODY};"
+                       f"margin:0 0 32px;max-width:500px;font-weight:500;"),
 
     # ── 実績ストリップ ────────────────────────
     "hrc-stats": (f"display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));"

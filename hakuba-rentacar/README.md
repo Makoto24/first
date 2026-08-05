@@ -9,13 +9,13 @@
 |---|---|
 | `dist/ja/01-home.html` | https://hakubarentacar.com/ |
 | `dist/ja/02-deals.html` | https://hakubarentacar.com/deals/ |
-| `dist/ja/03-access.html` | 店舗案内・アクセス（`/access/` 想定） |
+| `dist/ja/03-access.html` | https://hakubarentacar.com/locations/ |
 | `dist/ja/04-howtorent.html` | https://hakubarentacar.com/howtorent/ |
-| `dist/ja/05-about.html` | 会社情報（`/about/` 想定） |
+| `dist/ja/05-about.html` | https://hakubarentacar.com/company/ |
 | `dist/ja/06-terms.html` | https://hakubarentacar.com/terms-and-conditions/ |
 | `dist/ja/07-why-choose-us.html` | https://hakubarentacar.com/why-choose-us/ |
 | `dist/ja/08-travel-guide.html` | https://hakubarentacar.com/local-travel-guide/ |
-| `dist/en/01-home.html` | https://hakubarentacar.com/en/ |
+| `dist/en/01-home.html` | https://hakubarentacar.com/en/home-2/ |
 | `dist/en/02-cars-deals.html` | https://hakubarentacar.com/en/cars-deals/ |
 | `dist/en/03-access.html` | Locations & Access（`/en/access/` 想定） |
 | `dist/en/04-how-to-rent.html` | How to Rent（`/en/how-to-rent/` 想定） |
@@ -24,7 +24,8 @@
 | `dist/en/07-why-choose-us.html` | https://hakubarentacar.com/en/why-choose-us-2/ |
 | `dist/en/08-travel-guide.html` | https://hakubarentacar.com/en/local-travel-guide-2/ |
 
-「想定」と書いたスラッグは実際のURLが不明なため仮置きです。
+日本語ページのURLはサイトのナビゲーションから確認済みです。
+英語ページで「想定」と書いたスラッグのみ未確認のため仮置きです。
 違う場合は各ファイル内の該当URLを検索置換してください。
 
 ## 貼り付け手順
@@ -37,9 +38,38 @@
 
 ---
 
-## デザイン（v4）
+## WordPress の wpautop 対策（v5・重要）
 
-- **ヒーロー**：写真の上に暗いスクリムを重ね、白抜きで見出し・リード・CTAを置く構成。
+貼り付けたHTMLの実際のDOMを確認したところ、WordPress の `wpautop` が
+**要素の間に `<p></p>` を、ボタンの間に `<br>` を挿入**していました。
+さらに **JSON-LD の中に `<br />` が入り込み、構造化データがJSONとして無効**に
+なっていました（SEO/AIOが機能しない状態）。
+
+原因は改行文字です。`wpautop` は本文中の改行を `<p>` と `<br>` に変換します。
+
+**対策：出力から改行を1文字残らず除去しました。**
+
+- タグとタグの間の改行は詰める
+- 本文中の改行は半角スペース1つに置換
+- JSON-LD は `json.dumps` で1行に圧縮
+- ビルド時に「改行が残っていないか」を検査（残っていればビルド失敗）
+
+改行が存在しないため、`wpautop` は何も挿入できません。
+
+## 実際のURLに修正
+
+ナビゲーションのHTMLから実スラッグが判明したため、仮置きを修正しました。
+
+| 修正前（仮置き） | 修正後（実URL） |
+|---|---|
+| `/access/` | `/locations/` |
+| `/about/` | `/company/` |
+| `/en/` | `/en/home-2/` |
+
+## デザイン（v5）
+
+- **ヒーロー**：写真の上に**白のグラデーション**を重ね、濃い文字で見出し・リード・CTAを置く構成
+  （既存サイトの `.wp-block-cover` の配色に合わせています）。
   高さは中身の余白で決まるため、文章量が変わっても崩れません。
 - **実績ストリップ**：ヒーロー直下に「2店舗 / 全車4WD / 8:00–18:00 / 日英対応 / 40%OFF」を5分割で配置。
 - **コンテナ幅を1120pxに統一**。長文ページだけ812pxに落として行長を整えています。

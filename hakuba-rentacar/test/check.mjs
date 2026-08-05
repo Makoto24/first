@@ -73,7 +73,7 @@ for (const f of files) {
   bg(r.cardBg, 'カード');          bg(r.stepNumBg, 'ステップ番号');
   bg(r.shopHeadBg, '店舗ヘッダ');  bg(r.pillBg, 'ピル');       bg(r.linkBg, '関連リンク');
   bg(r.btnBg, 'ボタン'); bg(r.heroBg, 'ヒーロー'); bg(r.statBg, '実績ストリップ');
-  eq(r.heroTitleFg, 'rgb(255, 255, 255)', 'ヒーロー見出し色');
+  eq(r.heroTitleFg, 'rgb(22, 24, 29)',    'ヒーロー見出し色');  // 明るいヒーロー＝濃い文字
   eq(r.heroScrim,   '2',                  'ヒーロー本文の重ね順');
   eq(r.statFg,      'rgb(22, 24, 29)',    '実績の数値色');
   // 期待値は src/styles.py と一致させること
