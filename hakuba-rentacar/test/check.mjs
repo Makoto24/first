@@ -93,6 +93,47 @@ for (const f of files) {
           return (items >= want && cols < want) ? `${g.className.match(/hrc-grid--\d/)[0]}=${cols}列` : null;
         }).filter(Boolean),
 
+      // 暗い面に暗い文字が残っていないか。
+      // 反転処理は p/li/見出し が対象なので、素の <span> が黒いまま取り残されやすい。
+      lowContrast: (() => {
+        const lum = c => {
+          const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map(Number)
+            .map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; });
+          return .2126 * r + .7152 * g + .0722 * b;
+        };
+        // 半透明の背景は下の色と合成する。不透明として扱うと
+        // 「薄いゴールドの上のゴールド文字」を読めないと誤判定してしまう。
+        const rgba = c => {
+          const v = (c.match(/[\d.]+/g) || [255, 255, 255]).map(Number);
+          return [v[0], v[1], v[2], v.length > 3 ? v[3] : 1];
+        };
+        const solidBg = el => {
+          const layers = [];
+          for (let n = el; n && n !== document.body; n = n.parentElement) {
+            const [r, g, b, a] = rgba(getComputedStyle(n).backgroundColor);
+            if (a === 0) continue;
+            layers.push([r, g, b, a]);
+            if (a >= 1) break;
+          }
+          let out = [255, 255, 255];                    // 一番下は白地とみなす
+          for (const [r, g, b, a] of layers.reverse())  // 下から順に重ねる
+            out = out.map((base, i) => [r, g, b][i] * a + base * (1 - a));
+          return `rgb(${out.join(',')})`;
+        };
+        const bad = [];
+        for (const box of document.querySelectorAll(
+          '.hrc-plan--best, .hrc-campaign, .hrc-ctaband, .hrc-shop__head, .hrc-topbar')) {
+          for (const el of box.querySelectorAll('*')) {
+            const t = (el.textContent || '').trim();
+            if (!t || el.children.length) continue;       // 文字を直接持つ要素だけ見る
+            const a = lum(getComputedStyle(el).color), b = lum(solidBg(el));
+            const ratio = (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+            if (ratio < 3) bad.push(`${t.slice(0, 12)}(比${ratio.toFixed(1)}:1)`);
+          }
+        }
+        return bad;
+      })(),
+
       // 縦 flex の直下に置いたボタンが横いっぱいに伸びていないか
       stretchedBtn: [...document.querySelectorAll('a.hrc-btn')]
         .filter(a => !/hrc-btnrow/.test(a.parentElement?.className || '') &&
@@ -134,6 +175,7 @@ for (const f of files) {
   if (r.bareHeadGap) p.push(`下余白のない見出しが${r.bareHeadGap}個（本文と密着する）`);
   if (r.stretchedBtn) p.push(`横いっぱいに伸びたボタンが${r.stretchedBtn}個`);
   if (r.gridShort.length) p.push(`グリッドが規定の列数に届かない: ${r.gridShort.join(', ')}`);
+  if (r.lowContrast.length) p.push(`暗い面で読めない文字: ${[...new Set(r.lowContrast)].slice(0, 6).join(', ')}`);
 
   // ── 第2パス：残置 <style> を残したまま描画し、擬似要素の打ち消しを検証する ──
   // テーマの見出し装飾は ::before/::after で入るため style 属性では消せない。

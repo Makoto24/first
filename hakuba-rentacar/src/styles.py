@@ -56,7 +56,7 @@ TAG_DEFAULTS = {
     "ul": "margin:0 0 1.15em;padding-left:1.35em;list-style:disc;",
     "ol": "margin:0 0 1.15em;padding-left:1.45em;list-style:decimal;",
     "li": f"margin:0 0 .5em;color:{BODY};font-size:15px;line-height:2;text-align:left;",
-    "dl": "margin:0;padding:0;", "dt": "margin:0;padding:0;", "dd": "margin:0;padding:0;",
+    "dl": "margin:0;padding:0;",
     "a":  f"color:{GREEN};text-decoration:none;",
     "strong": f"font-weight:700;color:{INK};",
     "small":  "font-size:12.5px;font-weight:400;",
@@ -76,7 +76,14 @@ TAG_DEFAULTS = {
     "iframe": "border:0;display:block;",
     "section": "display:block;margin:0;padding:0;",
     "article": "display:block;",
-    "span": "",
+    # 素の span / div は色を持たないので、テーマの
+    # `span,div{color:#3a3b3d !important}` に負けて継承が断ち切られる。
+    # 濃い面の上では文字が読めなくなるため、継承すること自体を !important で宣言する。
+    # クラスで色を指定している要素では、後から上書きされてこの指定は消える。
+    "span": "color:inherit;",
+    "div":  "color:inherit;",
+    "dt": "margin:0;padding:0;color:inherit;",
+    "dd": "margin:0;padding:0;color:inherit;",
 }
 
 # ══════════════════════════════════════════════════
@@ -274,6 +281,8 @@ CLASS_STYLES = {
     "hrc-plan__foot": f"font-size:12px;color:{MUTED};line-height:1.85;margin:12px 0 0;",
     "hrc-yes": f"color:{GREEN};font-weight:700;",
     "hrc-no": f"color:{DANGER};font-weight:700;",
+    # 良し悪しではなく「金額そのもの」を示す欄（免責額など）
+    "hrc-amount": f"color:{INK};font-weight:700;",
 
     # ── FAQ ───────────────────────────────────
     "hrc-faq": "max-width:812px;margin:0 auto;",
@@ -311,8 +320,14 @@ CLASS_STYLES = {
     "hrc-hero__sub": f"font-size:16px;font-weight:700;color:{INK};line-height:1.9;margin:0 0 20px;",
     "hrc-hero__list": "margin:0 0 26px;padding-left:1.3em;list-style:disc;",
     "hrc-hero__card": f"background:{WHITE};border:1px solid {LINE};border-radius:4px;padding:26px;box-shadow:{SH_SM};max-width:560px;margin:0;",
-    "hrc-badgebar": (f"background:{WHITE};border:1px solid {LINE};border-radius:4px;display:flex;"
-                     f"flex-wrap:wrap;justify-content:center;gap:14px 34px;padding:18px 24px;margin:0;"),
+    # 枠付きの箱に中央寄せで入れると、中身だけが他の要素より内側に寄って
+    # ページの左端（パンくず・見出し・本文）と揃わない。
+    # 枠と余白をやめ、左端から始まる素の帯にする。
+    "hrc-badgebar": ("display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;"
+                     "gap:6px 0;margin:0;padding:0;background:none;border:0;list-style:none;"),
+    "hrc-badgebar__item": (f"font-size:12.5px;font-weight:600;color:{MUTED};"
+                           f"letter-spacing:.06em;line-height:1.9;white-space:nowrap;"),
+    "hrc-badgebar__sep": f"color:{LINE};margin:0 15px;line-height:1.9;font-size:12.5px;",
     "hrc-pill": (f"display:inline-block;background:{GREEN_PALE};color:{GREEN_DEEP};font-size:11px;"
                  f"font-weight:700;letter-spacing:.12em;padding:6px 13px;border-radius:2px;line-height:1.7;"),
     "hrc-pill--gold": f"background:rgba(254,204,1,.16);color:{GOLD};",

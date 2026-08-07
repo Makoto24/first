@@ -216,6 +216,18 @@ def style_structures(root) -> None:
             for sp in a.xpath("./span"):
                 add_style(sp, S.CLASS_STYLES["hrc-linkcard__sub"])
 
+    # 特徴の帯: 各項目を小さなラベルにし、間に細い区切りを入れる
+    for bar in root.xpath(f'//*[{cls("hrc-badgebar")}]'):
+        items = bar.xpath("./span")
+        for i, sp in enumerate(items):
+            add_style(sp, S.CLASS_STYLES["hrc-badgebar__item"])
+            if i:
+                sep = etree.Element("span")
+                sep.set("style", important(S.CLASS_STYLES["hrc-badgebar__sep"]))
+                sep.set("aria-hidden", "true")
+                sep.text = "/"
+                bar.insert(bar.index(sp), sep)
+
     # 注記リスト
     for ul in root.xpath(f'//ul[{cls("hrc-notelist")}]'):
         for li in ul.xpath("./li"):
@@ -327,8 +339,16 @@ def style_structures(root) -> None:
             add_style(el, "color:#8f8f8f;")
         for el in box.xpath(f'.//*[{cls("hrc-yes")}]'):
             add_style(el, "color:#4ec77a;")
+        for el in box.xpath(f'.//*[{cls("hrc-amount")}]'):
+            add_style(el, f"color:{S.WHITE};")
         for el in box.xpath("./hr"):
             add_style(el, "border-top:1px solid #333333;")
+        # 比較表の項目名は素の <span> なので、上の反転処理（p/li/見出し が対象）に
+        # 引っかからず、黒い面に黒い文字のまま残ってしまう。
+        for row in box.xpath(f'.//*[{cls("hrc-plan__row")}]'):
+            for sp in row.xpath("./span"):
+                if not ({"hrc-yes", "hrc-no", "hrc-amount"} & set((sp.get("class") or "").split())):
+                    add_style(sp, "color:rgba(255,255,255,.72);")
 
     # 中央寄せ指定は子孫の見出し・段落にも及ぼす。
     # text-align だけでは足りない: max-width を持つ要素（hrc-lead など）は
