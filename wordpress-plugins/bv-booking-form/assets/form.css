@@ -1,0 +1,39 @@
+/* BV Booking Form */
+#bvbf-app{max-width:640px;margin:0 auto;font-size:16px;line-height:1.6}
+.bvbf-card{background:#fff;border:1px solid #e0e2e6;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.bvbf-card h3{margin-top:0}
+.bvbf-card h4{margin:18px 0 6px}
+#bvbf-app label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+#bvbf-app input[type=text],#bvbf-app input[type=email],#bvbf-app input[type=tel],#bvbf-app input[type=date],#bvbf-app input[type=password],#bvbf-app select,#bvbf-app textarea{width:100%;padding:10px 12px;border:1px solid #c3c4c7;border-radius:8px;font-size:16px;box-sizing:border-box;background:#fff}
+.bvbf-row{display:flex;gap:10px}
+.bvbf-row>*{flex:1}
+.bvbf-btn{display:inline-block;background:#4a5568;color:#fff!important;border:0;border-radius:8px;padding:12px 22px;font-size:16px;cursor:pointer;text-decoration:none;margin-top:10px}
+.bvbf-btn:hover{opacity:.9}
+.bvbf-primary{background:#2271b1;font-weight:700}
+.bvbf-ghost{background:#fff;color:#4a5568!important;border:1px solid #c3c4c7}
+.bvbf-err{background:#fcf0f1;border:1px solid #d63638;border-radius:8px;padding:10px 14px;margin:10px 0;color:#8a1f21}
+.bvbf-ok{border-color:#00a32a}
+.bvbf-okmsg{background:#edfaef;border:1px solid #00a32a;border-radius:8px;padding:10px 14px;margin:10px 0;color:#116329}
+.bvbf-note{font-size:13px;color:#646970}
+.bvbf-total{font-size:18px}
+.bvbf-table{width:100%;border-collapse:collapse;margin:8px 0}
+.bvbf-table td{border-bottom:1px solid #eee;padding:7px 4px;font-size:14px}
+.bvbf-table .bvbf-r{text-align:right;white-space:nowrap}
+.bvbf-totalrow td{border-top:2px solid #333;font-size:16px}
+.bvbf-opt{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.bvbf-opt select{width:80px!important}
+.bvbf-radio{font-weight:400!important;display:block;padding:4px 0}
+.bvbf-coupon{flex:3!important;letter-spacing:.5px}
+.bvbf-login{background:#f6f8fb;border:1px solid #d5dee8;border-radius:10px;padding:14px 16px;margin-bottom:18px}
+.bvbf-login h4{margin:0 0 4px}
+.bvbf-fixed{padding:10px 12px;border:1px solid #e0e2e6;border-radius:8px;background:#f6f7f8;font-weight:600}
+.bvbf-capnote{background:#fff8e5;border:1px solid #e6c34a;border-radius:8px;padding:10px 12px;margin:-4px 0 12px;font-size:13px;line-height:1.6;color:#5c4a00}
+.bvbf-capnote:empty{display:none}
+.bvbf-lookup{background:#fbfbfc;border-style:dashed}
+.bvbf-lookup h4{margin:0 0 4px;font-size:15px}
+.bvbf-lookup .bvbf-row input{flex:3}
+.bvbf-lookup .bvbf-row .bvbf-btn{flex:1;margin-top:4px;white-space:nowrap}
+#bvbf-app .bvbf-row .bvbf-btn{flex:1;margin-top:4px}
+.bvbf-optnote{color:#7a6a2e;font-size:11px;line-height:1.4;display:block;margin-top:2px}
+.bvbf-opt{align-items:flex-start!important;padding:8px 0!important;border-bottom:1px solid #f0f0f0}
+.bvbf-opt select{margin-top:2px}
