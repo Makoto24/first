@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class BV_DB {
 
-	const DB_VERSION = '1.6.0';
+	const DB_VERSION = '1.7.0';
 
 	public static function table( $name ) {
 		global $wpdb;
@@ -100,6 +100,9 @@ class BV_DB {
 			is_student TINYINT(1) DEFAULT 0,
 			payment_method VARCHAR(20) DEFAULT 'square',
 			coupon_code VARCHAR(60) DEFAULT '',
+			review_mail_at DATETIME NULL,
+			review_done_at DATETIME NULL,
+			review_coupon_code VARCHAR(60) DEFAULT '',
 			manual_discount INT DEFAULT 0,
 			manual_discount_note VARCHAR(160) DEFAULT '',
 			request_note TEXT,
@@ -138,6 +141,8 @@ class BV_DB {
 			expires DATE NULL,
 			active TINYINT(1) DEFAULT 1,
 			used_count INT UNSIGNED DEFAULT 0,
+			max_uses INT UNSIGNED DEFAULT 0,
+			note VARCHAR(160) DEFAULT '',
 			PRIMARY KEY (id),
 			UNIQUE KEY code (code)
 		) {$charset};";
@@ -328,9 +333,58 @@ class BV_DB {
 	public static function get_coupon( $code ) {
 		global $wpdb;
 		return $wpdb->get_row( $wpdb->prepare(
-			'SELECT * FROM ' . self::table( 'coupons' ) . ' WHERE code = %s AND active = 1 AND (expires IS NULL OR expires >= CURDATE())',
+			'SELECT * FROM ' . self::table( 'coupons' ) . ' WHERE code = %s AND active = 1'
+				. ' AND (expires IS NULL OR expires >= CURDATE())'
+				. ' AND (max_uses = 0 OR used_count < max_uses)',
 			trim( $code )
 		) );
+	}
+
+	/**
+	 * レビューのお礼クーポンを発行する
+	 * 1予約につき1枚・1回限り。すでに発行済みならその内容を返す。
+	 * @return object|WP_Error クーポン行
+	 */
+	public static function issue_review_coupon( $r ) {
+		global $wpdb;
+		$t = self::table( 'coupons' );
+
+		/* 発行済みならそれを返す（ボタンの二度押し・メールの再クリック対策） */
+		if ( ! empty( $r->review_coupon_code ) ) {
+			$exist = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", $r->review_coupon_code ) );
+			if ( $exist ) return $exist;
+		}
+
+		$s      = BV_Util::settings();
+		$amount = max( 1, (int) ( $s['review_coupon_amount'] ?? 500 ) );
+		$days   = max( 1, (int) ( $s['review_coupon_days'] ?? 365 ) );
+
+		/* 既存コードと重ならないコードを作る */
+		$code = '';
+		for ( $i = 0; $i < 10; $i++ ) {
+			$try = 'REV' . strtoupper( wp_generate_password( 7, false, false ) );
+			if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$t} WHERE code = %s", $try ) ) ) { $code = $try; break; }
+		}
+		if ( ! $code ) return new WP_Error( 'code_failed', 'クーポンコードを発行できませんでした。' );
+
+		$ok = $wpdb->insert( $t, array(
+			'code'          => $code,
+			'label'         => 'レビューのお礼',
+			'discount_type' => 'fixed',
+			'amount'        => $amount,
+			'expires'       => date( 'Y-m-d', current_time( 'timestamp' ) + $days * DAY_IN_SECONDS ),
+			'active'        => 1,
+			'used_count'    => 0,
+			'max_uses'      => 1,
+			'note'          => '予約 ' . $r->code . '（' . trim( $r->sei . ' ' . $r->mei ) . '）',
+		) );
+		if ( ! $ok ) return new WP_Error( 'insert_failed', 'クーポンを保存できませんでした。' );
+
+		self::update_reservation( $r->id, array(
+			'review_coupon_code' => $code,
+			'review_done_at'     => current_time( 'mysql' ),
+		) );
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", $code ) );
 	}
 
 	/* ---------- 料金カレンダー ---------- */

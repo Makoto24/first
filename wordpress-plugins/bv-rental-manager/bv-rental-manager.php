@@ -3,14 +3,14 @@
  * Plugin Name: BV Rental Manager（Be Village レンタカー統合管理）
  * Plugin URI:  https://be-village.com
  * Description: レンタカー予約・車両・顧客・売上・業績の一元管理。地域サイトの予約フォームプラグインとREST APIで連携。Square決済、スタッフポータル、予約ガント、貸渡実績報告書出力対応。
- * Version:     1.30.1
+ * Version:     1.31.0
  * Author:      Be Village株式会社
  * Text Domain: bv-rental
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVRM_VERSION', '1.30.1' );
+define( 'BVRM_VERSION', '1.31.0' );
 define( 'BVRM_FILE', __FILE__ );
 define( 'BVRM_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BVRM_URL', plugin_dir_url( __FILE__ ) );
@@ -28,6 +28,7 @@ require_once BVRM_DIR . 'includes/class-bv-api.php';
 require_once BVRM_DIR . 'includes/class-bv-print.php';
 require_once BVRM_DIR . 'includes/class-bv-report.php';
 require_once BVRM_DIR . 'includes/class-bv-staff-portal.php';
+require_once BVRM_DIR . 'includes/class-bv-review.php';
 if ( is_admin() ) {
 	require_once BVRM_DIR . 'includes/admin/class-bv-admin.php';
 }
@@ -43,6 +44,7 @@ add_action( 'plugins_loaded', function () {
 	BV_Members::init();
 	BV_Print::init();
 	BV_Staff_Portal::init();
+	BV_Review::init();
 	if ( is_admin() ) BV_Admin::init();
 } );
 

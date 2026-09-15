@@ -162,6 +162,22 @@ class BV_Mailer {
 				'subject' => '【新規予約】{store} {code} {name}様 {pickup}〜',
 				'body'    => "{immediate_note}新規のご予約が入りました。\n\n予約番号：{code}\n氏名：{name}\nメール：{email}\n電話：{phone}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n送迎：{shuttle}\n合計：{total}\n要望：{request}\n\n管理画面：{admin_link}",
 			),
+			'review_request_ja' => array(
+				'subject' => '【{company}】ご利用ありがとうございました（予約番号 {code}）',
+				'body'    => "{name} 様\n\nこのたびは{store}をご利用いただき、誠にありがとうございました。\nご返却のお手続きが完了いたしましたのでご連絡いたします。\n\n予約番号：{code}\nご利用日：{pickup} 〜 {return}\n\n────────────────────\n■ 口コミのお願い（{coupon_amount}引きクーポンをプレゼント）\n────────────────────\nよろしければ、Googleマップに口コミをお寄せいただけないでしょうか。\nいただいたお声は、今後のサービス向上に活用させていただきます。\n\n▼ 口コミの投稿はこちら\n{review_link}\n\n投稿が終わりましたら、下のリンクをクリックしてください。\n次回ご利用いただける{coupon_amount}引きクーポンを発行し、メールでお送りします。\n\n▼ クーポンを受け取る\n{coupon_link}\n\n※クーポンは全店舗でご利用いただけます（お一人様1回限り）。\n※口コミの内容によって発行の可否は変わりません。率直なご意見をお聞かせください。\n\nまたのご利用を心よりお待ちしております。\n\n{company}\n{store_access}",
+			),
+			'review_request_en' => array(
+				'subject' => '[{company}] Thank you for renting with us (Ref: {code})',
+				'body'    => "Dear {name},\n\nThank you very much for choosing {store}. Your vehicle return has been completed.\n\nReference: {code}\nRental period: {pickup} - {return}\n\n--------------------------------------\n[ Leave a review and get {coupon_amount} off ]\n--------------------------------------\nIf you enjoyed your rental, we would be grateful if you could leave us a review on Google Maps.\n\n> Write a review\n{review_link}\n\nOnce you have posted it, please click the link below.\nWe will issue a {coupon_amount} coupon for your next rental and email it to you.\n\n> Get your coupon\n{coupon_link}\n\n* The coupon can be used at any of our branches (one use per customer).\n* Your coupon is not affected by what you write. Please share your honest opinion.\n\nWe look forward to welcoming you again.\n\n{company}\n{store_access}",
+			),
+			'review_coupon_ja' => array(
+				'subject' => '【{company}】クーポンをお送りします（{coupon_code}）',
+				'body'    => "{name} 様\n\n口コミへのご協力をありがとうございました。\n次回ご利用いただけるクーポンをお送りいたします。\n\n━━━━━━━━━━━━━━━━━━━━\n　クーポンコード：{coupon_code}\n　割引額：{coupon_amount}\n　有効期限：{coupon_expires}\n━━━━━━━━━━━━━━━━━━━━\n\nご予約の際、クーポンコード欄に上記のコードをご入力ください。\n全店舗でご利用いただけます（お一人様1回限り）。\n\nまたのご利用を心よりお待ちしております。\n\n{company}",
+			),
+			'review_coupon_en' => array(
+				'subject' => '[{company}] Here is your coupon ({coupon_code})',
+				'body'    => "Dear {name},\n\nThank you for taking the time to review us.\nHere is your coupon for your next rental.\n\n==============================\n  Coupon code: {coupon_code}\n  Discount: {coupon_amount}\n  Valid until: {coupon_expires}\n==============================\n\nEnter this code in the coupon field when you book.\nValid at any of our branches (one use per customer).\n\nWe look forward to welcoming you again.\n\n{company}",
+			),
 		);
 	}
 
@@ -311,6 +327,12 @@ class BV_Mailer {
 			'lang' => ( 'en' === $lang ) ? '英語' : '日本語',
 			'request' => '', 'admin_link' => admin_url(),
 			'company' => $company, 'company_legal' => $s['company_name'],
+			/* 返却後のお礼・口コミ依頼メール用 */
+			'review_link'    => BV_Util::store_review_url( $store ) ?: 'https://g.page/r/SAMPLE/review',
+			'coupon_link'    => home_url( '/?bv_review=SAMPLE' ),
+			'coupon_code'    => 'REVSAMPLE',
+			'coupon_amount'  => BV_Util::money( (int) ( $s['review_coupon_amount'] ?? 500 ), $lang ),
+			'coupon_expires' => date_i18n( ( 'en' === $lang ) ? 'M j, Y' : 'Y年n月j日', current_time( 'timestamp' ) + ( (int) ( $s['review_coupon_days'] ?? 365 ) ) * DAY_IN_SECONDS ),
 		);
 		return self::render( self::get_template( $key ), $vars );
 	}
@@ -515,6 +537,40 @@ class BV_Mailer {
 		$m2 = self::render( self::get_template( 'admin_paid_ja' ), $av );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
 		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
+	}
+
+	/* ---------- 返却後のお礼・レビュー依頼 ---------- */
+
+	/** レビュー関連のプレースホルダー */
+	protected static function review_vars( $r, $coupon = null ) {
+		$s    = BV_Util::settings();
+		$lang = ( 'en' === $r->lang ) ? 'en' : 'ja';
+		$vars = self::reservation_vars( $r );
+
+		$vars['review_link']  = BV_Util::store_review_url( $r->store );
+		$vars['coupon_link']  = BV_Review::claim_url( $r );
+		$vars['coupon_code']  = $coupon ? $coupon->code : '';
+		$vars['coupon_amount'] = BV_Util::money(
+			$coupon ? (int) $coupon->amount : (int) ( $s['review_coupon_amount'] ?? 500 ), $lang
+		);
+		$vars['coupon_expires'] = ( $coupon && $coupon->expires )
+			? date_i18n( ( 'en' === $lang ) ? 'M j, Y' : 'Y年n月j日', strtotime( $coupon->expires ) )
+			: '';
+		return $vars;
+	}
+
+	/** 返却完了のお礼＋Googleレビュー依頼（お客様のみ） */
+	public static function send_review_request( $r ) {
+		$vars = self::review_vars( $r );
+		$m = self::render( self::get_template( 'review_request_' . $r->lang ), $vars );
+		self::send( $r->email, $m['subject'], $m['body'], '', $r->store );
+	}
+
+	/** レビューのお礼クーポンの送付（お客様のみ） */
+	public static function send_review_coupon( $r, $coupon ) {
+		$vars = self::review_vars( $r, $coupon );
+		$m = self::render( self::get_template( 'review_coupon_' . $r->lang ), $vars );
+		self::send( $r->email, $m['subject'], $m['body'], '', $r->store );
 	}
 
 	public static function send_cancelled( $r, $charge = null, $refunded = 0, $noshow = false ) {

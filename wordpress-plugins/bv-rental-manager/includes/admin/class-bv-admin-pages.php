@@ -862,6 +862,7 @@ class BV_Admin_Pages {
 				'code' => sanitize_text_field( $P['code'] ), 'label' => sanitize_text_field( $P['label'] ),
 				'discount_type' => ( 'percent' === $P['discount_type'] ? 'percent' : 'fixed' ),
 				'amount' => (int) $P['amount'], 'expires' => sanitize_text_field( $P['expires'] ) ?: null, 'active' => 1,
+				'max_uses' => max( 0, (int) ( $P['max_uses'] ?? 0 ) ),
 			) );
 			echo '<div class="notice notice-success"><p>クーポンを保存しました。</p></div>';
 		}
@@ -876,16 +877,24 @@ class BV_Admin_Pages {
 		echo 'コード <input type="text" name="code" required style="width:220px"> 名称 <input type="text" name="label" style="width:220px"> ';
 		echo '<select name="discount_type"><option value="fixed">固定額(円)</option><option value="percent">割引率(%)</option></select> ';
 		echo '<input type="number" name="amount" required style="width:100px"> 期限 <input type="date" name="expires"> ';
+		echo '利用上限 <input type="number" name="max_uses" min="0" step="1" value="0" style="width:80px" title="0なら回数無制限"> 回 ';
 		submit_button( '保存', 'primary', '', false );
-		echo '</form><h2>一覧</h2><table class="wp-list-table widefat fixed striped"><thead><tr><th>コード</th><th>名称</th><th>内容</th><th>期限</th><th>利用回数</th><th>状態</th><th></th></tr></thead><tbody>';
+		echo '<p class="description">利用上限は0で無制限です。既存のコードと同じコードを保存すると、そのクーポンは上書きされ利用回数もリセットされます。<br>「REV」で始まるクーポンは、口コミのお礼として自動発行されたものです（1回限り）。</p>';
+		echo '</form><h2>一覧</h2><table class="wp-list-table widefat fixed striped"><thead><tr><th>コード</th><th>名称</th><th>内容</th><th>期限</th><th>利用</th><th>発行元</th><th>状態</th><th></th></tr></thead><tbody>';
 		foreach ( $list as $c ) {
 			echo '<tr><td><code>' . esc_html( $c->code ) . '</code></td><td>' . esc_html( $c->label ) . '</td>';
 			echo '<td>' . ( 'percent' === $c->discount_type ? (int) $c->amount . '% OFF' : esc_html( BV_Util::money( $c->amount ) ) . ' OFF' ) . '</td>';
-			echo '<td>' . esc_html( $c->expires ?: '無期限' ) . '</td><td>' . (int) $c->used_count . '</td>';
-			echo '<td>' . ( $c->active ? '有効' : '<span style="color:#999">無効</span>' ) . '</td>';
+			echo '<td>' . esc_html( $c->expires ?: '無期限' ) . '</td>';
+			$max = (int) ( $c->max_uses ?? 0 );
+			echo '<td>' . (int) $c->used_count . ( $max ? ' / ' . $max : ' 回（無制限）' ) . '</td>';
+			echo '<td>' . ( ! empty( $c->note ) ? esc_html( $c->note ) : '<span style="color:#999">—</span>' ) . '</td>';
+			$used_up = ( $max > 0 && (int) $c->used_count >= $max );
+			echo '<td>' . ( ! $c->active
+				? '<span style="color:#999">無効</span>'
+				: ( $used_up ? '<span style="color:#999">使用済み</span>' : '有効' ) ) . '</td>';
 			echo '<td><a href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?page=bvrm-coupons&toggle=' . $c->id ), 'bvrm_coupon_toggle' ) ) . '">' . ( $c->active ? '無効化' : '有効化' ) . '</a></td></tr>';
 		}
-		if ( ! $list ) echo '<tr><td colspan="7">クーポンがありません。</td></tr>';
+		if ( ! $list ) echo '<tr><td colspan="8">クーポンがありません。</td></tr>';
 		echo '</tbody></table></div>';
 	}
 
@@ -1136,6 +1145,7 @@ class BV_Admin_Pages {
 				$new[ 'store_locations_' . $sk ] = array_values( array_intersect( $locs, array_keys( BV_Util::locations() ) ) );
 				$new[ 'store_square_location_' . $sk ]    = sanitize_text_field( $P[ 'store_square_location_' . $sk ] ?? '' );
 				$new[ 'store_square_location_en_' . $sk ] = sanitize_text_field( $P[ 'store_square_location_en_' . $sk ] ?? '' );
+				$new[ 'store_review_url_' . $sk ]         = esc_url_raw( trim( $P[ 'store_review_url_' . $sk ] ?? '' ) );
 			}
 			$new['square_skip_sig']  = ! empty( $P['square_skip_sig'] ) ? 1 : 0;
 			/* 診断モードは戻し忘れ防止のため、オンにした時刻を記録して60分で自動失効させる */
@@ -1143,6 +1153,9 @@ class BV_Admin_Pages {
 				? ( ! empty( $s['square_skip_sig'] ) ? (int) ( $s['square_skip_sig_at'] ?? time() ) : time() )
 				: 0;
 			$new['doc_retention_days'] = max( 0, min( 3650, (int) ( $P['doc_retention_days'] ?? 0 ) ) );
+			$new['review_mail_enabled']  = ! empty( $P['review_mail_enabled'] ) ? 1 : 0;
+			$new['review_coupon_amount'] = max( 1, min( 100000, (int) ( $P['review_coupon_amount'] ?? 500 ) ) );
+			$new['review_coupon_days']   = max( 1, min( 3650, (int) ( $P['review_coupon_days'] ?? 365 ) ) );
 			$new['square_use_long_url'] = ! empty( $P['square_use_long_url'] ) ? 1 : 0;
 			$new['invoice_enabled']  = ! empty( $P['invoice_enabled'] ) ? 1 : 0;
 			$new['pay_deadline_hours'] = max( 0, min( 168, (int) ( $P['pay_deadline_hours'] ?? 6 ) ) );
@@ -1392,6 +1405,7 @@ class BV_Admin_Pages {
 			echo '</p>';
 			echo '<p><label style="display:inline-block;width:190px">Location ID（日本語予約）</label><input type="text" name="store_square_location_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_' . $sk ] ) . '" placeholder="未入力なら共通のLocation IDを使用"></p>';
 			echo '<p><label style="display:inline-block;width:190px">Location ID（英語予約）</label><input type="text" name="store_square_location_en_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_en_' . $sk ] ) . '" placeholder="未入力なら英語共通→日本語欄→共通の順で使用"></p>';
+			echo '<p><label style="display:inline-block;width:190px">口コミ投稿URL（Google）</label><input type="url" name="store_review_url_' . esc_attr( $sk ) . '" class="large-text" value="' . esc_attr( $s[ 'store_review_url_' . $sk ] ?? '' ) . '" placeholder="https://g.page/r/..../review"></p>';
 			echo '</td></tr>';
 		}
 		echo '</table>';
@@ -1442,6 +1456,26 @@ class BV_Admin_Pages {
 		echo '<p class="description">ポータルURL: <code>' . esc_html( home_url( '/?bv_staff=1' ) ) . '</code>（全店舗）<br>画面共有のときに見えてしまわないよう伏せ字にしています。スタッフに伝えるときだけ「表示」にしてください。<br>PASSを変更すると、いま開いている全員のログインが無効になります（総当たり対策として、同一端末から' . (int) BV_Staff_Portal::LOGIN_MAX_TRIES . '回連続で失敗すると15分間ログインできなくなります）。</p></td></tr>';
 		echo '<tr><th>From P出張所 専用PASS</th><td><input type="password" name="staff_pass_fromp" class="regular-text" autocomplete="off" value="' . esc_attr( $s['staff_pass_fromp'] ?? '' ) . '"><p class="description">専用ポータルURL: <code>' . esc_html( home_url( '/?bv_staff_fromp=1' ) ) . '</code><br>From P出張所の予約と、場所が「From P出張所」の車両だけを表示・操作できます。全店舗用とは別のPASSにしてください（空欄ならログイン不可）。</p></td></tr>';
 		echo '<tr><th>地域サイト用APIキー</th><td><code>' . esc_html( BV_API::get_api_key() ) . '</code><p class="description">白馬・大町・松本サイトの予約フォームプラグイン設定に貼り付けてください。API URL: <code>' . esc_html( rest_url( 'bvrm/v1/' ) ) . '</code></p></td></tr>';
+		echo '</table>';
+
+		echo '<h2>返却後のお礼・口コミ依頼メール</h2><table class="form-table">';
+		echo '<tr><th>自動送信</th><td><label><input type="checkbox" name="review_mail_enabled" value="1"' . checked( (int) ( $s['review_mail_enabled'] ?? 1 ), 1, false ) . '> 返却処理の完了時に、お客様へお礼＋口コミ依頼メールを自動送信する</label>';
+		echo '<p class="description">スタッフポータルの返却処理画面で、1件ずつ送らないことも選べます。同じ予約に2通目が送られることはありません。</p></td></tr>';
+		echo '<tr><th>お礼クーポンの割引額</th><td><input type="number" name="review_coupon_amount" min="1" max="100000" step="1" style="width:110px" value="' . (int) ( $s['review_coupon_amount'] ?? 500 ) . '"> 円';
+		echo '<p class="description">お客様が「クーポンを受け取る」リンクを押した時点で、その方専用のコードを発行します（1予約につき1枚・1回限り）。全店舗で使えます。</p></td></tr>';
+		echo '<tr><th>お礼クーポンの有効期間</th><td><input type="number" name="review_coupon_days" min="1" max="3650" step="1" style="width:110px" value="' . (int) ( $s['review_coupon_days'] ?? 365 ) . '"> 日間（発行日から）</td></tr>';
+		$no_url = array();
+		foreach ( BV_Util::stores() as $sk2 => $sv2 ) {
+			if ( ! BV_Util::store_review_url( $sk2 ) ) $no_url[] = $sv2['ja'];
+		}
+		echo '<tr><th>口コミ投稿URL</th><td>';
+		if ( $no_url ) {
+			echo '<span style="color:#dba617">未設定の店舗があります：' . esc_html( implode( '／', $no_url ) ) . '</span>'
+				. '<p class="description">URLが未設定の店舗では、お礼メールは送信されません。下の「店舗別設定」で店舗ごとに入力してください。</p>';
+		} else {
+			echo '<span style="color:#00a32a">✔ 全店舗で設定済みです。</span>';
+		}
+		echo '<p class="description">GoogleビジネスプロフィールのURLは、Google検索で自店舗を表示 →「クチコミを増やす」→ 表示される <code>https://g.page/r/…/review</code> 形式のリンクをコピーしてください。</p></td></tr>';
 		echo '</table>';
 
 		echo '<h2>本人確認書類（免許証・パスポート）の保護</h2><table class="form-table">';
@@ -1755,7 +1789,7 @@ class BV_Admin_Pages {
 		echo '<hr><h2>メールテンプレート（日本語・英語）</h2><form method="post">';
 		wp_nonce_field( 'bvrm_templates' );
 		echo '<input type="hidden" name="bvrm_save_templates" value="1">';
-		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。</p>';
+		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。<br>返却後のお礼・口コミ依頼メールでは <code>{review_link}</code>（店舗ごとの口コミ投稿URL）<code>{coupon_link}</code>（クーポンの受け取りリンク）<code>{coupon_amount}</code>（割引額）、お礼クーポンの送付メールではさらに <code>{coupon_code}</code> <code>{coupon_expires}</code> が使えます。</p>';
 		$names = array(
 			'provisional_ja' => '仮予約（日本語）', 'provisional_en' => '仮予約（英語）',
 			'paid_ja' => '支払完了（日本語）', 'paid_en' => '支払完了（英語）',
@@ -1790,6 +1824,10 @@ class BV_Admin_Pages {
 			'inquiry_admin_ja'    => '車両調整の問い合わせ（管理者通知・返信先はお客様）',
 			'inquiry_customer_ja' => '車両調整の問い合わせ 受付確認（日本語）',
 			'inquiry_customer_en' => '車両調整の問い合わせ 受付確認（英語）',
+			'review_request_ja'   => '返却後のお礼・口コミ依頼（日本語）',
+			'review_request_en'   => '返却後のお礼・口コミ依頼（英語）',
+			'review_coupon_ja'    => '口コミのお礼クーポン送付（日本語）',
+			'review_coupon_en'    => '口コミのお礼クーポン送付（英語）',
 		);
 		$prev_store = isset( $_GET['prev_store'] ) ? sanitize_key( $_GET['prev_store'] ) : '';
 		if ( ! isset( BV_Util::stores()[ $prev_store ] ) ) $prev_store = '';

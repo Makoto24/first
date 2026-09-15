@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BV Booking Form（レンタカー予約フォーム）
  * Description: Be Village中央管理サイトと連携するレンタカー予約フォーム。ショートコード [bv_booking_form lang="ja"] / [bv_booking_form lang="en"] を予約ページに設置してください。
- * Version:     1.13.1
+ * Version:     1.13.2
  * Author:      Be Village株式会社
  * Text Domain: bv-booking
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVBF_VERSION', '1.13.1' );
+define( 'BVBF_VERSION', '1.13.2' );
 define( 'BVBF_URL', plugin_dir_url( __FILE__ ) );
 define( 'BVBF_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -41,7 +41,7 @@ class BV_Booking_Form {
 			/* 並び順が、設定画面のチェックボックスと予約フォームの選択肢の順序になる */
 			'hakuba_ekimae'  => '白馬レンタカー白馬駅前店',
 			'hakuba'         => '白馬レンタカー コルチナ乗鞍店',
-			'hakuba_fromp'   => '白馬レンタカー From P出張所',
+			'hakuba_fromp'   => '長野カーシェアFrom P出張所',
 			'omachi'         => '大町レンタカー 信濃大町駅前店',
 			'omachi_onsen'   => '大町レンタカー 大町温泉郷店',
 			'matsumoto'      => '松本レンタカー島内店',

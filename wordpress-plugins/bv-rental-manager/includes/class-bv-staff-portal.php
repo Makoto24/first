@@ -1376,8 +1376,19 @@ class BV_Staff_Portal {
 				if ( $v && $odo > 0 ) {
 					BV_DB::save_vehicle( array( 'mileage' => $odo, 'location' => sanitize_key( $P['return_location'] ) ), $v->id );
 				}
+				/* お礼＋Googleレビュー依頼メール（スタッフがチェックを外せば送らない） */
+				$review_msg = '';
+				if ( empty( $P['skip_review_mail'] ) ) {
+					$r = BV_DB::get_reservation( $r->id );
+					$sent = BV_Review::maybe_send( $r );
+					$review_msg = ( true === $sent )
+						? '<p class="ok">お礼＋口コミ依頼メールを送信しました。</p>'
+						: '<p class="warn">お礼メールは送信していません：' . esc_html( $sent ) . '</p>';
+				}
+
 				self::header( '返却処理' );
 				echo '<p class="ok">返却処理が完了しました（' . esc_html( $r->code ) . '）。走行距離: ' . number_format( $trip ) . ' km</p>';
+				echo $review_msg;
 				echo '<a class="btn" href="' . esc_url( self::base( 'return' ) ) . '">続けて返却処理</a>';
 				self::footer();
 				return;
@@ -1416,6 +1427,10 @@ class BV_Staff_Portal {
 		echo '<p style="margin:0 0 6px"><label style="font-weight:normal"><input type="checkbox" name="fuel_full" value="1"> ガソリン満タン確認（任意）</label></p>';
 		echo '<p style="margin:0 0 12px"><label style="font-weight:normal"><input type="checkbox" name="no_accident" value="1"> 無事故確認（任意）</label></p>';
 		echo '<label>メモ</label><textarea name="return_memo" rows="3" placeholder="傷・忘れ物・清掃など"></textarea>';
+		if ( ! empty( BV_Util::settings()['review_mail_enabled'] ) ) {
+			echo '<p style="margin:0 0 12px"><label style="font-weight:normal"><input type="checkbox" name="skip_review_mail" value="1"> お礼＋口コミ依頼メールを送らない</label>'
+				. '<br><span style="font-size:12px;color:#666">通常はチェック不要です。返却完了と同時にお客様へ自動送信されます。</span></p>';
+		}
 		echo '<button class="green" style="background:#00a32a">返却を完了する</button></form></div>';
 		echo '<script>var META=' . wp_json_encode( $meta ) . ';'
 			. 'var sel=document.getElementById("ressel"),loc=document.getElementById("retloc"),note=document.getElementById("odonote");'

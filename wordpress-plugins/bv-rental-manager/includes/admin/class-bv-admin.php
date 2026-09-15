@@ -319,6 +319,17 @@ class BV_Admin {
 				BV_Mailer::send_shuttle_declined( $r );
 				set_transient( 'bvrm_notice', '送迎不可としてお客様へご連絡しました。', 60 );
 			}
+			/* お礼＋口コミ依頼メールの送信・再送 */
+			if ( 'send_review' === $action ) {
+				if ( ! is_email( $r->email ) ) {
+					set_transient( 'bvrm_notice', 'メールアドレスが登録されていないため送信できません。', 60 );
+				} elseif ( ! BV_Util::store_review_url( $r->store ) ) {
+					set_transient( 'bvrm_notice', 'この店舗の口コミ投稿URLが未設定です。「設定 → 店舗別設定」で入力してください。', 120 );
+				} else {
+					BV_Review::send( $r );
+					set_transient( 'bvrm_notice', 'お礼＋口コミ依頼メールを送信しました。', 60 );
+				}
+			}
 			if ( 'mark_shuttle_paid' === $action ) {
 				BV_DB::update_reservation( $id, array( 'shuttle_status' => 'paid', 'shuttle_paid_at' => current_time( 'mysql' ) ) );
 				$r = BV_DB::get_reservation( $id );
@@ -897,6 +908,13 @@ class BV_Admin {
 				if ( ! empty( $P['notify_cancel'] ) ) BV_Mailer::send_cancelled( $r );
 				BV_Mailer::send_cancelled_admin( $r, 'admin' );
 			}
+			/* 返却済みになったら、お礼＋口コミ依頼メールを送る（条件を満たす場合のみ） */
+			if ( 'returned' === $r->status && 'returned' !== $prev_status ) {
+				$sent = BV_Review::maybe_send( $r );
+				if ( true === $sent ) {
+					set_transient( 'bvrm_notice', '保存し、お礼＋口コミ依頼メールを送信しました。', 60 );
+				}
+			}
 			/* ガントから作成した場合は、同じ表示位置のガントへ戻る */
 			if ( ! empty( $P['pf_gstart'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $P['pf_gstart'] ) ) {
 				set_transient( 'bvrm_notice', '予約 ' . $r->code . ' を作成しました。', 60 );
@@ -1222,6 +1240,29 @@ class BV_Admin {
 			}
 
 			if ( 'returned' === $r->status ) {
+				/* お礼・口コミ依頼メールとお礼クーポンの状況 */
+				echo '<tr><th>口コミ依頼</th><td>';
+				if ( ! empty( $r->review_mail_at ) ) {
+					echo '送信済み（' . esc_html( date( 'Y-m-d H:i', strtotime( $r->review_mail_at ) ) ) . '）';
+				} else {
+					echo '<span style="color:#666">未送信</span>';
+					$why = BV_Review::can_send( $r );
+					if ( true !== $why ) echo '　<span class="description">' . esc_html( $why ) . '</span>';
+				}
+				if ( ! empty( $r->review_coupon_code ) ) {
+					echo '<br>お礼クーポン発行済み：<code>' . esc_html( $r->review_coupon_code ) . '</code>'
+						. ( $r->review_done_at ? '（' . esc_html( date( 'Y-m-d H:i', strtotime( $r->review_done_at ) ) ) . '）' : '' );
+				} else {
+					echo '<br><span class="description">お礼クーポンは未発行です（お客様がメール内のリンクを押すと発行されます）。</span>';
+				}
+				if ( is_email( $r->email ) ) {
+					$label = ! empty( $r->review_mail_at ) ? 'お礼・口コミ依頼メールを再送' : 'お礼・口コミ依頼メールを送信';
+					echo '<p><a class="button" onclick="return confirm(\'お客様へお礼＋口コミ依頼メールを送信します。よろしいですか？\')" href="'
+						. esc_url( wp_nonce_url( admin_url( 'admin.php?page=bvrm-reservations&bvrm_action=send_review&id=' . $r->id . '&edit=' . $r->id ), 'bvrm_send_review' ) )
+						. '">' . esc_html( $label ) . '</a></p>';
+				}
+				echo '</td></tr>';
+
 				echo '<tr><th>返却情報</th><td>メーター: ' . (int) $r->return_odometer . ' km ｜ 走行: ' . (int) $r->trip_distance . ' km ｜ 返却場所: ' . esc_html( BV_Util::label( BV_Util::locations(), $r->return_location ) ) . '<br>満タン: ' . ( $r->fuel_full ? '○' : '－' ) . ' ｜ 無事故: ' . ( $r->no_accident ? '○' : '－' ) . '<br>' . esc_html( $r->return_memo ) . '</td></tr>';
 			}
 			echo '<tr><th>印刷</th><td><a class="button" target="_blank" href="' . esc_url( BV_Print::url( $r, 'voucher' ) ) . '">予約票</a> <a class="button" target="_blank" href="' . esc_url( BV_Print::url( $r, 'checkin' ) ) . '">受付表</a> <a class="button" target="_blank" href="' . esc_url( BV_Print::url( $r, 'receipt' ) ) . '">領収書</a></td></tr>';

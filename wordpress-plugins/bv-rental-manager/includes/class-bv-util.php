@@ -238,7 +238,7 @@ class BV_Util {
 			'matsumoto'      => array( 'ja' => '松本レンタカー島内店',     'en' => 'Matsumoto Rent a Car Shimauchi Branch',    'location' => 'matsumoto' ),
 			'matsumoto_univ' => array( 'ja' => '松本レンタカー信州大学前店', 'en' => 'Matsumoto Rent a Car Shinshu Univ. Branch','location' => 'matsumoto_univ' ),
 			/* 時間貸し専用の出張所。車両・料金・ポータルを他店と分けて運用する */
-			'hakuba_fromp'   => array( 'ja' => '白馬レンタカー From P出張所', 'en' => 'Hakuba Rent a Car From P Branch', 'location' => 'fromp',
+			'hakuba_fromp'   => array( 'ja' => '長野カーシェアFrom P出張所', 'en' => 'Nagano Car Share From P Branch', 'location' => 'fromp',
 				'hourly' => true, 'classes' => array( 'kei' ), 'open' => '08:00', 'close' => '22:00' ),
 		);
 	}
@@ -539,6 +539,10 @@ class BV_Util {
 			'square_skip_sig_at'    => 0, /* 上記をオンにした時刻 */
 			/* 本人確認書類の保持日数（0＝削除しない）。返却済・キャンセルの予約が対象 */
 			'doc_retention_days'    => 0,
+			/* 返却後のお礼＋Googleレビュー依頼メール */
+			'review_mail_enabled'   => 1,   /* 返却処理の完了時に自動送信する */
+			'review_coupon_amount'  => 500, /* お礼クーポンの割引額（円） */
+			'review_coupon_days'    => 365, /* お礼クーポンの有効日数 */
 			/* 会社情報（印刷物） */
 			'company_name'    => 'Be Village株式会社',
 			'company_address' => '',
@@ -602,6 +606,7 @@ class BV_Util {
 			$defaults[ 'store_locations_' . $sk ]            = array(); /* 貸出可能な車両の場所（空ならグループ既定） */
 			$defaults[ 'store_square_location_' . $sk ]      = ''; /* 店舗ごとのSquare Location ID（日本語予約） */
 			$defaults[ 'store_square_location_en_' . $sk ]   = ''; /* 同（英語予約） */
+			$defaults[ 'store_review_url_' . $sk ]           = ''; /* Googleマップのレビュー投稿URL（店舗ごとに異なる） */
 		}
 		$saved = get_option( 'bvrm_settings', array() );
 		return wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );
@@ -621,6 +626,12 @@ class BV_Util {
 		if ( $ref ) return $ref;
 
 		return home_url( '/' );
+	}
+
+	/** その店舗のGoogleレビュー投稿URL（未設定なら空） */
+	public static function store_review_url( $store ) {
+		$s = self::settings();
+		return (string) ( $s[ 'store_review_url_' . $store ] ?? '' );
 	}
 
 	/** 遷移元サイトのオリジン（中央サイト以外の場合のみ返す） */
