@@ -189,8 +189,8 @@ class BV_Util {
 	public static function locations() {
 		return array(
 			/* キーは車両データと紐づくため変更しない（表示名のみ変更可） */
-			'hakuba_norikura' => array( 'ja' => 'コルチナ乗鞍',    'en' => 'Cortina Norikura',       'color' => '#4e79a7' ),
 			'hakuba_ekimae'   => array( 'ja' => '白馬駅前',        'en' => 'Hakuba Station',         'color' => '#76b7b2' ),
+			'hakuba_norikura' => array( 'ja' => 'コルチナ乗鞍',    'en' => 'Cortina Norikura',       'color' => '#4e79a7' ),
 			'shinano_omachi'  => array( 'ja' => '信濃大町駅前',    'en' => 'Shinano-Omachi Station', 'color' => '#f28e2b' ),
 			'omachi_onsen'    => array( 'ja' => '大町温泉郷',      'en' => 'Omachi Onsenkyo',        'color' => '#e15759' ),
 			'matsumoto'       => array( 'ja' => '松本島内',        'en' => 'Matsumoto Shimauchi',    'color' => '#59a14f' ),
@@ -205,8 +205,8 @@ class BV_Util {
 	 */
 	public static function store_colors() {
 		return array(
-			'hakuba'         => '#4e79a7', /* コルチナ乗鞍店：青 */
 			'hakuba_ekimae'  => '#76b7b2', /* 白馬駅前店：青緑 */
+			'hakuba'         => '#4e79a7', /* コルチナ乗鞍店：青 */
 			'omachi'         => '#f28e2b', /* 信濃大町駅前店：オレンジ */
 			'omachi_onsen'   => '#e15759', /* 大町温泉郷店：赤 */
 			'matsumoto'      => '#59a14f', /* 松本島内店：緑 */
@@ -231,8 +231,8 @@ class BV_Util {
 	public static function stores() {
 		return array(
 			/* キーは既存の予約データと紐づくため変更しない（表示名のみ変更可） */
-			'hakuba'         => array( 'ja' => '白馬レンタカー コルチナ乗鞍店', 'en' => 'Hakuba Rent a Car Cortina Norikura Branch', 'location' => 'hakuba_norikura' ),
 			'hakuba_ekimae'  => array( 'ja' => '白馬レンタカー白馬駅前店', 'en' => 'Hakuba Rent a Car Hakuba Station Branch', 'location' => 'hakuba_ekimae' ),
+			'hakuba'         => array( 'ja' => '白馬レンタカー コルチナ乗鞍店', 'en' => 'Hakuba Rent a Car Cortina Norikura Branch', 'location' => 'hakuba_norikura' ),
 			'omachi'         => array( 'ja' => '大町レンタカー 信濃大町駅前店', 'en' => 'Omachi Rent a Car Shinano-Omachi Station Branch', 'location' => 'shinano_omachi' ),
 			'omachi_onsen'   => array( 'ja' => '大町レンタカー 大町温泉郷店', 'en' => 'Omachi Rent a Car Omachi Onsenkyo Branch', 'location' => 'omachi_onsen' ),
 			'matsumoto'      => array( 'ja' => '松本レンタカー島内店',     'en' => 'Matsumoto Rent a Car Shimauchi Branch',    'location' => 'matsumoto' ),
@@ -284,8 +284,8 @@ class BV_Util {
 		return array(
 			'hakuba'    => array(
 				'label'     => '白馬エリア',
-				'stores'    => array( 'hakuba', 'hakuba_ekimae' ),
-				'locations' => array( 'hakuba_norikura', 'hakuba_ekimae' ),
+				'stores'    => array( 'hakuba_ekimae', 'hakuba' ),
+				'locations' => array( 'hakuba_ekimae', 'hakuba_norikura' ),
 			),
 			'omachi'    => array(
 				'label'     => '大町エリア',

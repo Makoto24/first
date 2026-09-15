@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BV Booking Form（レンタカー予約フォーム）
  * Description: Be Village中央管理サイトと連携するレンタカー予約フォーム。ショートコード [bv_booking_form lang="ja"] / [bv_booking_form lang="en"] を予約ページに設置してください。
- * Version:     1.13.0
+ * Version:     1.13.1
  * Author:      Be Village株式会社
  * Text Domain: bv-booking
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVBF_VERSION', '1.13.0' );
+define( 'BVBF_VERSION', '1.13.1' );
 define( 'BVBF_URL', plugin_dir_url( __FILE__ ) );
 define( 'BVBF_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -38,8 +38,9 @@ class BV_Booking_Form {
 	/** 全店舗リスト（中央サイトと同じキー） */
 	public static function all_stores() {
 		return array(
-			'hakuba'         => '白馬レンタカー コルチナ乗鞍店',
+			/* 並び順が、設定画面のチェックボックスと予約フォームの選択肢の順序になる */
 			'hakuba_ekimae'  => '白馬レンタカー白馬駅前店',
+			'hakuba'         => '白馬レンタカー コルチナ乗鞍店',
 			'hakuba_fromp'   => '白馬レンタカー From P出張所',
 			'omachi'         => '大町レンタカー 信濃大町駅前店',
 			'omachi_onsen'   => '大町レンタカー 大町温泉郷店',
@@ -70,7 +71,12 @@ class BV_Booking_Form {
 		} elseif ( $atts['store'] ) {
 			$allowed = array( sanitize_key( $atts['store'] ) );
 		}
-		$allowed = array_values( array_intersect( $allowed, array_keys( self::all_stores() ) ) );
+		/*
+		 * 表示順は all_stores() の並びにそろえる。
+		 * （array_intersect は第1引数の順序を保つため、保存済み設定の古い並びが
+		 *   そのまま残らないよう、店舗一覧側を第1引数にする）
+		 */
+		$allowed = array_values( array_intersect( array_keys( self::all_stores() ), $allowed ) );
 		if ( ! $allowed ) $allowed = array( $o['default_store'] );
 
 		wp_enqueue_script( 'bvbf-form' );
