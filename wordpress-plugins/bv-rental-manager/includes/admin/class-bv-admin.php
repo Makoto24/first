@@ -1001,7 +1001,10 @@ class BV_Admin {
 			$files = json_decode( $r->license_files, true ) ?: array();
 			if ( $files ) {
 				echo '<tr><th>免許証等</th><td>';
-				foreach ( $files as $k => $u ) echo '<a href="' . esc_url( $u ) . '" target="_blank">' . esc_html( $k ) . '</a> ';
+				foreach ( $files as $k => $u ) {
+					echo '<a href="' . esc_url( BV_Files::url( $u, 'adm' ) ) . '" target="_blank" rel="noreferrer">' . esc_html( $k ) . '</a> ';
+				}
+				echo '<p class="description">閲覧リンクは2時間で失効し、管理者としてログインしている間だけ開けます。</p>';
 				echo '</td></tr>';
 			}
 		}

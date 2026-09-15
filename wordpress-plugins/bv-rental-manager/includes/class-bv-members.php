@@ -77,11 +77,16 @@ class BV_Members {
 			if ( ! in_array( strtolower( (string) $type['ext'] ), array( 'jpg', 'jpeg', 'png', 'webp', 'pdf' ), true ) ) {
 				return new WP_Error( 'bad_type', ( 'en' === $r->lang ) ? 'Unsupported file type (JPG, PNG, WEBP or PDF only).' : '対応していないファイル形式です（JPG・PNG・WEBP・PDFのみ）。' );
 			}
-			$up = wp_handle_upload( $_FILES[ $fk ], array( 'test_form' => false ) );
-			if ( ! empty( $up['error'] ) ) {
+			/* 公開領域ではなく、直接アクセスを禁止した領域に保存する */
+			$new_key = BV_Files::save_upload( $_FILES[ $fk ] );
+			if ( is_wp_error( $new_key ) ) {
 				return new WP_Error( 'upload_failed', ( 'en' === $r->lang ) ? 'Upload failed.' : 'アップロードに失敗しました。' );
 			}
-			$files[ $key ] = $up['url'];
+			/* 差し替え前のファイルは残さない */
+			if ( ! empty( $files[ $key ] ) && BV_Files::is_key( $files[ $key ] ) ) {
+				BV_Files::delete( $files[ $key ] );
+			}
+			$files[ $key ] = $new_key;
 			$changed = true;
 		}
 
@@ -774,8 +779,8 @@ class BV_Members {
 			foreach ( $doc_fields as $dk => $dlabel ) {
 				echo '<label>' . esc_html( $dlabel ) . '</label>';
 				if ( ! empty( $cur_files[ $dk ] ) ) {
-					$url = $cur_files[ $dk ];
-					if ( preg_match( '/\.(jpe?g|png|webp)$/i', $url ) ) {
+					$url = BV_Files::url( $cur_files[ $dk ], 'cust' );
+					if ( BV_Files::is_image( $cur_files[ $dk ] ) ) {
 						echo '<a href="' . esc_url( $url ) . '" target="_blank"><img src="' . esc_url( $url ) . '" style="max-height:110px;border:1px solid #ccc;border-radius:6px;display:block;margin-bottom:6px"></a>';
 					} else {
 						echo '<p><a href="' . esc_url( $url ) . '" target="_blank">' . esc_html( $L( '提出済みファイルを開く', 'View submitted file' ) ) . '</a></p>';

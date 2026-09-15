@@ -535,7 +535,10 @@ class BV_Util {
 			'square_location_id'    => '',
 			'square_location_id_en' => '', /* 英語予約用の共通Location ID */
 			'square_webhook_sig_key'=> '',
-			'square_skip_sig'       => 0, /* 署名検証を一時的に無効化（診断用） */
+			'square_skip_sig'       => 0, /* 署名検証を一時的に無効化（診断用・60分で自動失効） */
+			'square_skip_sig_at'    => 0, /* 上記をオンにした時刻 */
+			/* 本人確認書類の保持日数（0＝削除しない）。返却済・キャンセルの予約が対象 */
+			'doc_retention_days'    => 0,
 			/* 会社情報（印刷物） */
 			'company_name'    => 'Be Village株式会社',
 			'company_address' => '',

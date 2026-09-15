@@ -228,6 +228,31 @@ class BV_DB {
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", $id_or_code ) );
 	}
 
+	/**
+	 * ORDER BY 句をホワイトリストで組み立てる
+	 * （列名は $wpdb->prepare でプレースホルダに置けないため、許可した組み合わせだけを通す）
+	 */
+	protected static function sanitize_order( $order ) {
+		$allowed_cols = array(
+			'id', 'code', 'pickup_dt', 'return_dt', 'created_at', 'paid_at',
+			'status', 'store', 'vehicle_id', 'vehicle_class', 'price_total', 'email',
+		);
+		$default = 'pickup_dt ASC';
+		$order   = trim( (string) $order );
+		if ( '' === $order ) return $default;
+
+		$parts = array();
+		foreach ( explode( ',', $order ) as $piece ) {
+			$piece = trim( $piece );
+			if ( ! preg_match( '/^([a-z_]+)(?:\s+(ASC|DESC))?$/i', $piece, $m ) ) return $default;
+			$col = strtolower( $m[1] );
+			if ( ! in_array( $col, $allowed_cols, true ) ) return $default;
+			$dir = ( ! empty( $m[2] ) && 0 === strcasecmp( $m[2], 'DESC' ) ) ? 'DESC' : 'ASC';
+			$parts[] = $col . ' ' . $dir;
+		}
+		return $parts ? implode( ', ', $parts ) : $default;
+	}
+
 	public static function get_reservations( $args = array() ) {
 		global $wpdb;
 		$t = self::table( 'reservations' );
@@ -242,7 +267,7 @@ class BV_DB {
 			$where .= ' AND pickup_dt < %s AND return_dt > %s';
 			$params[] = $args['overlap'][1]; $params[] = $args['overlap'][0];
 		}
-		$order = ! empty( $args['order'] ) ? $args['order'] : 'pickup_dt ASC';
+		$order = self::sanitize_order( $args['order'] ?? '' );
 		$sql = "SELECT * FROM {$t} {$where} ORDER BY {$order}";
 		if ( ! empty( $args['limit'] ) ) $sql .= ' LIMIT ' . (int) $args['limit'];
 		if ( $params ) $sql = $wpdb->prepare( $sql, $params );
@@ -368,6 +393,18 @@ class BV_DB {
 		if ( ! $row ) return false;
 		$wpdb->update( $t, array( 'verified' => 1 ), array( 'id' => $row->id ) );
 		return $row->token;
+	}
+
+	/**
+	 * 期限切れの認証コード行を削除する（日次cronから呼ばれる）
+	 * 認証コードにはメールアドレスが残るため、役目を終えた行は残さない。
+	 * @return int 削除件数
+	 */
+	public static function purge_expired_otp( $grace_days = 1 ) {
+		global $wpdb;
+		$t   = self::table( 'otp' );
+		$cut = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - max( 0, (int) $grace_days ) * DAY_IN_SECONDS );
+		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$t} WHERE expires_at < %s", $cut ) );
 	}
 
 	public static function is_email_verified( $email, $token ) {

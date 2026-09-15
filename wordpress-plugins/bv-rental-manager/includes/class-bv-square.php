@@ -275,8 +275,10 @@ class BV_Square {
 	 */
 	public static function verify_signature( $body, $signature, $notification_url = '' ) {
 		$s = BV_Util::settings();
-		if ( ! empty( $s['square_skip_sig'] ) ) return true;      /* 診断用：検証を一時停止 */
-		if ( empty( $s['square_webhook_sig_key'] ) ) return true; /* 未設定時は検証スキップ（設定推奨） */
+		/* 署名キー未設定・診断モード中は「検証できなかった」として扱う。
+		   以前はここで true を返していたため、偽の通知をそのまま受理していた。 */
+		if ( self::skip_sig_active() ) return false;
+		if ( empty( $s['square_webhook_sig_key'] ) ) return false;
 		if ( empty( $signature ) ) return false;
 
 		$key = $s['square_webhook_sig_key'];
@@ -285,6 +287,107 @@ class BV_Square {
 			if ( hash_equals( $hash, (string) $signature ) ) return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 診断用の「署名検証を一時停止」が有効か
+	 * 戻し忘れを防ぐため、オンにしてから60分で自動的に失効する。
+	 */
+	public static function skip_sig_active() {
+		$s = BV_Util::settings();
+		if ( empty( $s['square_skip_sig'] ) ) return false;
+		$at = (int) ( $s['square_skip_sig_at'] ?? 0 );
+		if ( ! $at ) return true; /* 時刻が記録されていない旧設定 */
+		return ( time() - $at ) < HOUR_IN_SECONDS;
+	}
+
+	/** 署名検証ができない状態か（キー未設定 or 診断モード中） */
+	public static function signature_unavailable() {
+		$s = BV_Util::settings();
+		return self::skip_sig_active() || empty( $s['square_webhook_sig_key'] );
+	}
+
+	/**
+	 * 署名を検証できない通知の処理
+	 *
+	 * 本文の内容（支払済みかどうか）は信用せず、予約の特定だけに使い、
+	 * 実際の入金状況はアクセストークンを使ってSquareへ直接問い合わせて確認する。
+	 * これにより、署名キーが未設定でも偽の通知で予約が確定することはない。
+	 *
+	 * @return string 処理結果メッセージ
+	 */
+	public static function handle_webhook_unverified( $payload ) {
+		if ( empty( $payload['type'] ) ) return '種別なし';
+		if ( ! in_array( $payload['type'], array( 'payment.updated', 'payment.created' ), true ) ) {
+			return '対象外イベント（' . $payload['type'] . '）';
+		}
+		$payment  = isset( $payload['data']['object']['payment'] ) ? $payload['data']['object']['payment'] : null;
+		$order_id = $payment['order_id'] ?? '';
+		$note     = isset( $payment['note'] ) ? trim( (string) $payment['note'] ) : '';
+		if ( ! $order_id && ! $note ) return '署名未検証：予約を特定できる情報がありません';
+
+		global $wpdb;
+		$t = BV_DB::table( 'reservations' );
+
+		/* 予約の特定（order_id または 予約番号） */
+		$r = null; $target = 'car';
+		if ( $order_id ) {
+			$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE square_order_id = %s", $order_id ) );
+			if ( ! $r ) {
+				$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE shuttle_order_id = %s", $order_id ) );
+				if ( $r ) $target = 'shuttle';
+			}
+		}
+		if ( ! $r && $note ) {
+			$is_shuttle = ( '-SHUTTLE' === substr( $note, -8 ) );
+			$code = $is_shuttle ? substr( $note, 0, -8 ) : $note;
+			$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", $code ) );
+			if ( $r && $is_shuttle ) $target = 'shuttle';
+		}
+		/* それでも見つからない場合は、Squareから注文を取得して予約番号を抽出する */
+		if ( ! $r && $order_id ) {
+			$found = self::find_code_from_order( $order_id );
+			if ( $found ) {
+				$is_shuttle = ( '-SHUTTLE' === substr( $found, -8 ) );
+				$code = $is_shuttle ? substr( $found, 0, -8 ) : $found;
+				$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", $code ) );
+				if ( $r && $is_shuttle ) $target = 'shuttle';
+			}
+		}
+		if ( ! $r ) {
+			return '署名未検証：該当予約が見つかりません（order_id=' . ( $order_id ?: '-' ) . ' / note=' . ( $note ?: '-' ) . '）';
+		}
+
+		/*
+		 * 照会にはorder_idが必要。記録がない場合は通知の値を使うが、
+		 * 検証前の値をDBに書き込むと（偽の通知で）正規の注文IDを埋められてしまうため、
+		 * 照会用の複製にだけ載せ、Squareで入金が確認できたときにだけ保存する。
+		 */
+		$col   = ( 'shuttle' === $target ) ? 'shuttle_order_id' : 'square_order_id';
+		$probe = $r;
+		$borrowed = false;
+		if ( $order_id && empty( $r->$col ) ) {
+			$probe = clone $r;
+			$probe->$col = $order_id;
+			$borrowed = true;
+		}
+
+		/* 入金の有無はSquareに直接確認する（通知の中身は信用しない） */
+		$was_paid = ( 'shuttle' === $target ) ? ( 'paid' === $r->shuttle_status ) : (bool) $r->paid_at;
+		$res = self::sync_payment_status( $probe, $target );
+		if ( is_wp_error( $res ) ) {
+			return '署名未検証：Squareへの確認に失敗（' . $res->get_error_message() . '）';
+		}
+
+		/* 確認が取れて状態が変わったときだけ、注文IDを記録する */
+		if ( $borrowed ) {
+			$after = BV_DB::get_reservation( $r->id );
+			$now_paid = ( 'shuttle' === $target ) ? ( 'paid' === $after->shuttle_status ) : (bool) $after->paid_at;
+			if ( ! $was_paid && $now_paid ) {
+				BV_DB::update_reservation( $r->id, array( $col => $order_id ) );
+			}
+		}
+		return '署名未検証のためSquareへ直接確認 → ' . $res;
 	}
 
 	/** 署名照合に使う通知URLの候補 */

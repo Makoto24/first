@@ -311,14 +311,18 @@ class BV_API {
 		return array( 'verified' => true, 'token' => $token );
 	}
 
-	/** base64ファイル保存 → URL */
+	/**
+	 * base64ファイル保存 → 保存キー
+	 * 本人確認書類は公開領域（wp-content/uploads直下）ではなく、
+	 * 直接アクセスを禁止した uploads/bv-private/ に保存する（BV_Files参照）。
+	 */
 	protected static function save_license_file( $b64, $name_hint ) {
 		if ( ! $b64 || ! preg_match( '#^data:(image/(jpeg|png|webp)|application/pdf);base64,#', $b64, $m ) ) return '';
 		$data = base64_decode( substr( $b64, strpos( $b64, ',' ) + 1 ) );
 		if ( ! $data || strlen( $data ) > 10 * 1024 * 1024 ) return '';
 		$ext = ( 'application/pdf' === $m[1] ) ? 'pdf' : str_replace( 'jpeg', 'jpg', $m[2] );
-		$up = wp_upload_bits( 'bv-license-' . $name_hint . '-' . wp_generate_password( 8, false, false ) . '.' . $ext, null, $data );
-		return empty( $up['error'] ) ? $up['url'] : '';
+		$key = BV_Files::save_bytes( $data, $ext );
+		return is_wp_error( $key ) ? '' : $key;
 	}
 
 	public static function create_reservation( $req ) {
@@ -592,11 +596,34 @@ class BV_API {
 		);
 
 		if ( ! $ok_sig ) {
-			$entry['result'] = '署名検証に失敗（署名キーが違う可能性）'
-				. ( $sig ? '' : '／署名ヘッダーが送られていません' );
+			/* 署名キーが設定されているのに一致しない＝偽装または設定間違い。受理しない。 */
+			if ( ! BV_Square::signature_unavailable() ) {
+				$entry['result'] = '署名検証に失敗（署名キーが違う可能性）'
+					. ( $sig ? '' : '／署名ヘッダーが送られていません' );
+				array_unshift( $log, $entry );
+				update_option( 'bvrm_webhook_log', array_slice( $log, 0, 20 ), false );
+				return new WP_Error( 'bad_sig', 'Invalid signature', array( 'status' => 403 ) );
+			}
+
+			/*
+			 * 署名キー未設定・診断モード中：通知の中身は信用せず、Squareへ直接確認する。
+			 * 1件ごとにSquareへ問い合わせるため、大量送信で負荷をかけられないよう回数を制限する。
+			 */
+			$entry['sig'] = '未検証';
+			$rl_key = 'bvrm_wh_unverified_count';
+			$hits   = (int) get_transient( $rl_key );
+			if ( $hits >= 60 ) {
+				$entry['result'] = '署名未検証の通知が短時間に集中したため保留しました（署名キーを設定してください）。入金は15分ごとの自動同期で反映されます。';
+				array_unshift( $log, $entry );
+				update_option( 'bvrm_webhook_log', array_slice( $log, 0, 20 ), false );
+				return new WP_Error( 'rate_limited', 'Too many unverified webhooks', array( 'status' => 429 ) );
+			}
+			set_transient( $rl_key, $hits + 1, 5 * MINUTE_IN_SECONDS );
+
+			$entry['result'] = BV_Square::handle_webhook_unverified( $json ?: array() );
 			array_unshift( $log, $entry );
 			update_option( 'bvrm_webhook_log', array_slice( $log, 0, 20 ), false );
-			return new WP_Error( 'bad_sig', 'Invalid signature', array( 'status' => 403 ) );
+			return array( 'ok' => true );
 		}
 
 		$handled = BV_Square::handle_webhook( $json ?: array() );

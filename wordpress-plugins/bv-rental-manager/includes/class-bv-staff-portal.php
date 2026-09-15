@@ -73,7 +73,75 @@ class BV_Staff_Portal {
 	}
 
 	protected static function auth_hash() {
-		return hash_hmac( 'sha256', 'bv-staff-' . self::query_key() . '-' . self::pass(), wp_salt( 'auth' ) );
+		return self::hash_for( self::query_key(), self::pass() );
+	}
+
+	protected static function hash_for( $query_key, $pass ) {
+		return hash_hmac( 'sha256', 'bv-staff-' . $query_key . '-' . $pass, wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * いずれかのスタッフポータルにログイン済みか（本人確認書類の配信判定などに使う）
+	 * ルーター外から呼ばれるため、$scope に依存せず全ポータルを確認する。
+	 */
+	public static function any_authed() {
+		$s = BV_Util::settings();
+
+		$portals = array( 'bv_staff' => array( 'pass_key' => 'staff_pass', 'cookie' => 'bv_staff_auth' ) );
+		foreach ( self::scoped_portals() as $qk => $def ) $portals[ $qk ] = $def;
+
+		foreach ( $portals as $qk => $def ) {
+			$pass   = isset( $s[ $def['pass_key'] ] ) ? (string) $s[ $def['pass_key'] ] : '';
+			$cookie = $def['cookie'];
+			if ( '' === $pass || empty( $_COOKIE[ $cookie ] ) ) continue;
+			if ( hash_equals( self::hash_for( $qk, $pass ), (string) $_COOKIE[ $cookie ] ) ) return true;
+		}
+		return false;
+	}
+
+	/* ---------- ログイン試行の制限 ---------- */
+
+	const LOGIN_MAX_TRIES = 10;
+	const LOGIN_WINDOW    = 900; /* 15分 */
+
+	protected static function client_ip() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+		return $ip ? $ip : 'unknown';
+	}
+
+	protected static function fail_key() {
+		return 'bvrm_staff_fail_' . md5( self::client_ip() . '|' . self::query_key() );
+	}
+
+	/** 直近の失敗回数が上限に達しているか */
+	protected static function login_blocked() {
+		return (int) get_transient( self::fail_key() ) >= self::LOGIN_MAX_TRIES;
+	}
+
+	protected static function note_login_failure() {
+		$k = self::fail_key();
+		$n = (int) get_transient( $k );
+		set_transient( $k, $n + 1, self::LOGIN_WINDOW );
+	}
+
+	protected static function clear_login_failures() {
+		delete_transient( self::fail_key() );
+	}
+
+	/** 認証クッキーの発行（SameSite付き） */
+	protected static function set_auth_cookie( $value, $expires ) {
+		$args = array(
+			'expires'  => $expires,
+			'path'     => '/',
+			'secure'   => is_ssl(),
+			'httponly' => true,
+			'samesite' => 'Lax',
+		);
+		if ( PHP_VERSION_ID >= 70300 ) {
+			setcookie( self::cookie_name(), $value, $args );
+		} else {
+			setcookie( self::cookie_name(), $value, $expires, '/; samesite=Lax', '', is_ssl(), true );
+		}
 	}
 
 	protected static function base( $view = '' ) {
@@ -102,19 +170,29 @@ class BV_Staff_Portal {
 
 		/* ログイン */
 		if ( isset( $_POST['bv_staff_pass'] ) ) {
+			/* 総当たり対策：同一IPからの失敗が続く場合は一定時間受け付けない */
+			if ( self::login_blocked() ) {
+				self::header( 'ログイン' );
+				echo '<p class="warn">ログインの失敗が続いたため、しばらく受け付けられません。15分ほど時間をおいてからお試しください。</p>';
+				self::footer( false );
+				exit;
+			}
 			if ( $pass && hash_equals( $pass, (string) wp_unslash( $_POST['bv_staff_pass'] ) ) ) {
-				setcookie( self::cookie_name(), self::auth_hash(), time() + 12 * HOUR_IN_SECONDS, '/', '', is_ssl(), true );
+				self::clear_login_failures();
+				self::set_auth_cookie( self::auth_hash(), time() + 12 * HOUR_IN_SECONDS );
 				wp_safe_redirect( self::base() );
 				exit;
 			}
+			self::note_login_failure();
+			$left = max( 0, self::LOGIN_MAX_TRIES - (int) get_transient( self::fail_key() ) );
 			self::header( 'ログイン' );
-			echo '<p class="warn">PASSが違います。</p>';
+			echo '<p class="warn">PASSが違います。（あと' . (int) $left . '回間違えると、しばらくログインできなくなります）</p>';
 			self::login_form();
 			self::footer( false );
 			exit;
 		}
 		if ( isset( $_GET['logout'] ) ) {
-			setcookie( self::cookie_name(), '', time() - 3600, '/' );
+			self::set_auth_cookie( '', time() - 3600 );
 			wp_safe_redirect( self::base() );
 			exit;
 		}

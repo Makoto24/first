@@ -811,8 +811,14 @@ class BV_Admin_Pages {
 		if ( $files ) {
 			foreach ( $files as $k => $u ) {
 				$label = isset( $file_labels[ $k ] ) ? $file_labels[ $k ] : $k;
-				echo '<a href="' . esc_url( $u ) . '" target="_blank" style="display:inline-block;margin:0 12px 8px 0"><img src="' . esc_url( $u ) . '" style="max-height:110px;border:1px solid #ccc;border-radius:4px;display:block">' . esc_html( $label ) . '</a>';
+				$link  = BV_Files::url( $u, 'adm' );
+				echo '<a href="' . esc_url( $link ) . '" target="_blank" rel="noreferrer" style="display:inline-block;margin:0 12px 8px 0">';
+				if ( BV_Files::is_image( $u ) ) {
+					echo '<img src="' . esc_url( $link ) . '" style="max-height:110px;border:1px solid #ccc;border-radius:4px;display:block">';
+				}
+				echo esc_html( $label ) . '</a>';
 			}
+			echo '<p class="description">閲覧リンクは2時間で失効し、管理者としてログインしている間だけ開けます。</p>';
 		} else {
 			echo '—（アップロードなし）';
 		}
@@ -1132,6 +1138,11 @@ class BV_Admin_Pages {
 				$new[ 'store_square_location_en_' . $sk ] = sanitize_text_field( $P[ 'store_square_location_en_' . $sk ] ?? '' );
 			}
 			$new['square_skip_sig']  = ! empty( $P['square_skip_sig'] ) ? 1 : 0;
+			/* 診断モードは戻し忘れ防止のため、オンにした時刻を記録して60分で自動失効させる */
+			$new['square_skip_sig_at'] = $new['square_skip_sig']
+				? ( ! empty( $s['square_skip_sig'] ) ? (int) ( $s['square_skip_sig_at'] ?? time() ) : time() )
+				: 0;
+			$new['doc_retention_days'] = max( 0, min( 3650, (int) ( $P['doc_retention_days'] ?? 0 ) ) );
 			$new['square_use_long_url'] = ! empty( $P['square_use_long_url'] ) ? 1 : 0;
 			$new['invoice_enabled']  = ! empty( $P['invoice_enabled'] ) ? 1 : 0;
 			$new['pay_deadline_hours'] = max( 0, min( 168, (int) ( $P['pay_deadline_hours'] ?? 6 ) ) );
@@ -1200,6 +1211,17 @@ class BV_Admin_Pages {
 				echo '<div class="notice notice-warning"><p><strong>ご確認ください：</strong>メール文面のお支払い期限（' . (int) $new['pay_deadline_hours'] . '時間）と、実際の自動キャンセル（' . (int) $new['autocancel_hours'] . '時間）が違います。お客様への案内と実際の動作を揃えることをおすすめします。</p></div>';
 			}
 		}
+		/* 既存の免許証画像を非公開領域へ移行する */
+		if ( isset( $_POST['bvrm_migrate_docs'] ) && check_admin_referer( 'bvrm_migrate_docs' ) ) {
+			$mr = BV_Files::migrate_legacy( 200 );
+			echo '<div class="notice notice-success"><p>本人確認書類の移行を実行しました：'
+				. '移動 <strong>' . (int) $mr['moved'] . '</strong> 件'
+				. '／ファイルが見つからず記録のみ残っていたもの ' . (int) $mr['missing'] . ' 件'
+				. '／失敗 ' . (int) $mr['failed'] . ' 件'
+				. ( $mr['remaining'] ? '／未処理 ' . (int) $mr['remaining'] . ' 件（もう一度実行してください）' : '' )
+				. '</p></div>';
+		}
+
 		if ( isset( $_POST['bvrm_run_pending'] ) && check_admin_referer( 'bvrm_run_pending' ) ) {
 			BV_Mailer::send_payment_reminders();
 			$n = BV_Mailer::auto_cancel_expired();
@@ -1384,7 +1406,7 @@ class BV_Admin_Pages {
 		echo '<tr><th>Webhook署名キー</th><td><input type="text" name="square_webhook_sig_key" class="regular-text" value="' . esc_attr( $s['square_webhook_sig_key'] ) . '">';
 		echo '<p class="description">Square開発者ダッシュボード → Webhooks → 購読の詳細 → Signature Key の「Show」で表示される値。<strong>Sandboxと本番でキーは別物です。</strong></p>';
 		echo '<p><label><input type="checkbox" name="square_skip_sig" value="1"' . checked( (int) $s['square_skip_sig'], 1, false ) . '> <strong>署名検証を一時的に無効化する（診断用）</strong></label>';
-		echo '<br><span class="description">Squareの配信履歴が403になる場合、これをオンにして再送すると原因を切り分けられます。通知が通るようになれば「署名キーが違う」ことが確定します。原因判明後は必ずオフに戻してください。</span></p></td></tr>';
+		echo '<br><span class="description">Squareの配信履歴が403になる場合、これをオンにして再送すると原因を切り分けられます。通知が通るようになれば「署名キーが違う」ことが確定します。<br><strong>オンにしても、通知の内容をそのまま信用することはありません。</strong>予約の特定にだけ使い、入金の有無はSquareへ直接問い合わせて確認します。戻し忘れを防ぐため、この設定は60分で自動的に失効します。</span></p></td></tr>';
 		echo '</table>';
 
 		echo '<h2>会社情報（印刷物）</h2><table class="form-table">';
@@ -1415,15 +1437,45 @@ class BV_Admin_Pages {
 		echo '</table>';
 
 		echo '<h2>スタッフポータル・API</h2><table class="form-table">';
-		echo '<tr><th>スタッフPASS</th><td><input type="text" name="staff_pass" class="regular-text" value="' . esc_attr( $s['staff_pass'] ) . '"><p class="description">ポータルURL: <code>' . esc_html( home_url( '/?bv_staff=1' ) ) . '</code>（全店舗）</p></td></tr>';
-		echo '<tr><th>From P出張所 専用PASS</th><td><input type="text" name="staff_pass_fromp" class="regular-text" value="' . esc_attr( $s['staff_pass_fromp'] ?? '' ) . '"><p class="description">専用ポータルURL: <code>' . esc_html( home_url( '/?bv_staff_fromp=1' ) ) . '</code><br>From P出張所の予約と、場所が「From P出張所」の車両だけを表示・操作できます。全店舗用とは別のPASSにしてください（空欄ならログイン不可）。</p></td></tr>';
+		echo '<tr><th>スタッフPASS</th><td><input type="password" id="bvrm_staff_pass" name="staff_pass" class="regular-text" value="' . esc_attr( $s['staff_pass'] ) . '" autocomplete="off">';
+		echo ' <label style="margin-left:6px"><input type="checkbox" onclick="var f=document.getElementById(\'bvrm_staff_pass\');f.type=this.checked?\'text\':\'password\';"> 表示</label>';
+		echo '<p class="description">ポータルURL: <code>' . esc_html( home_url( '/?bv_staff=1' ) ) . '</code>（全店舗）<br>画面共有のときに見えてしまわないよう伏せ字にしています。スタッフに伝えるときだけ「表示」にしてください。<br>PASSを変更すると、いま開いている全員のログインが無効になります（総当たり対策として、同一端末から' . (int) BV_Staff_Portal::LOGIN_MAX_TRIES . '回連続で失敗すると15分間ログインできなくなります）。</p></td></tr>';
+		echo '<tr><th>From P出張所 専用PASS</th><td><input type="password" name="staff_pass_fromp" class="regular-text" autocomplete="off" value="' . esc_attr( $s['staff_pass_fromp'] ?? '' ) . '"><p class="description">専用ポータルURL: <code>' . esc_html( home_url( '/?bv_staff_fromp=1' ) ) . '</code><br>From P出張所の予約と、場所が「From P出張所」の車両だけを表示・操作できます。全店舗用とは別のPASSにしてください（空欄ならログイン不可）。</p></td></tr>';
 		echo '<tr><th>地域サイト用APIキー</th><td><code>' . esc_html( BV_API::get_api_key() ) . '</code><p class="description">白馬・大町・松本サイトの予約フォームプラグイン設定に貼り付けてください。API URL: <code>' . esc_html( rest_url( 'bvrm/v1/' ) ) . '</code></p></td></tr>';
 		echo '</table>';
+
+		echo '<h2>本人確認書類（免許証・パスポート）の保護</h2><table class="form-table">';
+		$prot = BV_Files::dir_protected();
+		echo '<tr><th>保存先</th><td><code>wp-content/uploads/' . esc_html( BV_Files::DIRNAME ) . '/</code>'
+			. ' ' . ( $prot
+				? '<span style="color:#00a32a">✔ 直接アクセス禁止の設定あり（.htaccess）</span>'
+				: '<span style="color:#dba617">未作成（次回のアップロード時に自動で作成されます）</span>' )
+			. '<p class="description">アップロードされた免許証等は公開領域には置かず、ここに保存します。画面に表示されるリンクは2時間で失効し、管理者・スタッフは配信時にもログイン状態を確認します。</p></td></tr>';
+		echo '<tr><th>保持日数</th><td><input type="number" name="doc_retention_days" min="0" max="3650" style="width:90px" value="' . (int) ( $s['doc_retention_days'] ?? 0 ) . '"> 日'
+			. '<p class="description">返却済・キャンセルの予約について、返却日からこの日数が過ぎたら本人確認書類を自動削除します（1日1回判定）。<strong>0なら削除しません。</strong>進行中の予約で同じ画像が使われている場合は削除しません。</p></td></tr>';
+		echo '</table>';
+
 		submit_button( '設定を保存' );
 		echo '</form>';
 
-		/* ---- 走行距離の異常値チェック ---- */
+		/* ---- 既存の本人確認書類の移行 ---- */
 		global $wpdb;
+		$legacy = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM " . BV_DB::table( 'reservations' ) . " WHERE license_files LIKE '%http%'"
+		);
+		echo '<h3>既存の画像の移行</h3>';
+		if ( $legacy > 0 ) {
+			echo '<div class="notice notice-warning inline"><p>公開領域（<code>wp-content/uploads</code>直下）に置かれたままの本人確認書類が、<strong>' . (int) $legacy . '件</strong>の予約に残っています。URLを知っていれば誰でも開ける状態のため、移行をおすすめします。</p></div>';
+		} else {
+			echo '<p><span style="color:#00a32a">✔ 公開領域に残っている本人確認書類はありません。</span></p>';
+		}
+		echo '<form method="post">';
+		wp_nonce_field( 'bvrm_migrate_docs' );
+		submit_button( '既存の免許証画像を非公開領域へ移動する', 'secondary', 'bvrm_migrate_docs', false );
+		echo '</form>';
+		echo '<p class="description">画像ファイルを非公開領域へ移動し、予約データの参照先を書き換えます。元の公開ファイルは削除されます。1回につき最大200ファイルまで処理するので、件数が多い場合は完了表示が出るまで繰り返し押してください。<br><strong>実行前にサーバーのバックアップを取ってください。</strong><br>繰り返しても件数が0にならない場合、残っているのは「予約データにURLだけ残っていて、サーバー上に実ファイルがない」記録です（実害はありません）。</p>';
+
+		/* ---- 走行距離の異常値チェック ---- */
 		$rt = BV_DB::table( 'reservations' );
 		if ( isset( $_POST['bvrm_fix_km'] ) && check_admin_referer( 'bvrm_fix_km' ) ) {
 			$ids = isset( $_POST['fix_ids'] ) ? array_map( 'intval', (array) $_POST['fix_ids'] ) : array();
@@ -1537,9 +1589,15 @@ class BV_Admin_Pages {
 		echo '<p class="description">Square開発者ダッシュボード → Webhooks → Subscriptions にこのURLをそのまま登録し、イベント <code>payment.updated</code> を選択してください。</p></td></tr>';
 		echo '<tr><th>署名キー</th><td>' . ( ! empty( $s['square_webhook_sig_key'] )
 			? '<span style="color:#00a32a">設定済み</span>（' . esc_html( strlen( $s['square_webhook_sig_key'] ) ) . '文字）'
-			: '<span style="color:#dba617">未設定（署名検証はスキップされます）</span>' );
+			: '<span style="color:#dba617">未設定</span>' );
+		if ( BV_Square::signature_unavailable() ) {
+			echo '<br><strong style="color:#dba617">⚠ 署名検証ができない状態です。</strong>'
+				. '<span class="description"><br>この間、Squareからの通知は内容をそのまま信用せず、予約の特定にだけ使い、入金の有無はSquareへ直接問い合わせて確認します（偽の通知で予約が確定することはありません）。確定までに数秒余分にかかるため、署名キーの設定を推奨します。</span>';
+		}
 		if ( ! empty( $s['square_skip_sig'] ) ) {
-			echo '<br><strong style="color:#dba617">⚠ 署名検証を一時停止中です（診断モード）。原因が判明したら必ずオフに戻してください。</strong>';
+			echo BV_Square::skip_sig_active()
+				? '<br><strong style="color:#dba617">⚠ 署名検証を一時停止中です（診断モード・オンにしてから60分で自動失効）。</strong>'
+				: '<br><span class="description">診断モードのチェックは入っていますが、60分が過ぎたため失効しています（署名検証は有効です）。チェックを外して保存してください。</span>';
 		}
 		echo '</td></tr>';
 
