@@ -497,10 +497,17 @@
 
 	/*
 	 * 画面遷移時の自動スクロール。
-	 * ページの途中にフォームを置くと勝手に画面が動いて使いづらいため、既定でオフ。
-	 * 元に戻したい場合は AUTO_SCROLL を true にする。
+	 *
+	 * ステップ1「空き状況の確認」ではスクロールしない（renderStep1 参照）。
+	 * ページの途中にフォームを置いている場合に、表示直後や店舗・クラスの
+	 * 切り替えのたびに画面が動いてしまうため。
+	 *
+	 * 空き状況の結果（空きあり／満車のご案内）から先は、新しく表示された内容の
+	 * 先頭が見えるようにスクロールする。
+	 *
+	 * すべて止めたい場合は AUTO_SCROLL を false にする。
 	 */
-	var AUTO_SCROLL = false;
+	var AUTO_SCROLL = true;
 	function scrollToEl(el) {
 		if (!AUTO_SCROLL || !el) return;
 		var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
@@ -601,7 +608,13 @@
 		h += lookupBox();
 		root.innerHTML = h;
 		bindLookup();
-		scrollTop();
+		/*
+		 * 通常の表示・再描画ではスクロールしない（AUTO_SCROLL の説明を参照）。
+		 * ただしエラーはこの画面の先頭に出るため、そのときだけは見えるようにする。
+		 * スクロールしないと、ボタンが画面外にある場合に「押しても何も起きない」
+		 * ように見えてしまう。
+		 */
+		if (msg) scrollTop();
 
 		/* 店舗を切り替えたら、その店舗の営業時間・クラスで描き直す */
 		var stEl = document.getElementById('bv-store');
