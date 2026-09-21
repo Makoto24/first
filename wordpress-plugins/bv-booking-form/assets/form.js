@@ -9,8 +9,8 @@
 		ja: {
 			step1: '1. 空き状況の確認', step2: '2. オプション・料金', step3: '3. お客様情報', done: '予約完了',
 			cls: '車両クラス', store: '店舗', pickup: '貸出日時', ret: '返却日時',
-			capacity: 'このクラスの定員は %n 名です。ご乗車人数をご確認ください。',
-			capacityAll: '軽自動車＝4名／コンパクトカー・SUV＝5名／ミニバン＝7名（大きなお荷物がある場合は、余裕をもったクラスをおすすめします）',
+			ageNote: '<strong>21歳未満の方はご利用いただけません。</strong>保険および各種補償は21歳以上の運転者にのみ適用されるため、21歳未満の方への貸渡はお断りしています。運転される方全員が21歳以上であることをご確認ください。',
+			covNoCap: '<strong>1日あたりの上限が適用されるのは基本料金（時間料金）のみです。</strong>追加補償B・Cの料金に上限はなく、ご利用時間分（1時間単位・端数切り上げ）がそのまま加算されます。',
 			date: '日付', time: '時刻', check: '空き状況を確認する', checking: '確認中…',
 			available: '空きがあります！', estimate: '概算料金', days: '日数',
 			proceed: 'この条件で仮予約へ進む',
@@ -93,8 +93,8 @@
 		en: {
 			step1: '1. Check Availability', step2: '2. Options & Price', step3: '3. Your Details', done: 'Reservation Complete',
 			cls: 'Vehicle class', store: 'Branch', pickup: 'Pick-up', ret: 'Return',
-			capacity: 'This class seats up to %n passengers. Please check your group size.',
-			capacityAll: 'Kei car = 4 / Compact & SUV = 5 / Minivan = 7 (if you have large luggage, we recommend a larger class)',
+			ageNote: '<strong>Drivers under 21 cannot rent from us.</strong> Insurance and all coverage apply only to drivers aged 21 and over, so we are unable to rent to anyone under 21. Please make sure every driver is 21 or older.',
+			covNoCap: '<strong>The daily cap applies to the base hourly rate only.</strong> There is no cap on optional coverage B or C — it is charged for every hour of the rental (per hour, rounded up).',
 			date: 'Date', time: 'Time', check: 'Check availability', checking: 'Checking…',
 			available: 'Available!', estimate: 'Estimated price', days: 'Days',
 			proceed: 'Continue with these conditions',
@@ -543,7 +543,7 @@
 			h += '<option value="' + k + '"' + (s.vehicle_class === k ? ' selected' : '') + '>' + clsLabel(c.classes, k) + '</option>';
 		});
 		h += '</select>';
-		h += '<div id="bv-capnote" class="bvbf-capnote"></div>';
+		h += '<p class="bvbf-note" style="background:#fff4f4;border:1px solid #d63638;color:#8a1f21;padding:8px 10px;border-radius:6px">' + T.ageNote + '</p>';
 		h += '<label>' + T.store + '</label>';
 		if (allowed.length === 1) {
 			h += '<div class="bvbf-fixed">' + lbl(c.stores, allowed[0]) + '</div>';
@@ -586,17 +586,6 @@
 		/* 貸出日時を変えたら返却日時を自動調整 */
 		var pdEl = document.getElementById('bv-pd'), ptEl = document.getElementById('bv-pt');
 		var rdEl = document.getElementById('bv-rd'), rtEl = document.getElementById('bv-rt');
-		/* 車両クラスの定員を表示 */
-		var clsEl = document.getElementById('bv-class'), capEl = document.getElementById('bv-capnote');
-		function showCap() {
-			var cap = capacityOf(c.classes, clsEl.value);
-			if (!cap) { capEl.innerHTML = ''; capEl.style.display = 'none'; return; }
-			capEl.style.display = '';
-			capEl.innerHTML = '<strong>' + T.capacity.replace('%n', cap) + '</strong><br>' + T.capacityAll;
-		}
-		clsEl.addEventListener('change', showCap);
-		showCap();
-
 		/* 当日を選んだ場合、受付可能時刻より前を選べないようにする */
 		function syncTimes() {
 			var minT = minTimeFor(pdEl.value);
@@ -774,6 +763,13 @@
 			}
 			h += '<label class="bvbf-radio"><input type="radio" name="bv-cov" value="' + k + '"' + (s.coverage === k ? ' checked' : '') + '> ' + cov[LANG] + '（' + p + '）</label>';
 		});
+		if (isHourly()) {
+			var capTxt = T.covNoCap;
+			var dc = (c.hourly_rates && c.hourly_rates.day_cap) ? +c.hourly_rates.day_cap : 0;
+			if (dc > 0) capTxt = capTxt.replace(LANG === 'en' ? 'The daily cap' : '1日あたりの上限',
+				(LANG === 'en' ? 'The daily cap (' + money(dc) + ')' : '1日あたりの上限（' + money(dc) + '）'));
+			h += '<p class="bvbf-note" style="background:#fff8e5;border:1px solid #e0b900;color:#6b5200;padding:8px 10px;border-radius:6px">' + capTxt + '</p>';
+		}
 		h += '<h4>' + T.shuttle + '</h4><select id="bv-shuttle">';
 		Object.keys(c.shuttles).forEach(function (k) {
 			h += '<option value="' + k + '"' + (s.shuttle === k ? ' selected' : '') + '>' + c.shuttles[k][LANG] + '</option>';

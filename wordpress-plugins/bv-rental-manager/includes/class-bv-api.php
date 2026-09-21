@@ -184,6 +184,8 @@ class BV_API {
 				'kei' => (int) $s['hourly_rate_kei'], 'compact' => (int) $s['hourly_rate_compact'],
 				'suv' => (int) $s['hourly_rate_suv'], 'minivan' => (int) $s['hourly_rate_minivan'],
 				'cov_b' => (int) $s['hourly_cov_b'], 'cov_c' => (int) $s['hourly_cov_c'],
+				/* 1日あたりの上限（基本料金のみに適用。予約フォームの注意書きで使用） */
+				'day_cap' => (int) $s['hourly_day_cap'],
 			),
 		);
 	}

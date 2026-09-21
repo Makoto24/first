@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BV Booking Form（レンタカー予約フォーム）
  * Description: Be Village中央管理サイトと連携するレンタカー予約フォーム。ショートコード [bv_booking_form lang="ja"] / [bv_booking_form lang="en"] を予約ページに設置してください。
- * Version:     1.13.2
+ * Version:     1.13.4
  * Author:      Be Village株式会社
  * Text Domain: bv-booking
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVBF_VERSION', '1.13.2' );
+define( 'BVBF_VERSION', '1.13.4' );
 define( 'BVBF_URL', plugin_dir_url( __FILE__ ) );
 define( 'BVBF_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -59,7 +59,7 @@ class BV_Booking_Form {
 	public static function shortcode( $atts ) {
 		$atts = shortcode_atts( array( 'lang' => 'ja', 'store' => '', 'stores' => '' ), $atts );
 		$o = self::opts();
-		$lang = ( 'en' === $atts['lang'] ) ? 'en' : 'ja';
+		$lang = ( 'en' === strtolower( trim( (string) $atts['lang'] ) ) ) ? 'en' : 'ja'; /* ja / jp / 未指定 → ja */
 		if ( ! $o['api_url'] || ! $o['api_key'] ) {
 			return '<p>' . ( 'en' === $lang ? 'Booking form is not configured yet.' : '予約フォームが未設定です（管理画面 → 設定 → BV予約フォーム）。' ) . '</p>';
 		}
@@ -81,14 +81,24 @@ class BV_Booking_Form {
 
 		wp_enqueue_script( 'bvbf-form' );
 		wp_enqueue_style( 'bvbf-form' );
-		wp_localize_script( 'bvbf-form', 'BVBF', array(
+
+		$data = array(
 			'proxy'  => esc_url_raw( rest_url( 'bvbf/v1/proxy' ) ),
 			'nonce'  => wp_create_nonce( 'wp_rest' ),
 			'lang'   => $lang,
 			'store'  => $allowed[0],
-			'stores' => $allowed,
-		) );
-		return '<div id="bvbf-app" data-lang="' . esc_attr( $lang ) . '"><noscript>' . ( 'en' === $lang ? 'Please enable JavaScript to book.' : '予約にはJavaScriptを有効にしてください。' ) . '</noscript></div>';
+			'stores' => array_values( $allowed ),
+		);
+		/*
+		 * ブロックテーマでは、ショートコードが wp_head より前に実行されることがあり、
+		 * その場合 wp_localize_script() のデータがフッターの <script> に出力されない。
+		 * 出力に直接書き出して、どのテーマでも BVBF が必ず定義されるようにする。
+		 */
+		wp_add_inline_script( 'bvbf-form', 'window.BVBF = window.BVBF || ' . wp_json_encode( $data ) . ';', 'before' );
+
+		$out  = '<script>window.BVBF = window.BVBF || ' . wp_json_encode( $data ) . ';</script>';
+		$out .= '<div id="bvbf-app" data-lang="' . esc_attr( $lang ) . '"><noscript>' . ( 'en' === $lang ? 'Please enable JavaScript to book.' : '予約にはJavaScriptを有効にしてください。' ) . '</noscript></div>';
+		return $out;
 	}
 
 	/* ---------- 中央APIへのプロキシ（APIキーを秘匿） ---------- */
