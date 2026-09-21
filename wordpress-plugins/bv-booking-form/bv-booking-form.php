@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BV Booking Form（レンタカー予約フォーム）
  * Description: Be Village中央管理サイトと連携するレンタカー予約フォーム。ショートコード [bv_booking_form lang="ja"] / [bv_booking_form lang="en"] を予約ページに設置してください。
- * Version:     1.14.0
+ * Version:     1.14.1
  * Author:      Be Village株式会社
  * Text Domain: bv-booking
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVBF_VERSION', '1.14.0' );
+define( 'BVBF_VERSION', '1.14.1' );
 define( 'BVBF_URL', plugin_dir_url( __FILE__ ) );
 define( 'BVBF_DIR', plugin_dir_path( __FILE__ ) );
 

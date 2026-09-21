@@ -495,9 +495,14 @@
 	}
 	function errBox(msg) { return '<div class="bvbf-err">' + msg + '</div>'; }
 
-	/* 画面遷移時にフォーム先頭までスクロール */
+	/*
+	 * 画面遷移時の自動スクロール。
+	 * ページの途中にフォームを置くと勝手に画面が動いて使いづらいため、既定でオフ。
+	 * 元に戻したい場合は AUTO_SCROLL を true にする。
+	 */
+	var AUTO_SCROLL = false;
 	function scrollToEl(el) {
-		if (!el) return;
+		if (!AUTO_SCROLL || !el) return;
 		var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
 		try { window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' }); }
 		catch (e) { window.scrollTo(0, Math.max(0, y)); }
@@ -850,7 +855,10 @@
 				if (box) {
 					box.innerHTML = errBox(T.shuttleDetailRequired);
 					var el2 = document.getElementById('bv-shdetail');
-					if (el2) { el2.focus(); scrollToEl(el2); }
+					if (el2) {
+						try { el2.focus({ preventScroll: !AUTO_SCROLL }); } catch (e) { el2.focus(); }
+						scrollToEl(el2);
+					}
 				}
 				return;
 			}
@@ -898,8 +906,7 @@
 				document.getElementById('bv-lpass').style.display = 'none';
 				btn.style.display = 'none';
 				renderDetails(j);
-				var d = document.getElementById('bv-details');
-				if (d) window.scrollTo(0, d.offsetTop - 40);
+				scrollToEl(document.getElementById('bv-details'));
 			});
 		});
 

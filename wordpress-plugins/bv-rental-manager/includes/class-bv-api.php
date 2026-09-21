@@ -257,14 +257,6 @@ class BV_API {
 		if ( ! isset( BV_Util::stores()[ $store ] ) ) $store = '';
 		if ( $store && ! in_array( $class, BV_Util::store_classes( $store ), true ) ) return new WP_Error( 'bad_class', self::msg( 'bad_class', $lang ), array( 'status' => 400 ) );
 		/* 申し込まれた装備を積んでいる車両があるかどうかも判定に含める */
-		/* 運転者の年齢制限（貸出日時点で判定） */
-		$age_ok = BV_Util::check_driver_age( sanitize_text_field( $p['birthdate'] ?? '' ), $period[0], $lang );
-		if ( true !== $age_ok ) {
-			$min = BV_Util::min_driver_age();
-			$key = ( '' === trim( (string) ( $p['birthdate'] ?? '' ) ) ) ? 'need_birthdate' : 'too_young';
-			return new WP_Error( $key, self::msg( $key, $lang, array( $min, $min ) ), array( 'status' => 400 ) );
-		}
-
 		$require = BV_Availability::required_equipment( self::equipment_from_request( $p ) );
 		$available = BV_Availability::is_available( $class, $period[0], $period[1], 0, $store, $require );
 		$out = array( 'available' => $available );
@@ -354,6 +346,18 @@ class BV_API {
 		$email = sanitize_email( $p['email'] ?? '' );
 		if ( ! BV_DB::is_email_verified( $email, sanitize_text_field( $p['otp_token'] ?? '' ) ) ) {
 			return new WP_Error( 'not_verified', self::msg( 'not_verified', $lang ), array( 'status' => 403 ) );
+		}
+
+		/*
+		 * 運転者の年齢制限（貸出日時点で判定）
+		 * 生年月日を受け取るのはこの処理だけなので、ここで確認する。
+		 * 空き状況の確認・見積では判定しない（あちらに生年月日の入力欄はない）。
+		 */
+		$age_ok = BV_Util::check_driver_age( sanitize_text_field( $p['birthdate'] ?? '' ), $period[0], $lang );
+		if ( true !== $age_ok ) {
+			$min = BV_Util::min_driver_age();
+			$key = ( '' === trim( (string) ( $p['birthdate'] ?? '' ) ) ) ? 'need_birthdate' : 'too_young';
+			return new WP_Error( $key, self::msg( $key, $lang, array( $min, $min ) ), array( 'status' => 400 ) );
 		}
 
 		$class = sanitize_key( $p['vehicle_class'] ?? '' );
