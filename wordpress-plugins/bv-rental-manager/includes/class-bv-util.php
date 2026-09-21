@@ -539,6 +539,8 @@ class BV_Util {
 			'square_skip_sig_at'    => 0, /* 上記をオンにした時刻 */
 			/* 本人確認書類の保持日数（0＝削除しない）。返却済・キャンセルの予約が対象 */
 			'doc_retention_days'    => 0,
+			/* 運転者の年齢制限（0＝制限なし）。貸出日時点の年齢で判定する */
+			'min_driver_age'        => 21,
 			/* 返却後のお礼＋Googleレビュー依頼メール */
 			'review_mail_enabled'   => 1,   /* 返却処理の完了時に自動送信する */
 			'review_coupon_amount'  => 500, /* お礼クーポンの割引額（円） */
@@ -626,6 +628,79 @@ class BV_Util {
 		if ( $ref ) return $ref;
 
 		return home_url( '/' );
+	}
+
+	/* ---------- 年齢制限 ---------- */
+
+	/** 運転者の下限年齢（0なら制限なし） */
+	public static function min_driver_age() {
+		$s = self::settings();
+		return max( 0, (int) ( $s['min_driver_age'] ?? 0 ) );
+	}
+
+	/**
+	 * 基準日時点の満年齢
+	 * @return int|null 生年月日が不正なら null
+	 */
+	public static function age_on( $birthdate, $on ) {
+		$b = trim( (string) $birthdate );
+		if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $b, $m ) ) return null;
+		if ( '0000-00-00' === $b ) return null;
+		$bt = strtotime( $b );
+		$ot = is_numeric( $on ) ? (int) $on : strtotime( (string) $on );
+		if ( ! $bt || ! $ot ) return null;
+
+		$age = (int) date( 'Y', $ot ) - (int) $m[1];
+		/* 誕生日がまだ来ていなければ1歳引く */
+		$md_on = (int) date( 'md', $ot );
+		$md_b  = (int) ( $m[2] . $m[3] );
+		if ( $md_on < $md_b ) $age--;
+		return $age;
+	}
+
+	/**
+	 * 貸出日時点で年齢制限を満たすか
+	 * @return true|string true、または断り文句
+	 */
+	public static function check_driver_age( $birthdate, $pickup_dt, $lang = 'ja' ) {
+		$min = self::min_driver_age();
+		if ( $min < 1 ) return true;
+
+		$age = self::age_on( $birthdate, $pickup_dt );
+		if ( null === $age ) {
+			return ( 'en' === $lang )
+				? 'Please enter your date of birth.'
+				: '生年月日をご入力ください。';
+		}
+		if ( $age < $min ) {
+			return ( 'en' === $lang )
+				? sprintf( 'We are unable to rent to drivers under %d years old. Insurance and coverage apply only to drivers aged %d and over.', $min, $min )
+				: sprintf( '%d歳未満の方へのお貸出しはできません。保険および各種補償が%d歳以上の運転者にのみ適用されるためです。', $min, $min );
+		}
+		return true;
+	}
+
+	/* ---------- 入金と差額 ---------- */
+
+	/**
+	 * 車両料金として実際に収納した純額（返金を差し引いた額）
+	 * 送迎料金・追加請求の入金も含む。
+	 */
+	public static function paid_net( $r ) {
+		return max( 0, (int) $r->paid_amount - (int) $r->refund_amount );
+	}
+
+	/**
+	 * 現在の金額と収納済み額の差
+	 * 正なら追加請求が必要、負なら返金が必要、0なら過不足なし。
+	 */
+	public static function balance( $r ) {
+		return (int) $r->price_total - self::paid_net( $r );
+	}
+
+	/** 追加請求の決済リンクを発行済みで、まだ入金されていないか */
+	public static function has_pending_addon( $r ) {
+		return 'quoted' === $r->addon_status && (int) $r->addon_amount > 0;
 	}
 
 	/** その店舗のGoogleレビュー投稿URL（未設定なら空） */

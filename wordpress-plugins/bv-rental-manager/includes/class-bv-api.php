@@ -106,6 +106,14 @@ class BV_API {
 				'ja' => '車両クラスまたは店舗の指定が正しくありません。',
 				'en' => 'Invalid vehicle class or branch.',
 			),
+			'too_young' => array(
+				'ja' => '%s歳未満の方へのお貸出しはできません。保険および各種補償が%s歳以上の運転者にのみ適用されるためです。',
+				'en' => 'We are unable to rent to drivers under %s years old. Insurance and coverage apply only to drivers aged %s and over.',
+			),
+			'need_birthdate' => array(
+				'ja' => '生年月日をご入力ください。',
+				'en' => 'Please enter your date of birth.',
+			),
 			'bad_email' => array(
 				'ja' => 'メールアドレスの形式が正しくありません。',
 				'en' => 'Please enter a valid email address.',
@@ -187,6 +195,8 @@ class BV_API {
 				/* 1日あたりの上限（基本料金のみに適用。予約フォームの注意書きで使用） */
 				'day_cap' => (int) $s['hourly_day_cap'],
 			),
+			/* 運転者の下限年齢（0＝制限なし）。フォーム側でも入力時に確認する */
+			'min_driver_age' => BV_Util::min_driver_age(),
 		);
 	}
 
@@ -247,6 +257,14 @@ class BV_API {
 		if ( ! isset( BV_Util::stores()[ $store ] ) ) $store = '';
 		if ( $store && ! in_array( $class, BV_Util::store_classes( $store ), true ) ) return new WP_Error( 'bad_class', self::msg( 'bad_class', $lang ), array( 'status' => 400 ) );
 		/* 申し込まれた装備を積んでいる車両があるかどうかも判定に含める */
+		/* 運転者の年齢制限（貸出日時点で判定） */
+		$age_ok = BV_Util::check_driver_age( sanitize_text_field( $p['birthdate'] ?? '' ), $period[0], $lang );
+		if ( true !== $age_ok ) {
+			$min = BV_Util::min_driver_age();
+			$key = ( '' === trim( (string) ( $p['birthdate'] ?? '' ) ) ) ? 'need_birthdate' : 'too_young';
+			return new WP_Error( $key, self::msg( $key, $lang, array( $min, $min ) ), array( 'status' => 400 ) );
+		}
+
 		$require = BV_Availability::required_equipment( self::equipment_from_request( $p ) );
 		$available = BV_Availability::is_available( $class, $period[0], $period[1], 0, $store, $require );
 		$out = array( 'available' => $available );

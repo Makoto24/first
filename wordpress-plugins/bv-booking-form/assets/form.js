@@ -9,7 +9,8 @@
 		ja: {
 			step1: '1. 空き状況の確認', step2: '2. オプション・料金', step3: '3. お客様情報', done: '予約完了',
 			cls: '車両クラス', store: '店舗', pickup: '貸出日時', ret: '返却日時',
-			ageNote: '<strong>21歳未満の方はご利用いただけません。</strong>保険および各種補償は21歳以上の運転者にのみ適用されるため、21歳未満の方への貸渡はお断りしています。運転される方全員が21歳以上であることをご確認ください。',
+			ageNote: '<strong>%n歳未満の方はご利用いただけません。</strong>保険および各種補償は%n歳以上の運転者にのみ適用されるため、%n歳未満の方への貸渡はお断りしています。運転される方全員が%n歳以上であることをご確認ください。',
+			ageTooYoung: '貸出日の時点で%n歳未満のため、ご予約を承ることができません。保険および各種補償が%n歳以上の運転者にのみ適用されるためです。',
 			covNoCap: '<strong>1日あたりの上限が適用されるのは基本料金（時間料金）のみです。</strong>追加補償B・Cの料金に上限はなく、ご利用時間分（1時間単位・端数切り上げ）がそのまま加算されます。',
 			date: '日付', time: '時刻', check: '空き状況を確認する', checking: '確認中…',
 			available: '空きがあります！', estimate: '概算料金', days: '日数',
@@ -93,7 +94,8 @@
 		en: {
 			step1: '1. Check Availability', step2: '2. Options & Price', step3: '3. Your Details', done: 'Reservation Complete',
 			cls: 'Vehicle class', store: 'Branch', pickup: 'Pick-up', ret: 'Return',
-			ageNote: '<strong>Drivers under 21 cannot rent from us.</strong> Insurance and all coverage apply only to drivers aged 21 and over, so we are unable to rent to anyone under 21. Please make sure every driver is 21 or older.',
+			ageNote: '<strong>Drivers under %n cannot rent from us.</strong> Insurance and all coverage apply only to drivers aged %n and over, so we are unable to rent to anyone under %n. Please make sure every driver is %n or older.',
+			ageTooYoung: 'You will be under %n years old on the pick-up date, so we are unable to accept this booking. Insurance and coverage apply only to drivers aged %n and over.',
 			covNoCap: '<strong>The daily cap applies to the base hourly rate only.</strong> There is no cap on optional coverage B or C — it is charged for every hour of the rental (per hour, rounded up).',
 			date: 'Date', time: 'Time', check: 'Check availability', checking: 'Checking…',
 			available: 'Available!', estimate: 'Estimated price', days: 'Days',
@@ -185,6 +187,31 @@
 
 	function money(n) { n = Math.round(n); return LANG === 'en' ? 'JPY ' + n.toLocaleString() : '¥' + n.toLocaleString(); }
 	function lbl(map, key) { return map && map[key] ? map[key][LANG] : key; }
+
+	/* ---- 運転者の年齢制限（中央プラグインの設定に従う。未提供なら21歳） ---- */
+
+	function minAge() {
+		var c = state.config || {};
+		return (c.min_driver_age === undefined || c.min_driver_age === null) ? 21 : +c.min_driver_age;
+	}
+	/** 文言の %n を下限年齢に置き換える */
+	function ageText(key) { return T[key].split('%n').join(String(minAge())); }
+	/** 基準日時点の満年齢（birth・onDate とも y-m-d） */
+	function ageOn(birth, onDate) {
+		var b = String(birth).split('-'), o = String(onDate).split('-');
+		if (b.length !== 3 || o.length !== 3 || !o[0]) return null;
+		var age = +o[0] - +b[0];
+		var mdOn = +o[1] * 100 + +o[2], mdB = +b[1] * 100 + +b[2];
+		if (mdOn < mdB) age--;
+		return age;
+	}
+	/** 貸出日時点で年齢制限を満たすか（中央側でも同じ判定を行う） */
+	function ageOk(birthdate) {
+		var min = minAge();
+		if (min < 1) return true;
+		var age = ageOn(birthdate, state.sel.pickup_date);
+		return age !== null && age >= min;
+	}
 
 	/* 定員（中央プラグインが未更新でも動くようフォールバックを持つ） */
 	var CAP_FALLBACK = { kei: 4, compact: 5, suv: 5, minivan: 7 };
@@ -543,7 +570,9 @@
 			h += '<option value="' + k + '"' + (s.vehicle_class === k ? ' selected' : '') + '>' + clsLabel(c.classes, k) + '</option>';
 		});
 		h += '</select>';
-		h += '<p class="bvbf-note" style="background:#fff4f4;border:1px solid #d63638;color:#8a1f21;padding:8px 10px;border-radius:6px">' + T.ageNote + '</p>';
+		if (minAge() > 0) {
+			h += '<p class="bvbf-note" style="background:#fff4f4;border:1px solid #d63638;color:#8a1f21;padding:8px 10px;border-radius:6px">' + ageText('ageNote') + '</p>';
+		}
 		h += '<label>' + T.store + '</label>';
 		if (allowed.length === 1) {
 			h += '<div class="bvbf-fixed">' + lbl(c.stores, allowed[0]) + '</div>';
@@ -974,6 +1003,11 @@
 				return;
 			}
 			var birthdate = by + '-' + ('0' + bm).slice(-2) + '-' + ('0' + bdd).slice(-2);
+			/* 貸出日時点の年齢を確認（中央側でも同じ判定を行うため、ここを迂回しても通らない） */
+			if (!ageOk(birthdate)) {
+				document.getElementById('bv-suberr').innerHTML = errBox(ageText('ageTooYoung'));
+				return;
+			}
 			btn.disabled = true; btn.textContent = T.submitting;
 			readFile('bv-f1', LANG === 'en' ? 'passport' : 'license_front', function (ok1) {
 				if (!ok1) { btn.disabled = false; btn.textContent = T.submit; document.getElementById('bv-suberr').innerHTML = errBox(T.fileBig); return; }

@@ -1153,6 +1153,7 @@ class BV_Admin_Pages {
 				? ( ! empty( $s['square_skip_sig'] ) ? (int) ( $s['square_skip_sig_at'] ?? time() ) : time() )
 				: 0;
 			$new['doc_retention_days'] = max( 0, min( 3650, (int) ( $P['doc_retention_days'] ?? 0 ) ) );
+			$new['min_driver_age']     = max( 0, min( 99, (int) ( $P['min_driver_age'] ?? 0 ) ) );
 			$new['review_mail_enabled']  = ! empty( $P['review_mail_enabled'] ) ? 1 : 0;
 			$new['review_coupon_amount'] = max( 1, min( 100000, (int) ( $P['review_coupon_amount'] ?? 500 ) ) );
 			$new['review_coupon_days']   = max( 1, min( 3650, (int) ( $P['review_coupon_days'] ?? 365 ) ) );
@@ -1456,6 +1457,12 @@ class BV_Admin_Pages {
 		echo '<p class="description">ポータルURL: <code>' . esc_html( home_url( '/?bv_staff=1' ) ) . '</code>（全店舗）<br>画面共有のときに見えてしまわないよう伏せ字にしています。スタッフに伝えるときだけ「表示」にしてください。<br>PASSを変更すると、いま開いている全員のログインが無効になります（総当たり対策として、同一端末から' . (int) BV_Staff_Portal::LOGIN_MAX_TRIES . '回連続で失敗すると15分間ログインできなくなります）。</p></td></tr>';
 		echo '<tr><th>From P出張所 専用PASS</th><td><input type="password" name="staff_pass_fromp" class="regular-text" autocomplete="off" value="' . esc_attr( $s['staff_pass_fromp'] ?? '' ) . '"><p class="description">専用ポータルURL: <code>' . esc_html( home_url( '/?bv_staff_fromp=1' ) ) . '</code><br>From P出張所の予約と、場所が「From P出張所」の車両だけを表示・操作できます。全店舗用とは別のPASSにしてください（空欄ならログイン不可）。</p></td></tr>';
 		echo '<tr><th>地域サイト用APIキー</th><td><code>' . esc_html( BV_API::get_api_key() ) . '</code><p class="description">白馬・大町・松本サイトの予約フォームプラグイン設定に貼り付けてください。API URL: <code>' . esc_html( rest_url( 'bvrm/v1/' ) ) . '</code></p></td></tr>';
+		echo '</table>';
+
+		echo '<h2>運転者の年齢制限</h2><table class="form-table">';
+		echo '<tr><th>下限年齢</th><td><input type="number" name="min_driver_age" min="0" max="99" step="1" style="width:90px" value="' . (int) ( $s['min_driver_age'] ?? 21 ) . '"> 歳以上';
+		echo '<p class="description"><strong>貸出日時点</strong>の満年齢で判定します（申込日ではありません）。これを下回るネット予約は受け付けず、予約フォームにも理由を表示します。<br>'
+			. '<strong>0にすると制限しません。</strong>管理画面・スタッフポータルからの予約追加は、電話での例外対応ができるよう制限の対象外です。</p></td></tr>';
 		echo '</table>';
 
 		echo '<h2>返却後のお礼・口コミ依頼メール</h2><table class="form-table">';
@@ -1789,7 +1796,7 @@ class BV_Admin_Pages {
 		echo '<hr><h2>メールテンプレート（日本語・英語）</h2><form method="post">';
 		wp_nonce_field( 'bvrm_templates' );
 		echo '<input type="hidden" name="bvrm_save_templates" value="1">';
-		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。<br>返却後のお礼・口コミ依頼メールでは <code>{review_link}</code>（店舗ごとの口コミ投稿URL）<code>{coupon_link}</code>（クーポンの受け取りリンク）<code>{coupon_amount}</code>（割引額）、お礼クーポンの送付メールではさらに <code>{coupon_code}</code> <code>{coupon_expires}</code> が使えます。</p>';
+		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。<br>追加料金のメールでは <code>{addon_amount}</code>（追加請求額）<code>{addon_link}</code>（差額の決済リンク）<code>{addon_reason}</code>（請求理由）<code>{paid_amount}</code>（収納済み額）<code>{balance_text}</code>（過不足）が使えます。<br>返却後のお礼・口コミ依頼メールでは <code>{review_link}</code>（店舗ごとの口コミ投稿URL）<code>{coupon_link}</code>（クーポンの受け取りリンク）<code>{coupon_amount}</code>（割引額）、お礼クーポンの送付メールではさらに <code>{coupon_code}</code> <code>{coupon_expires}</code> が使えます。</p>';
 		$names = array(
 			'provisional_ja' => '仮予約（日本語）', 'provisional_en' => '仮予約（英語）',
 			'paid_ja' => '支払完了（日本語）', 'paid_en' => '支払完了（英語）',
@@ -1824,6 +1831,11 @@ class BV_Admin_Pages {
 			'inquiry_admin_ja'    => '車両調整の問い合わせ（管理者通知・返信先はお客様）',
 			'inquiry_customer_ja' => '車両調整の問い合わせ 受付確認（日本語）',
 			'inquiry_customer_en' => '車両調整の問い合わせ 受付確認（英語）',
+			'addon_request_ja'    => '追加料金のお支払いのお願い（日本語）',
+			'addon_request_en'    => '追加料金のお支払いのお願い（英語）',
+			'addon_paid_ja'       => '追加料金の入金確認（日本語）',
+			'addon_paid_en'       => '追加料金の入金確認（英語）',
+			'admin_addon_paid_ja' => '管理者通知（追加料金の入金）',
 			'review_request_ja'   => '返却後のお礼・口コミ依頼（日本語）',
 			'review_request_en'   => '返却後のお礼・口コミ依頼（英語）',
 			'review_coupon_ja'    => '口コミのお礼クーポン送付（日本語）',

@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class BV_DB {
 
-	const DB_VERSION = '1.7.0';
+	const DB_VERSION = '1.8.0';
 
 	public static function table( $name ) {
 		global $wpdb;
@@ -100,6 +100,14 @@ class BV_DB {
 			is_student TINYINT(1) DEFAULT 0,
 			payment_method VARCHAR(20) DEFAULT 'square',
 			coupon_code VARCHAR(60) DEFAULT '',
+			paid_amount INT DEFAULT 0,
+			addon_amount INT DEFAULT 0,
+			addon_note VARCHAR(160) DEFAULT '',
+			addon_status VARCHAR(20) DEFAULT '',
+			addon_link TEXT,
+			addon_order_id VARCHAR(120) DEFAULT '',
+			addon_payment_id VARCHAR(120) DEFAULT '',
+			addon_paid_at DATETIME NULL,
 			review_mail_at DATETIME NULL,
 			review_done_at DATETIME NULL,
 			review_coupon_code VARCHAR(60) DEFAULT '',
@@ -183,7 +191,23 @@ class BV_DB {
 		) {$charset};";
 		dbDelta( $sql );
 
+		self::backfill_paid_amount();
+
 		update_option( 'bvrm_db_version', self::DB_VERSION );
+	}
+
+	/**
+	 * 既存の支払済み予約に「収納済み額」を埋める（1.8.0での列追加にともなう一度きりの処理）
+	 *
+	 * 差額の追加請求は「現在の金額 − 収納済み額」で判定する。この列が0のままだと
+	 * 支払済みの予約がすべて未収扱いになってしまうため、導入時点の金額で初期化する。
+	 */
+	protected static function backfill_paid_amount() {
+		if ( get_option( 'bvrm_paid_amount_backfilled' ) ) return;
+		global $wpdb;
+		$t = self::table( 'reservations' );
+		$wpdb->query( "UPDATE {$t} SET paid_amount = price_total WHERE paid_at IS NOT NULL AND paid_amount = 0" );
+		update_option( 'bvrm_paid_amount_backfilled', 1, false );
 	}
 
 	public static function maybe_upgrade() {

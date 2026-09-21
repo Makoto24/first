@@ -537,6 +537,7 @@ class BV_Members {
 		if ( $msg ) echo '<p class="msg' . ( $is_err ? ' warn' : '' ) . '">' . esc_html( $msg ) . '</p>';
 		if ( isset( $_GET['paid'] ) ) echo '<p class="msg">' . esc_html( $L( 'お支払いありがとうございました。確認後、確定メールをお送りします。', 'Thank you for your payment. A confirmation email will follow.' ) ) . '</p>';
 		if ( isset( $_GET['shuttle_paid'] ) ) echo '<p class="msg">' . esc_html( $L( '送迎料金のお支払いありがとうございました。確認後、送迎確定のメールをお送りします。', 'Thank you for your shuttle payment. A confirmation email will follow.' ) ) . '</p>';
+		if ( isset( $_GET['addon_paid'] ) ) echo '<p class="msg">' . esc_html( $L( '追加料金のお支払いありがとうございました。確認後、確定のメールをお送りします。', 'Thank you for your additional payment. A confirmation email will follow.' ) ) . '</p>';
 
 		if ( ! $verified ) {
 			$posted_email_attr = isset( $_POST['bv_verify_email'] ) ? esc_attr( wp_unslash( $_POST['bv_verify_email'] ) ) : '';
@@ -633,6 +634,18 @@ class BV_Members {
 			echo '<tr><th>' . esc_html( $L( 'ご連絡先', 'Contact' ) ) . '</th><td>' . esc_html( $r->phone . ' / ' . $r->email ) . '</td></tr>';
 			echo '</table>';
 
+			/* 予約内容の変更にともなう差額のお支払い */
+			if ( BV_Util::has_pending_addon( $r ) && $r->addon_link ) {
+				echo '<div class="msg warn" style="text-align:left">';
+				echo '<strong>' . esc_html( $L( 'ご予約内容の変更にともない、追加のお支払いが必要です。', 'An additional payment is required following the change to your reservation.' ) ) . '</strong><br>';
+				echo esc_html( $L( '変更後の合計', 'Updated total' ) ) . '：' . esc_html( BV_Util::money( (int) $r->price_total, $lang ) ) . '<br>';
+				echo esc_html( $L( 'お支払い済み', 'Already paid' ) ) . '：' . esc_html( BV_Util::money( BV_Util::paid_net( $r ), $lang ) ) . '<br>';
+				echo '<strong>' . esc_html( $L( '追加のお支払い', 'Amount due now' ) ) . '：' . esc_html( BV_Util::money( (int) $r->addon_amount, $lang ) ) . '</strong>';
+				if ( $r->addon_note ) echo '<br><span class="note">' . esc_html( $r->addon_note ) . '</span>';
+				echo '<br><span class="note">' . esc_html( $L( 'お支払いいただくのは差額のみです。', 'You are only charged the difference.' ) ) . '</span>';
+				echo '<p><a href="' . esc_url( $r->addon_link ) . '"><button type="button">' . esc_html( $L( '追加料金をお支払いする', 'Pay the additional amount' ) ) . '</button></a></p>';
+				echo '</div>';
+			}
 			if ( ! $r->paid_at && $r->square_link && 'pending' === $r->status ) {
 				echo '<p><a href="' . esc_url( $r->square_link ) . '"><button type="button">' . esc_html( $L( 'お支払いへ進む', 'Proceed to payment' ) ) . '</button></a></p>';
 			}

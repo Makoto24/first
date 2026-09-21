@@ -126,6 +126,79 @@ class BV_Square {
 		);
 	}
 
+	/**
+	 * 追加請求（差額）の決済リンクを発行する
+	 * 期間の延長や補償プランの変更で金額が上がったとき、すでに支払われた分は
+	 * そのままに、差額だけを別決済でお支払いいただくためのリンク。
+	 */
+	public static function create_addon_payment_link( $r ) {
+		$s = BV_Util::settings();
+		$lang = $r->lang;
+		$location_id = BV_Util::store_square_location( $r->store, $lang );
+		if ( empty( $location_id ) ) {
+			return new WP_Error( 'no_location', 'Square Location IDが未設定です。' );
+		}
+		$amount = (int) $r->addon_amount;
+		if ( $amount < 1 ) {
+			return new WP_Error( 'no_amount', '追加請求の金額が設定されていません。' );
+		}
+
+		$note = trim( (string) $r->addon_note );
+		$name = ( 'en' === $lang )
+			? sprintf( 'Additional charge %s', $r->code )
+			: sprintf( '追加料金 %s', $r->code );
+		if ( $note ) $name .= ( 'en' === $lang ) ? ' (' . $note . ')' : '（' . $note . '）';
+		/* Squareの商品名は上限があるため、長い理由は切り詰める */
+		if ( function_exists( 'mb_substr' ) && mb_strlen( $name ) > 120 ) $name = mb_substr( $name, 0, 119 ) . '…';
+
+		$body = array(
+			'idempotency_key' => 'bvrm-add-' . $r->code . '-' . time(),
+			'quick_pay' => array(
+				'name'        => $name,
+				'price_money' => array( 'amount' => $amount, 'currency' => 'JPY' ),
+				'location_id' => $location_id,
+			),
+			'payment_note' => $r->code . '-ADDON',
+			'checkout_options' => array( 'redirect_url' => add_query_arg( array( 'bv_manage' => $r->code, 'addon_paid' => 1, 'lang' => $lang, 'store' => $r->store ), home_url( '/' ) ) ),
+		);
+		$json = self::request( 'POST', '/v2/online-checkout/payment-links', $body );
+		if ( is_wp_error( $json ) ) return $json;
+		return array(
+			'url'      => self::pick_url( $json ),
+			'order_id' => isset( $json['payment_link']['order_id'] ) ? $json['payment_link']['order_id'] : '',
+		);
+	}
+
+	/**
+	 * 追加請求の入金を記録する
+	 * 収納済み額に足し込むことで、差額（BV_Util::balance）が0に戻る。
+	 * @return string 処理結果メッセージ
+	 */
+	public static function mark_addon_paid( $r, $payment_id = '', $manual_label = '' ) {
+		if ( 'paid' === $r->addon_status ) return '追加請求はすでに入金済みです（' . $r->code . '）';
+		$amount = (int) $r->addon_amount;
+		if ( $amount < 1 ) return '追加請求の金額が設定されていません（' . $r->code . '）';
+
+		$memo = trim( (string) $r->admin_memo );
+		$memo .= ( $memo ? "\n" : '' ) . '[追加請求の入金 ' . current_time( 'Y-m-d H:i' ) . ( $manual_label ? '・' . $manual_label : '' ) . '] '
+			. BV_Util::money( $amount )
+			. ( $r->addon_note ? '／' . $r->addon_note : '' );
+
+		BV_DB::update_reservation( $r->id, array(
+			'addon_status'     => 'paid',
+			'addon_payment_id' => $payment_id,
+			'addon_paid_at'    => current_time( 'mysql' ),
+			'paid_amount'      => (int) $r->paid_amount + $amount,
+			'admin_memo'       => $memo,
+			/* 追加請求だけ支払われて本体が未払いということはないが、念のため確定にする */
+			'status'           => ( 'pending' === $r->status ) ? 'confirmed' : $r->status,
+			'paid_at'          => $r->paid_at ? $r->paid_at : current_time( 'mysql' ),
+		) );
+		$fresh = BV_DB::get_reservation( $r->id );
+		BV_Mailer::send_addon_paid( $fresh );
+		return '追加請求の入金を確認しました（' . $r->code . '・' . BV_Util::money( $amount ) . '）';
+	}
+
 	/** Squareに登録されているWebhook購読の一覧（診断用） */
 	public static function list_webhook_subscriptions() {
 		$json = self::request( 'GET', '/v2/webhooks/subscriptions?include_disabled=true' );
@@ -163,7 +236,9 @@ class BV_Square {
 	 * @return string 処理結果メッセージ or WP_Error
 	 */
 	public static function sync_payment_status( $r, $target = 'car' ) {
-		$order_id = ( 'shuttle' === $target ) ? $r->shuttle_order_id : $r->square_order_id;
+		if ( 'shuttle' === $target )      $order_id = $r->shuttle_order_id;
+		elseif ( 'addon' === $target )    $order_id = $r->addon_order_id;
+		else                              $order_id = $r->square_order_id;
 		if ( empty( $order_id ) ) return new WP_Error( 'no_order', '注文IDが記録されていないため確認できません。決済リンクを再生成してください。' );
 
 		$json = self::request( 'GET', '/v2/orders/' . rawurlencode( $order_id ) );
@@ -179,6 +254,11 @@ class BV_Square {
 
 		if ( ! $paid ) return 'Square上ではまだ支払いが完了していません（状態: ' . ( $state ?: '不明' ) . '）。';
 
+		if ( 'addon' === $target ) {
+			if ( 'paid' === $r->addon_status ) return 'すでに追加請求の入金を記録済みです。';
+			return self::mark_addon_paid( $r, $payment_id );
+		}
+
 		if ( 'shuttle' === $target ) {
 			if ( 'paid' === $r->shuttle_status ) return 'すでに送迎確定済みです。';
 			BV_DB::update_reservation( $r->id, array(
@@ -191,6 +271,7 @@ class BV_Square {
 		if ( $r->paid_at ) return 'すでに支払済みとして記録されています。';
 		BV_DB::update_reservation( $r->id, array(
 			'status' => 'confirmed', 'square_payment_id' => $payment_id, 'paid_at' => current_time( 'mysql' ),
+			'paid_amount' => (int) $r->price_total, /* 差額の追加請求はこの額を基準に判定する */
 		) );
 		BV_Mailer::send_paid( BV_DB::get_reservation( $r->id ) );
 		return '支払いを確認し、予約を確定にしました（確定メールを送信）。';
@@ -217,6 +298,21 @@ class BV_Square {
 		foreach ( $rows as $r ) {
 			$res = self::sync_payment_status( $r, 'car' );
 			if ( ! is_wp_error( $res ) && false !== strpos( $res, '確定' ) ) {
+				$results[] = $r->code . '：' . $res;
+			}
+		}
+
+		/* 追加請求が未入金のもの */
+		$rows = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM {$t}
+			 WHERE addon_status = 'quoted' AND addon_order_id != '' AND status != 'cancelled'
+			 AND created_at >= DATE_SUB(%s, INTERVAL 90 DAY)
+			 ORDER BY id DESC LIMIT %d",
+			current_time( 'mysql' ), $limit
+		) );
+		foreach ( $rows as $r ) {
+			$res = self::sync_payment_status( $r, 'addon' );
+			if ( ! is_wp_error( $res ) && false !== strpos( $res, '確認' ) ) {
 				$results[] = $r->code . '：' . $res;
 			}
 		}
@@ -253,7 +349,9 @@ class BV_Square {
 			$amount = ( 'half' === $mode ) ? (int) floor( $r->price_total / 2 ) : (int) $r->price_total;
 		}
 		$already = (int) $r->refund_amount;
-		$max = max( 0, (int) $r->price_total - $already );
+		/* 返金できるのは実際に収納した額まで。金額を変更した予約でも収納額を超えて返金しない */
+		$collected = (int) $r->paid_amount ?: (int) $r->price_total;
+		$max = max( 0, $collected - $already );
 		if ( $amount > $max ) $amount = $max;
 		if ( $amount < 1 ) return new WP_Error( 'no_amount', '返金できる金額がありません（すでに返金済みの可能性があります）。' );
 		$json = self::request( 'POST', '/v2/refunds', array(
@@ -444,8 +542,8 @@ class BV_Square {
 		}
 
 		$text = implode( ' ', $haystack );
-		if ( preg_match( '/(BV\d{6}[A-Z0-9]{4})(-SHUTTLE)?/i', $text, $m ) ) {
-			return strtoupper( $m[1] ) . ( ! empty( $m[2] ) ? '-SHUTTLE' : '' );
+		if ( preg_match( '/(BV\d{6}[A-Z0-9]{4})(-SHUTTLE|-ADDON)?/i', $text, $m ) ) {
+			return strtoupper( $m[1] ) . ( ! empty( $m[2] ) ? strtoupper( $m[2] ) : '' );
 		}
 		return '';
 	}
@@ -465,6 +563,18 @@ class BV_Square {
 		global $wpdb;
 		$t = BV_DB::table( 'reservations' );
 		$note = isset( $payment['note'] ) ? trim( $payment['note'] ) : '';
+
+		/* --- 追加請求（差額）の決済か判定 --- */
+		$addon_r = null;
+		if ( ! empty( $payment['order_id'] ) ) {
+			$addon_r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE addon_order_id = %s", $payment['order_id'] ) );
+		}
+		if ( ! $addon_r && $note && '-ADDON' === substr( $note, -6 ) ) {
+			$addon_r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", substr( $note, 0, -6 ) ) );
+		}
+		if ( $addon_r ) {
+			return self::mark_addon_paid( $addon_r, $payment['id'] );
+		}
 
 		/* --- 送迎料金の決済か判定 --- */
 		$shuttle_r = null;
@@ -499,6 +609,13 @@ class BV_Square {
 		/* フォールバック：Squareから注文を取得し、明細名などから予約番号を抽出して照合 */
 		if ( ! $r && ! empty( $payment['order_id'] ) ) {
 			$found = self::find_code_from_order( $payment['order_id'] );
+			if ( $found && '-ADDON' === substr( $found, -6 ) ) {
+				$cand = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE code = %s", substr( $found, 0, -6 ) ) );
+				if ( $cand ) {
+					BV_DB::update_reservation( $cand->id, array( 'addon_order_id' => $payment['order_id'] ) );
+					return self::mark_addon_paid( BV_DB::get_reservation( $cand->id ), $payment['id'] );
+				}
+			}
 			if ( $found ) {
 				$is_shuttle = ( '-SHUTTLE' === substr( $found, -8 ) );
 				$code = $is_shuttle ? substr( $found, 0, -8 ) : $found;
@@ -529,6 +646,7 @@ class BV_Square {
 			'status'            => 'confirmed',
 			'square_payment_id' => $payment['id'],
 			'paid_at'           => current_time( 'mysql' ),
+			'paid_amount'       => (int) $r->price_total,
 		) );
 		$r = BV_DB::get_reservation( $r->id );
 		BV_Mailer::send_paid( $r );

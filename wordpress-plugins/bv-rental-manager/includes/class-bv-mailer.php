@@ -178,6 +178,26 @@ class BV_Mailer {
 				'subject' => '[{company}] Here is your coupon ({coupon_code})',
 				'body'    => "Dear {name},\n\nThank you for taking the time to review us.\nHere is your coupon for your next rental.\n\n==============================\n  Coupon code: {coupon_code}\n  Discount: {coupon_amount}\n  Valid until: {coupon_expires}\n==============================\n\nEnter this code in the coupon field when you book.\nValid at any of our branches (one use per customer).\n\nWe look forward to welcoming you again.\n\n{company}",
 			),
+			'addon_request_ja' => array(
+				'subject' => '【{company}】ご予約内容の変更にともなう追加料金のお知らせ（予約番号 {code}）',
+				'body'    => "{name} 様\n\nいつもお世話になっております。{company}です。\nご予約内容の変更にともない、差額のお支払いをお願いいたします。\n\n────────────────────\n■ 変更後のご予約内容\n────────────────────\n予約番号：{code}\n貸出日時：{pickup}\n返却日時：{return}\n車種：{class}\n追加補償：{coverage}\n\n{breakdown}\n\n変更後の合計：{total}\nお支払い済み：{paid_amount}\n────────────────────\n追加のお支払い：{addon_amount}\n────────────────────\n{addon_reason}\n\n▼ 差額のお支払いはこちら\n{addon_link}\n\n※お支払いいただくのは差額のみです。すでにお支払いいただいた分を重ねて請求することはありません。\n※このお手続きが完了した時点で、変更後の内容が確定となります。\n\nご予約内容の確認は、以下のページからお手続きいただけます。\n{manage_link}\n\nご不明な点がございましたら、このメールにご返信ください。\n\n{company}",
+			),
+			'addon_request_en' => array(
+				'subject' => '[{company}] Additional payment required for your reservation (Ref: {code})',
+				'body'    => "Dear {name},\n\nThank you for booking with {company}.\nFollowing the change to your reservation, an additional payment is required.\n\n--------------------------------------\n[ Updated reservation ]\n--------------------------------------\nReference: {code}\nPick-up: {pickup}\nReturn: {return}\nVehicle class: {class}\nCoverage: {coverage}\n\n{breakdown}\n\nUpdated total: {total}\nAlready paid: {paid_amount}\n--------------------------------------\nAmount due now: {addon_amount}\n--------------------------------------\n{addon_reason}\n\n> Pay the difference here\n{addon_link}\n\n* You are only charged the difference. We never re-charge what you have already paid.\n* Your updated reservation is confirmed once this payment is completed.\n\nYou can review your reservation here:\n{manage_link}\n\nIf you have any questions, simply reply to this email.\n\n{company}",
+			),
+			'addon_paid_ja' => array(
+				'subject' => '【{company}】追加料金のお支払いを確認しました（予約番号 {code}）',
+				'body'    => "{name} 様\n\n追加料金のお支払いを確認いたしました。ありがとうございます。\nご予約内容は下記のとおり確定しております。\n\n────────────────────\n予約番号：{code}\n貸出日時：{pickup}\n返却日時：{return}\n車種：{class}\n追加補償：{coverage}\nご来店場所：{store_access}\n\n{breakdown}\n\n合計：{total}\nお支払い済み：{paid_amount}\n────────────────────\n\nご予約内容の確認は、以下のページからお手続きいただけます。\n{manage_link}\n\n{name}様のお越しを心よりお待ちしております。\n\n{company}",
+			),
+			'addon_paid_en' => array(
+				'subject' => '[{company}] Additional payment received (Ref: {code})',
+				'body'    => "Dear {name},\n\nWe have received your additional payment. Thank you.\nYour reservation is now confirmed as below.\n\n--------------------------------------\nReference: {code}\nPick-up: {pickup}\nReturn: {return}\nVehicle class: {class}\nCoverage: {coverage}\nPick-up location: {store_access}\n\n{breakdown}\n\nTotal: {total}\nPaid: {paid_amount}\n--------------------------------------\n\nYou can review your reservation here:\n{manage_link}\n\nWe look forward to welcoming you.\n\n{company}",
+			),
+			'admin_addon_paid_ja' => array(
+				'subject' => '【追加料金の入金】{store} {code} {name}様 {addon_amount}',
+				'body'    => "追加料金のお支払いがありました。\n\n予約番号：{code}\n店舗：{store}\nお名前：{name}様\n貸出：{pickup}\n返却：{return}\n\n追加請求額：{addon_amount}\n理由：{addon_reason}\n\n変更後の合計：{total}\n収納済み：{paid_amount}\n過不足：{balance_text}\n\n管理画面：{admin_link}",
+			),
 		);
 	}
 
@@ -327,6 +347,12 @@ class BV_Mailer {
 			'lang' => ( 'en' === $lang ) ? '英語' : '日本語',
 			'request' => '', 'admin_link' => admin_url(),
 			'company' => $company, 'company_legal' => $s['company_name'],
+			/* 追加請求メール用 */
+			'addon_amount'  => BV_Util::money( 8800, $lang ),
+			'addon_link'    => 'https://square.link/u/SAMPLE',
+			'addon_reason'  => ( 'en' === $lang ) ? 'Return date extended by 1 day' : '返却日を1日延長',
+			'paid_amount'   => BV_Util::money( 30000, $lang ),
+			'balance_text'  => ( 'en' === $lang ) ? 'None' : 'なし',
 			/* 返却後のお礼・口コミ依頼メール用 */
 			'review_link'    => BV_Util::store_review_url( $store ) ?: 'https://g.page/r/SAMPLE/review',
 			'coupon_link'    => home_url( '/?bv_review=SAMPLE' ),
@@ -535,6 +561,62 @@ class BV_Mailer {
 		$av['request']  = $r->request_note ? $r->request_note : 'なし';
 
 		$m2 = self::render( self::get_template( 'admin_paid_ja' ), $av );
+		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
+		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
+	}
+
+	/* ---------- 追加請求（差額） ---------- */
+
+	/** 追加請求まわりのプレースホルダー */
+	protected static function addon_vars( $r ) {
+		$lang = ( 'en' === $r->lang ) ? 'en' : 'ja';
+		$vars = self::reservation_vars( $r );
+		$bal  = BV_Util::balance( $r );
+
+		$vars['addon_amount'] = BV_Util::money( (int) $r->addon_amount, $lang );
+		$vars['addon_link']   = (string) $r->addon_link;
+		$vars['addon_reason'] = trim( (string) $r->addon_note );
+		$vars['paid_amount']  = BV_Util::money( BV_Util::paid_net( $r ), $lang );
+		$vars['balance_text'] = ( 0 === $bal )
+			? ( ( 'en' === $lang ) ? 'None' : 'なし' )
+			: ( $bal > 0
+				? ( ( 'en' === $lang ) ? BV_Util::money( $bal, 'en' ) . ' to collect' : BV_Util::money( $bal ) . ' の未収' )
+				: ( ( 'en' === $lang ) ? BV_Util::money( -$bal, 'en' ) . ' to refund' : BV_Util::money( -$bal ) . ' の返金' ) );
+		return $vars;
+	}
+
+	/** 追加料金のお支払いのお願い（お客様） */
+	public static function send_addon_request( $r ) {
+		$vars = self::addon_vars( $r );
+		$m = self::render( self::get_template( 'addon_request_' . $r->lang ), $vars );
+		self::send( $r->email, $m['subject'], $m['body'], '', $r->store );
+	}
+
+	/** 追加料金の入金確認（お客様＋管理者・スタッフ） */
+	public static function send_addon_paid( $r ) {
+		$s = BV_Util::settings();
+		$vars = self::addon_vars( $r );
+		if ( is_email( $r->email ) ) {
+			$m = self::render( self::get_template( 'addon_paid_' . $r->lang ), $vars );
+			self::send( $r->email, $m['subject'], $m['body'], '', $r->store );
+		}
+
+		/* 管理者・スタッフへの通知（返信先＝お客様） */
+		$av = $vars;
+		$av['store']  = BV_Util::label( BV_Util::stores(), $r->store, 'ja' );
+		$av['class']  = BV_Util::label( BV_Util::classes(), $r->vehicle_class, 'ja' );
+		$av['name']   = trim( $r->sei . ' ' . $r->mei );
+		$av['pickup'] = BV_Util::format_dt( $r->pickup_dt, 'ja' );
+		$av['return'] = BV_Util::format_dt( $r->return_dt, 'ja' );
+		$av['total']  = BV_Util::money( (int) $r->price_total );
+		$av['addon_amount'] = BV_Util::money( (int) $r->addon_amount );
+		$av['paid_amount']  = BV_Util::money( BV_Util::paid_net( $r ) );
+		$av['addon_reason'] = trim( (string) $r->addon_note ) ?: 'なし';
+		$bal = BV_Util::balance( $r );
+		$av['balance_text'] = ( 0 === $bal ) ? 'なし'
+			: ( $bal > 0 ? BV_Util::money( $bal ) . ' の未収' : BV_Util::money( -$bal ) . ' の返金' );
+
+		$m2 = self::render( self::get_template( 'admin_addon_paid_ja' ), $av );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
 		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
 	}

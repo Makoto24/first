@@ -716,9 +716,10 @@ class BV_Staff_Portal {
 					. BV_Util::money( (int) $r->price_total )
 					. ( ! empty( $P['cash_note'] ) ? '（' . sanitize_text_field( $P['cash_note'] ) . '）' : '' );
 				BV_DB::update_reservation( $id, array(
-					'paid_at'    => current_time( 'mysql' ),
-					'status'     => ( 'pending' === $r->status ) ? 'confirmed' : $r->status,
-					'admin_memo' => $memo,
+					'paid_at'     => current_time( 'mysql' ),
+					'status'      => ( 'pending' === $r->status ) ? 'confirmed' : $r->status,
+					'admin_memo'  => $memo,
+					'paid_amount' => (int) $r->price_total,
 				) );
 				$r = BV_DB::get_reservation( $id );
 				if ( ! empty( $P['notify_customer'] ) && $r->email ) BV_Mailer::send_paid( $r );

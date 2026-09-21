@@ -113,6 +113,12 @@ class BV_Print {
 
 			/* 送迎料金は支払済みの場合のみ合算する */
 			$car_incl = (int) $r->price_total;
+			/*
+			 * 金額の変更後、差額が未入金の場合は実際に収納した額で発行する。
+			 * 領収書は受領した金額を証するものなので、請求中の差額は含めない。
+			 */
+			$unpaid_diff = ( $r->paid_at && BV_Util::balance( $r ) > 0 ) ? BV_Util::balance( $r ) : 0;
+			if ( $unpaid_diff > 0 ) $car_incl = BV_Util::paid_net( $r );
 			$shuttle_incl = ( $r->shuttle_paid_at && (int) $r->shuttle_fee > 0 ) ? (int) $r->shuttle_fee : 0;
 			$total_incl = $car_incl + $shuttle_incl;
 
@@ -203,6 +209,12 @@ class BV_Print {
 				$pay_lines[] = $L( '車両料金：クレジットカード（Square）', 'Car rental: credit card (Square)' ) . ' ' . date( 'Y-m-d H:i', strtotime( $r->paid_at ) );
 			} else {
 				$pay_lines[] = $L( '車両料金：未収', 'Car rental: unpaid' );
+			}
+			if ( $r->addon_paid_at && (int) $r->addon_amount > 0 && 'paid' === $r->addon_status ) {
+				$pay_lines[] = $L( '追加料金：クレジットカード（Square）', 'Additional charge: credit card (Square)' ) . ' ' . date( 'Y-m-d H:i', strtotime( $r->addon_paid_at ) );
+			}
+			if ( $unpaid_diff > 0 ) {
+				$pay_lines[] = $L( '差額 ', 'Balance ' ) . BV_Util::money( $unpaid_diff, $lang ) . $L( '：未収（本領収書には含みません）', ': unpaid (not included in this receipt)' );
 			}
 			if ( 'none' !== $r->shuttle && (int) $r->shuttle_fee > 0 ) {
 				$pay_lines[] = $r->shuttle_paid_at
