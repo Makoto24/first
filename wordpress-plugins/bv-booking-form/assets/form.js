@@ -11,7 +11,7 @@
 			cls: '車両クラス', store: '店舗', pickup: '貸出日時', ret: '返却日時',
 			ageNote: '<strong>%n歳未満の方はご利用いただけません。</strong>保険および各種補償は%n歳以上の運転者にのみ適用されるため、%n歳未満の方への貸渡はお断りしています。運転される方全員が%n歳以上であることをご確認ください。',
 			ageTooYoung: '貸出日の時点で%n歳未満のため、ご予約を承ることができません。保険および各種補償が%n歳以上の運転者にのみ適用されるためです。',
-			covNoCap: '<strong>1日あたりの上限が適用されるのは基本料金（時間料金）のみです。</strong>追加補償B・Cの料金に上限はなく、ご利用時間分（1時間単位・端数切り上げ）がそのまま加算されます。',
+			covNoCap: '<strong>24時間ごとの上限が適用されるのは基本料金（時間料金）のみです。</strong>追加補償の料金に上限はなく、ご利用時間分（1時間単位・端数切り上げ）がそのまま加算されます。',
 			date: '日付', time: '時刻', check: '空き状況を確認する', checking: '確認中…',
 			available: '空きがあります！', estimate: '概算料金', days: '日数',
 			proceed: 'この条件で仮予約へ進む',
@@ -89,14 +89,15 @@
 			tooFar: 'ご予約は%d日先までとなります',
 			hours: '時間数', perHour: '/時間',
 			hourlyNote: '※この店舗は<strong>時間貸し</strong>です（1時間単位・端数切り上げ）。貸出・返却とも営業時間内（%o〜%c）にお願いします。装備オプションは1日単位です。',
-			hourlyRate: '時間料金：%p/時間'
+			hourlyRate: '時間料金：%p/時間',
+			hourlyCap: '24時間ごとに上限 %p が適用されます。24時間を超えた分は、超過した時間数だけ時間料金で加算します（例：25時間なら24時間分の上限額＋1時間分）。'
 		},
 		en: {
 			step1: '1. Check Availability', step2: '2. Options & Price', step3: '3. Your Details', done: 'Reservation Complete',
 			cls: 'Vehicle class', store: 'Branch', pickup: 'Pick-up', ret: 'Return',
 			ageNote: '<strong>Drivers under %n cannot rent from us.</strong> Insurance and all coverage apply only to drivers aged %n and over, so we are unable to rent to anyone under %n. Please make sure every driver is %n or older.',
 			ageTooYoung: 'You will be under %n years old on the pick-up date, so we are unable to accept this booking. Insurance and coverage apply only to drivers aged %n and over.',
-			covNoCap: '<strong>The daily cap applies to the base hourly rate only.</strong> There is no cap on optional coverage B or C — it is charged for every hour of the rental (per hour, rounded up).',
+			covNoCap: '<strong>The 24-hour cap applies to the base hourly rate only.</strong> There is no cap on optional coverage — it is charged for every hour of the rental (per hour, rounded up).',
 			date: 'Date', time: 'Time', check: 'Check availability', checking: 'Checking…',
 			available: 'Available!', estimate: 'Estimated price', days: 'Days',
 			proceed: 'Continue with these conditions',
@@ -174,7 +175,8 @@
 			tooFar: 'Bookings can be made up to %d days in advance',
 			hours: 'Hours', perHour: '/hour',
 			hourlyNote: '* This branch offers <strong>hourly rentals</strong> (charged per hour, rounded up). Pick-up and return must be within business hours (%o-%c). Equipment options are charged per day.',
-			hourlyRate: 'Hourly rate: %p/hour'
+			hourlyRate: 'Hourly rate: %p/hour',
+			hourlyCap: 'A cap of %p applies per 24 hours. Beyond 24 hours, only the extra hours are charged at the hourly rate (e.g. 25 hours = the 24-hour cap + 1 hour).'
 		}
 	}[LANG];
 
@@ -593,7 +595,11 @@
 		var h = '<div class="bvbf-card"><h3>' + T.step1 + '</h3>' + (msg || '');
 		if (hourly) {
 			var hr = (c.hourly_rates && c.hourly_rates[s.vehicle_class]) ? c.hourly_rates[s.vehicle_class] : 0;
-			h += '<p class="bvbf-note" style="background:#fff8e5;border:1px solid #e0b900;color:#6b5200;padding:8px 10px;border-radius:6px">' + T.hourlyNote.replace('%o', si.open).replace('%c', si.close) + (hr ? '<br>' + T.hourlyRate.replace('%p', money(hr)) : '') + '</p>';
+			var dcap = (c.hourly_rates && c.hourly_rates.day_cap) ? +c.hourly_rates.day_cap : 0;
+			h += '<p class="bvbf-note" style="background:#fff8e5;border:1px solid #e0b900;color:#6b5200;padding:8px 10px;border-radius:6px">'
+				+ T.hourlyNote.replace('%o', si.open).replace('%c', si.close)
+				+ (hr ? '<br>' + T.hourlyRate.replace('%p', money(hr)) : '')
+				+ (dcap > 0 ? '<br>' + T.hourlyCap.replace('%p', money(dcap)) : '') + '</p>';
 		}
 		h += '<label>' + T.cls + '</label><select id="bv-class">';
 		si.classes.forEach(function (k) {
@@ -834,8 +840,8 @@
 		if (isHourly()) {
 			var capTxt = T.covNoCap;
 			var dc = (c.hourly_rates && c.hourly_rates.day_cap) ? +c.hourly_rates.day_cap : 0;
-			if (dc > 0) capTxt = capTxt.replace(LANG === 'en' ? 'The daily cap' : '1日あたりの上限',
-				(LANG === 'en' ? 'The daily cap (' + money(dc) + ')' : '1日あたりの上限（' + money(dc) + '）'));
+			if (dc > 0) capTxt = capTxt.replace(LANG === 'en' ? 'The 24-hour cap' : '24時間ごとの上限',
+				(LANG === 'en' ? 'The 24-hour cap (' + money(dc) + ')' : '24時間ごとの上限（' + money(dc) + '）'));
 			h += '<p class="bvbf-note" style="background:#fff8e5;border:1px solid #e0b900;color:#6b5200;padding:8px 10px;border-radius:6px">' + capTxt + '</p>';
 		}
 		/* 送迎を扱わない店舗では選択欄そのものを出さない */

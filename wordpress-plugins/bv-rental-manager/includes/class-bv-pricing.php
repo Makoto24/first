@@ -326,15 +326,51 @@ class BV_Pricing {
 		if ( $unit < 1 ) {
 			return new WP_Error( 'bad_class', ( 'en' === $lang ) ? 'Hourly rate is not set for this class.' : 'このクラスの時間料金が設定されていません。' );
 		}
-		$base = $unit * $hours;
-		$cap  = (int) $s['hourly_day_cap'];
-		$capped = false;
-		if ( $cap > 0 && $base > $cap * $days ) { $base = $cap * $days; $capped = true; }
+		/*
+		 * 上限は「24時間ごと」に適用する。
+		 * 24時間に満たない端数は、そのぶんだけ時間料金で加算する（端数にも上限はかかる）。
+		 * 例：1時間2,200円・上限11,000円で25時間 → 11,000円（24時間分）＋2,200円（1時間分）
+		 */
+		$cap        = (int) $s['hourly_day_cap'];
+		$full_days  = intdiv( $hours, 24 );   /* まるまる24時間のブロック数 */
+		$rem_hours  = $hours % 24;            /* 端数の時間 */
+
+		$day_amount = $unit * 24;
+		if ( $cap > 0 && $day_amount > $cap ) $day_amount = $cap;
+		$rem_amount = $unit * $rem_hours;
+		if ( $cap > 0 && $rem_amount > $cap ) $rem_amount = $cap;
+
+		$base = $full_days * $day_amount + $rem_amount;
+
+		/*
+		 * 内訳が分かるように、24時間分と端数を書き分ける。
+		 * 端数は「単価 × 時間数」で書き、上限にかかった場合だけ上限額を添える
+		 * （上限額を単価のように見せないため）。
+		 */
+		$rem_text = ( 'en' === $lang )
+			? sprintf( '%s × %d hour(s)', BV_Util::money( $unit, 'en' ), $rem_hours )
+			: sprintf( '%s × %d時間', BV_Util::money( $unit ), $rem_hours );
+		if ( $cap > 0 && $unit * $rem_hours > $cap ) {
+			$rem_text .= ( 'en' === $lang )
+				? sprintf( ' (capped at %s)', BV_Util::money( $cap, 'en' ) )
+				: sprintf( '（上限 %s）', BV_Util::money( $cap ) );
+		}
+		$day_text = ( 'en' === $lang )
+			? sprintf( '%s × %d day(s) of 24h', BV_Util::money( $day_amount, 'en' ), $full_days )
+			: sprintf( '%s × %d日（24時間分）', BV_Util::money( $day_amount ), $full_days );
+
+		if ( $full_days > 0 && $rem_hours > 0 ) {
+			$label = ( 'en' === $lang )
+				? 'Hourly rate: ' . $day_text . ' + ' . $rem_text
+				: '時間料金：' . $day_text . '＋ ' . $rem_text;
+		} elseif ( $full_days > 0 ) {
+			$label = ( 'en' === $lang ) ? 'Hourly rate: ' . $day_text : '時間料金：' . $day_text;
+		} else {
+			$label = ( 'en' === $lang ) ? 'Hourly rate: ' . $rem_text : '時間料金：' . $rem_text;
+		}
 		$lines[] = array(
 			'key'   => 'base_hourly',
-			'label' => ( 'en' === $lang )
-				? sprintf( 'Hourly rate: %s × %d hour(s)', BV_Util::money( $unit, 'en' ), $hours ) . ( $capped ? ' (daily cap applied)' : '' )
-				: sprintf( '時間料金：%s × %d時間', BV_Util::money( $unit ), $hours ) . ( $capped ? '（1日上限を適用）' : '' ),
+			'label' => $label,
 			'amount'=> $base,
 		);
 

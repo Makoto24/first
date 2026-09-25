@@ -571,7 +571,7 @@ class BV_Util {
 			'hourly_rate_suv'     => 0,     'hourly_rate_minivan' => 0,
 			'hourly_cov_b'        => 550,   /* 補償B／時間 */
 			'hourly_cov_c'        => 1100,  /* 補償C／時間 */
-			'hourly_day_cap'      => 0,     /* 1日あたりの上限額（0＝上限なし） */
+			'hourly_day_cap'      => 0,     /* 24時間ごとの上限額（0＝上限なし） */
 			/* 学割（グリーンシーズン） */
 			'rate_student_green_kei'     => 4400,  'rate_student_green_compact' => 6600,
 			'rate_student_green_suv'     => 9900,  'rate_student_green_minivan' => 9900,

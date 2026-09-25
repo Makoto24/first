@@ -988,7 +988,9 @@ class BV_Admin_Pages {
 		}
 		echo '<tr><td>補償オプションB</td><td><input type="number" name="hourly_cov_b" value="' . (int) $s['hourly_cov_b'] . '" style="width:110px" min="0"> 円／時間</td></tr>';
 		echo '<tr><td>補償オプションC</td><td><input type="number" name="hourly_cov_c" value="' . (int) $s['hourly_cov_c'] . '" style="width:110px" min="0"> 円／時間</td></tr>';
-		echo '<tr><td>1日あたりの上限額</td><td><input type="number" name="hourly_day_cap" value="' . (int) $s['hourly_day_cap'] . '" style="width:110px" min="0"> 円（0＝上限なし。例：22,000にすると10時間以上借りても1日22,000円で頭打ち）</td></tr>';
+		echo '<tr><td>24時間ごとの上限額</td><td><input type="number" name="hourly_day_cap" value="' . (int) $s['hourly_day_cap'] . '" style="width:110px" min="0"> 円（0＝上限なし）';
+		echo '<p class="description">24時間ごとに上限をかけ、24時間を超えた分は超過した時間数だけ時間料金で加算します。端数の時間にも同じ上限がかかります。<br>'
+			. '例：1時間2,200円・上限11,000円のとき　10時間＝11,000円（上限）／24時間＝11,000円／<strong>25時間＝13,200円（11,000円＋2,200円）</strong>／48時間＝22,000円</p></td></tr>';
 		echo '</tbody></table>';
 		echo '<p class="description">時間貸し店舗では、車両料金と補償オプションを<strong>1時間単位（端数切り上げ）</strong>で計算します。装備オプション（チャイルドシート・ジュニアシート・スキーキャリア等）は他店と同じく<strong>1日単位</strong>です。学割・長期割引・月額料金は適用しません。</p>';
 
