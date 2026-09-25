@@ -838,9 +838,10 @@ class BV_Staff_Portal {
 				'phone'      => sanitize_text_field( $P['phone'] ),
 				'email'      => sanitize_email( $P['email'] ?? '' ),
 				'address'    => sanitize_textarea_field( $P['address'] ?? '' ),
-				'coverage'   => strtoupper( sanitize_text_field( $P['coverage'] ?? $r->coverage ) ),
+				/* その店舗で扱わない補償・学割は寄せる（料金計算と食い違わないように） */
+				'coverage'   => BV_Util::store_coverage_or_default( $r->store, $P['coverage'] ?? $r->coverage ),
 
-				'is_student' => ! empty( $P['is_student'] ) ? 1 : 0,
+				'is_student' => ( ! empty( $P['is_student'] ) && BV_Util::store_allows_student( $r->store ) ) ? 1 : 0,
 				'manual_discount' => isset( $P['manual_discount'] ) ? (int) $P['manual_discount'] : (int) $r->manual_discount,
 				'manual_discount_note' => isset( $P['manual_discount_note'] ) ? sanitize_text_field( $P['manual_discount_note'] ) : $r->manual_discount_note,
 				'request_note' => sanitize_textarea_field( $P['request_note'] ?? $r->request_note ),
@@ -1098,7 +1099,12 @@ class BV_Staff_Portal {
 		/* 料金に関わる項目 */
 		echo '<h4 style="margin:18px 0 4px;font-size:14px">オプション・料金</h4>';
 		echo '<label>補償</label><select name="coverage">';
-		foreach ( BV_Util::coverages() as $ck => $cv ) {
+		$cov_list = BV_Util::store_coverages( $r->store );
+		if ( $r->coverage && ! isset( $cov_list[ $r->coverage ] ) ) {
+			$all_cov = BV_Util::coverages();
+			if ( isset( $all_cov[ $r->coverage ] ) ) $cov_list[ $r->coverage ] = $all_cov[ $r->coverage ];
+		}
+		foreach ( $cov_list as $ck => $cv ) {
 			echo '<option value="' . esc_attr( $ck ) . '"' . selected( $r->coverage, $ck, false ) . '>' . esc_html( $cv['ja'] ) . '</option>';
 		}
 		echo '</select>';
@@ -1179,14 +1185,17 @@ class BV_Staff_Portal {
 			$pickup = sanitize_text_field( $P['pickup_date'] ) . ' ' . sanitize_text_field( $P['pickup_time'] ) . ':00';
 			$return = sanitize_text_field( $P['return_date'] ) . ' ' . sanitize_text_field( $P['return_time'] ) . ':00';
 			$class  = sanitize_key( $P['vehicle_class'] );
-			$shuttle = sanitize_key( $P['shuttle'] ?? 'none' );
+			$add_store = sanitize_key( $P['store'] ?? '' );
+			$shuttle = BV_Util::store_allows_shuttle( $add_store ) ? sanitize_key( $P['shuttle'] ?? 'none' ) : 'none';
 			if ( ! isset( BV_Util::shuttles()[ $shuttle ] ) ) $shuttle = 'none';
-			$shuttle_detail = sanitize_textarea_field( $P['shuttle_detail'] ?? '' );
+			$shuttle_detail = ( 'none' === $shuttle ) ? '' : sanitize_textarea_field( $P['shuttle_detail'] ?? '' );
+			$add_coverage = BV_Util::store_coverage_or_default( $add_store, $P['coverage'] ?? 'A' );
+			$add_student  = ! empty( $P['is_student'] ) && BV_Util::store_allows_student( $add_store );
 
 			$q_args = array(
 				'vehicle_class' => $class, 'pickup_dt' => $pickup, 'return_dt' => $return,
-				'coverage' => sanitize_text_field( $P['coverage'] ), 'shuttle' => $shuttle,
-				'is_student' => ! empty( $P['is_student'] ),
+				'coverage' => $add_coverage, 'shuttle' => $shuttle,
+				'is_student' => $add_student,
 				'coupon_code' => sanitize_text_field( $P['coupon_code'] ?? '' ), 'lang' => 'ja',
 				'manual_discount' => (int) ( $P['manual_discount'] ?? 0 ),
 				'manual_discount_note' => sanitize_text_field( $P['manual_discount_note'] ?? '' ),
@@ -1210,14 +1219,14 @@ class BV_Staff_Portal {
 					'pickup_dt' => $pickup, 'return_dt' => $return,
 					'sei' => sanitize_text_field( $P['sei'] ), 'mei' => sanitize_text_field( $P['mei'] ),
 					'email' => sanitize_email( $P['email'] ), 'phone' => sanitize_text_field( $P['phone'] ),
-					'coverage' => strtoupper( sanitize_text_field( $P['coverage'] ) ),
+					'coverage' => $add_coverage,
 					'shuttle' => $shuttle,
 					'shuttle_detail' => $shuttle_detail,
 					'shuttle_status' => ( 'none' === $shuttle ) ? 'none' : 'requested',
 					'coupon_code' => sanitize_text_field( $P['coupon_code'] ?? '' ),
 					'manual_discount' => (int) ( $P['manual_discount'] ?? 0 ),
 					'manual_discount_note' => sanitize_text_field( $P['manual_discount_note'] ?? '' ),
-					'is_student' => ! empty( $P['is_student'] ) ? 1 : 0,
+					'is_student' => $add_student ? 1 : 0,
 					'payment_method' => ( isset( BV_Util::payment_methods()[ $P['payment_method'] ?? '' ] ) ) ? sanitize_key( $P['payment_method'] ) : 'square',
 					'request_note' => sanitize_textarea_field( $P['request_note'] ),
 					'price_breakdown' => wp_json_encode( $quote ), 'price_total' => (int) $quote['total'],
@@ -1265,7 +1274,9 @@ class BV_Staff_Portal {
 		/* 店舗限定ポータルでは取り扱いクラスだけを出す（From P＝軽自動車のみ） */
 		if ( self::$scope && 1 === count( $stores ) ) {
 			$only = key( $stores );
-			$classes = array_intersect_key( $classes, array_flip( BV_Util::store_classes( $only ) ) );
+			$classes   = array_intersect_key( $classes, array_flip( BV_Util::store_classes( $only ) ) );
+			/* 補償もその店舗で扱うものだけ（From P＝A・Bのみ） */
+			$coverages = BV_Util::store_coverages( $only );
 		}
 
 		/* ガントからの引き継ぎ */

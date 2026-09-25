@@ -54,8 +54,12 @@ class BV_Availability {
 		return BV_Util::filter_matched_equipment( $need );
 	}
 
-	/** 清掃・点検のインターバル（秒） */
-	public static function turnaround_seconds() {
+	/**
+	 * 清掃・点検のインターバル（秒）
+	 * 店舗を指定するとその店舗の設定を使う（時間貸しの出張所は短く設定している）。
+	 */
+	public static function turnaround_seconds( $store = '' ) {
+		if ( $store ) return BV_Util::store_turnaround_hours( $store ) * HOUR_IN_SECONDS;
 		$s = BV_Util::settings();
 		return max( 0, (float) $s['turnaround_hours'] ) * HOUR_IN_SECONDS;
 	}
@@ -69,7 +73,7 @@ class BV_Availability {
 		foreach ( $vehicles as $v ) $candidate_ids[] = (int) $v->id;
 
 		/* 前後にインターバルを足した範囲で重複を判定する */
-		$gap = self::turnaround_seconds();
+		$gap = self::turnaround_seconds( $store );
 		$check_from = date( 'Y-m-d H:i:s', strtotime( $pickup_dt ) - $gap );
 		$check_to   = date( 'Y-m-d H:i:s', strtotime( $return_dt ) + $gap );
 
@@ -124,11 +128,11 @@ class BV_Availability {
 	 * 特定の車両がその期間に空いているか（インターバル・貸出停止も考慮）
 	 * 日程変更時に「今の車両のまま動かせるか」を判定するのに使う。
 	 */
-	public static function is_vehicle_free( $vehicle_id, $pickup_dt, $return_dt, $exclude_reservation = 0 ) {
+	public static function is_vehicle_free( $vehicle_id, $pickup_dt, $return_dt, $exclude_reservation = 0, $store = '' ) {
 		$vehicle_id = (int) $vehicle_id;
 		if ( ! $vehicle_id ) return false;
 
-		$gap = self::turnaround_seconds();
+		$gap = self::turnaround_seconds( $store );
 		$check_from = date( 'Y-m-d H:i:s', strtotime( $pickup_dt ) - $gap );
 		$check_to   = date( 'Y-m-d H:i:s', strtotime( $return_dt ) + $gap );
 

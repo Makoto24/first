@@ -237,9 +237,15 @@ class BV_Util {
 			'omachi_onsen'   => array( 'ja' => '大町レンタカー 大町温泉郷店', 'en' => 'Omachi Rent a Car Omachi Onsenkyo Branch', 'location' => 'omachi_onsen' ),
 			'matsumoto'      => array( 'ja' => '松本レンタカー島内店',     'en' => 'Matsumoto Rent a Car Shimauchi Branch',    'location' => 'matsumoto' ),
 			'matsumoto_univ' => array( 'ja' => '松本レンタカー信州大学前店', 'en' => 'Matsumoto Rent a Car Shinshu Univ. Branch','location' => 'matsumoto_univ' ),
-			/* 時間貸し専用の出張所。車両・料金・ポータルを他店と分けて運用する */
+			/*
+			 * 時間貸し専用の出張所。車両・料金・ポータルを他店と分けて運用する。
+			 * 短時間の貸出が中心のため、受付開始・返却後インターバルとも1時間。
+			 * 補償はA・Bのみ（NOC免除のCは扱わない）、学割・送迎も扱わない。
+			 */
 			'hakuba_fromp'   => array( 'ja' => '長野カーシェアFrom P出張所', 'en' => 'Nagano Car Share From P Branch', 'location' => 'fromp',
-				'hourly' => true, 'classes' => array( 'kei' ), 'open' => '08:00', 'close' => '22:00' ),
+				'hourly' => true, 'classes' => array( 'kei' ), 'open' => '08:00', 'close' => '22:00',
+				'lead_time_hours' => 1, 'turnaround_hours' => 1,
+				'coverages' => array( 'B', 'A' ), 'student' => false, 'shuttle' => false ),
 		);
 	}
 
@@ -266,6 +272,76 @@ class BV_Util {
 		if ( ! empty( $s[ 'store_open_' . $store ] ) )  $open  = $s[ 'store_open_' . $store ];
 		if ( ! empty( $s[ 'store_close_' . $store ] ) ) $close = $s[ 'store_close_' . $store ];
 		return array( 'open' => $open, 'close' => $close );
+	}
+
+	/**
+	 * ネット予約の受付開始（現在時刻の何時間後から）
+	 * 店舗固有の値 →（設定画面の店舗別上書き）→ 全体設定 の順で決まる。
+	 */
+	public static function store_lead_time_hours( $store ) {
+		$s  = self::settings();
+		$st = self::stores();
+		$v  = isset( $st[ $store ]['lead_time_hours'] ) ? (int) $st[ $store ]['lead_time_hours'] : (int) $s['lead_time_hours'];
+		if ( isset( $s[ 'store_lead_time_' . $store ] ) && '' !== $s[ 'store_lead_time_' . $store ] ) {
+			$v = (int) $s[ 'store_lead_time_' . $store ];
+		}
+		return max( 0, $v );
+	}
+
+	/** 返却から次の貸出までに空ける時間（清掃・点検インターバル） */
+	public static function store_turnaround_hours( $store ) {
+		$s  = self::settings();
+		$st = self::stores();
+		$v  = isset( $st[ $store ]['turnaround_hours'] ) ? (float) $st[ $store ]['turnaround_hours'] : (float) $s['turnaround_hours'];
+		if ( isset( $s[ 'store_turnaround_' . $store ] ) && '' !== $s[ 'store_turnaround_' . $store ] ) {
+			$v = (float) $s[ 'store_turnaround_' . $store ];
+		}
+		return max( 0, $v );
+	}
+
+	/** その店舗で選べる補償プラン（定義順を保つ） */
+	public static function store_coverages( $store ) {
+		$all = self::coverages();
+		$st  = self::stores();
+		if ( empty( $st[ $store ]['coverages'] ) ) return $all;
+		$allow = (array) $st[ $store ]['coverages'];
+		$out = array();
+		foreach ( $all as $k => $v ) {
+			if ( in_array( $k, $allow, true ) ) $out[ $k ] = $v;
+		}
+		/* 定義を間違えて全部消えてしまった場合の保険 */
+		return $out ? $out : array( 'A' => $all['A'] );
+	}
+
+	/** その店舗で選べる補償プランか（選べない場合は基本補償Aに寄せる） */
+	public static function store_coverage_or_default( $store, $coverage ) {
+		$allow = self::store_coverages( $store );
+		$c = strtoupper( (string) $coverage );
+		return isset( $allow[ $c ] ) ? $c : 'A';
+	}
+
+	/** その店舗で学割を扱うか */
+	public static function store_allows_student( $store ) {
+		$st = self::stores();
+		return ! isset( $st[ $store ]['student'] ) || false !== $st[ $store ]['student'];
+	}
+
+	/** その店舗で学割を選べる車両クラス（扱わない店舗では空） */
+	public static function store_student_classes( $store ) {
+		return self::store_allows_student( $store ) ? self::student_classes() : array();
+	}
+
+	/** その店舗で送迎を扱うか */
+	public static function store_allows_shuttle( $store ) {
+		$st = self::stores();
+		return ! isset( $st[ $store ]['shuttle'] ) || false !== $st[ $store ]['shuttle'];
+	}
+
+	/** その店舗で選べる送迎の選択肢（扱わない店舗は「送迎不要」のみ） */
+	public static function store_shuttles( $store ) {
+		$all = self::shuttles();
+		if ( self::store_allows_shuttle( $store ) ) return $all;
+		return array( 'none' => $all['none'] );
 	}
 
 	/** 店舗宛のスタッフ通知先（カンマ区切り）。空なら全体設定を使う */
@@ -609,6 +685,8 @@ class BV_Util {
 			$defaults[ 'store_square_location_' . $sk ]      = ''; /* 店舗ごとのSquare Location ID（日本語予約） */
 			$defaults[ 'store_square_location_en_' . $sk ]   = ''; /* 同（英語予約） */
 			$defaults[ 'store_review_url_' . $sk ]           = ''; /* Googleマップのレビュー投稿URL（店舗ごとに異なる） */
+			$defaults[ 'store_lead_time_' . $sk ]           = ''; /* ネット予約の受付開始（空なら店舗既定→全体設定） */
+			$defaults[ 'store_turnaround_' . $sk ]          = ''; /* 返却後インターバル（空なら店舗既定→全体設定） */
 		}
 		$saved = get_option( 'bvrm_settings', array() );
 		return wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults );

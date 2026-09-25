@@ -898,9 +898,14 @@ class BV_Admin {
 				'birthdate' => sanitize_text_field( $P['birthdate'] ) ?: null,
 				'opt_child_seat' => (int) ( $P['opt_child_seat'] ?? 0 ), 'opt_junior_seat' => (int) ( $P['opt_junior_seat'] ?? 0 ),
 				'opt_ski_rack' => (int) ( $P['opt_ski_rack'] ?? 0 ), 'opt_navi' => (int) ( $P['opt_navi'] ?? 0 ), 'opt_etc' => (int) ( $P['opt_etc'] ?? 0 ),
-				'coverage' => strtoupper( sanitize_text_field( $P['coverage'] ) ),
-				'shuttle' => sanitize_key( $P['shuttle'] ), 'shuttle_detail' => sanitize_textarea_field( $P['shuttle_detail'] ),
-				'is_student' => ! empty( $P['is_student'] ) ? 1 : 0,
+				/*
+				 * その店舗で扱わない内容は保存側でも寄せる。
+				 * 記録と料金計算が食い違わないようにするため（料金側も同じ判定をしている）。
+				 */
+				'coverage' => BV_Util::store_coverage_or_default( sanitize_key( $P['store'] ), $P['coverage'] ),
+				'shuttle' => BV_Util::store_allows_shuttle( sanitize_key( $P['store'] ) ) ? sanitize_key( $P['shuttle'] ) : 'none',
+				'shuttle_detail' => BV_Util::store_allows_shuttle( sanitize_key( $P['store'] ) ) ? sanitize_textarea_field( $P['shuttle_detail'] ) : '',
+				'is_student' => ( ! empty( $P['is_student'] ) && BV_Util::store_allows_student( sanitize_key( $P['store'] ) ) ) ? 1 : 0,
 				'coupon_code' => sanitize_text_field( $P['coupon_code'] ),
 				'payment_method' => ( isset( $P['payment_method'] ) && isset( BV_Util::payment_methods()[ $P['payment_method'] ] ) ) ? sanitize_key( $P['payment_method'] ) : 'square',
 				'manual_discount' => (int) ( $P['manual_discount'] ?? 0 ),
@@ -1021,7 +1026,19 @@ class BV_Admin {
 	public static function reservation_form( $id ) {
 		$r = $id ? BV_DB::get_reservation( $id ) : null;
 		$stores = BV_Util::stores(); $classes = BV_Util::classes(); $statuses = BV_Util::statuses();
-		$coverages = BV_Util::coverages(); $shuttles = BV_Util::shuttles();
+		/* 補償・送迎は店舗によって扱いが異なる（From P出張所は A・B のみ、送迎なし） */
+		$cur_store = $r ? $r->store : '';
+		$coverages = $cur_store ? BV_Util::store_coverages( $cur_store ) : BV_Util::coverages();
+		$shuttles  = $cur_store ? BV_Util::store_shuttles( $cur_store )  : BV_Util::shuttles();
+		/* 既存の予約が、いま扱っていないプランのままでも選択肢から消えないようにする */
+		if ( $r && $r->coverage && ! isset( $coverages[ $r->coverage ] ) ) {
+			$all = BV_Util::coverages();
+			if ( isset( $all[ $r->coverage ] ) ) $coverages[ $r->coverage ] = $all[ $r->coverage ];
+		}
+		if ( $r && $r->shuttle && ! isset( $shuttles[ $r->shuttle ] ) ) {
+			$all_sh = BV_Util::shuttles();
+			if ( isset( $all_sh[ $r->shuttle ] ) ) $shuttles[ $r->shuttle ] = $all_sh[ $r->shuttle ];
+		}
 		$vehicles = BV_DB::get_vehicles();
 
 		$val = function ( $k, $d = '' ) use ( $r ) { return $r ? $r->$k : $d; };

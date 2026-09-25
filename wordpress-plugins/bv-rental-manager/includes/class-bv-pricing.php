@@ -85,8 +85,10 @@ class BV_Pricing {
 			return self::quote_hourly( $args, $cls, $store, $lang );
 		}
 
-		/* 学割は対象クラス（既定：軽自動車）のみ */
-		$is_student = ! empty( $args['is_student'] ) && BV_Util::is_student_class( $cls );
+		/* 学割は対象クラス（既定：軽自動車）のみ。扱わない店舗では適用しない */
+		$is_student = ! empty( $args['is_student'] )
+			&& BV_Util::is_student_class( $cls )
+			&& BV_Util::store_allows_student( $store );
 
 		if ( $is_student ) {
 			/* 学割も日ごとに通常／グリーンシーズンを判定する（長期割引・月額は併用しない） */
@@ -207,10 +209,9 @@ class BV_Pricing {
 			);
 		}
 
-		/* 追加補償 */
-		$cov = isset( $args['coverage'] ) ? strtoupper( $args['coverage'] ) : 'A';
+		/* 追加補償（その店舗で扱わないプランは基本補償Aとして計算する） */
+		$cov = BV_Util::store_coverage_or_default( $store, $args['coverage'] ?? 'A' );
 		$coverages = BV_Util::coverages();
-		if ( ! isset( $coverages[ $cov ] ) ) $cov = 'A';
 		if ( $coverages[ $cov ]['price'] > 0 ) {
 			$amt = $coverages[ $cov ]['price'] * $days;
 			$lines[] = array(
@@ -278,6 +279,7 @@ class BV_Pricing {
 
 		/* 送迎 */
 		$shuttle = isset( $args['shuttle'] ) ? $args['shuttle'] : 'none';
+		if ( ! BV_Util::store_allows_shuttle( $store ) ) $shuttle = 'none';
 		$shuttle_note = '';
 		if ( 'none' !== $shuttle && isset( BV_Util::shuttles()[ $shuttle ] ) ) {
 			$shuttle_note = ( 'en' === $lang )
@@ -352,10 +354,9 @@ class BV_Pricing {
 			);
 		}
 
-		/* 補償：1時間単位 */
-		$cov = isset( $args['coverage'] ) ? strtoupper( $args['coverage'] ) : 'A';
+		/* 補償：1時間単位（その店舗で扱わないプランは基本補償Aとして計算する） */
+		$cov = BV_Util::store_coverage_or_default( $store, $args['coverage'] ?? 'A' );
 		$coverages = BV_Util::coverages();
-		if ( ! isset( $coverages[ $cov ] ) ) $cov = 'A';
 		$cov_unit = ( 'B' === $cov ) ? (int) $s['hourly_cov_b'] : ( ( 'C' === $cov ) ? (int) $s['hourly_cov_c'] : 0 );
 		if ( $cov_unit > 0 ) {
 			$lines[] = array(

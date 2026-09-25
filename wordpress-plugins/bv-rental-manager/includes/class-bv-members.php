@@ -226,7 +226,7 @@ class BV_Members {
 			return $fail( $L( '返却日時は貸出日時より後にしてください。', 'The return date and time must be after the pick-up date and time.' ) );
 		}
 		$now  = current_time( 'timestamp' );
-		$lead = max( 0, (int) $s['lead_time_hours'] );
+		$lead = BV_Util::store_lead_time_hours( $r->store );
 		if ( strtotime( $pickup ) < $now + $lead * HOUR_IN_SECONDS ) {
 			return $fail( sprintf( $L( '貸出日時は現在より%d時間以降でお選びください。', 'Pick-up must be at least %d hours from now.' ), $lead ) );
 		}
@@ -238,7 +238,7 @@ class BV_Members {
 		/* 空き状況：まず今の車両で確認し、だめなら同クラスの別車両を探す */
 		$require = BV_Availability::required_equipment( $r );
 		$vehicle_id = (int) $r->vehicle_id;
-		$keep = $vehicle_id && BV_Availability::is_vehicle_free( $vehicle_id, $pickup, $return, $r->id );
+		$keep = $vehicle_id && BV_Availability::is_vehicle_free( $vehicle_id, $pickup, $return, $r->id, $r->store );
 		if ( ! $keep ) {
 			$alt = BV_Availability::auto_assign( $r->vehicle_class, $pickup, $return, $r->store, $r->id, $require );
 			if ( ! $alt ) {

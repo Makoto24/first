@@ -418,14 +418,34 @@
 			hourly: !!si.hourly,
 			classes: (si.classes && si.classes.length) ? si.classes : Object.keys(c.classes || {}),
 			open: si.open || c.open_time,
-			close: si.close || c.close_time
+			close: si.close || c.close_time,
+			/* 以下は中央プラグインが未更新なら全店共通の値にフォールバックする */
+			leadTime: (si.lead_time_hours === undefined) ? c.lead_time_hours : +si.lead_time_hours,
+			coverages: (si.coverages && si.coverages.length) ? si.coverages : null,
+			studentClasses: (si.student_classes === undefined)
+				? ((c.student_classes && c.student_classes.length) ? c.student_classes : ['kei'])
+				: si.student_classes,
+			shuttle: (si.shuttle === undefined) ? true : !!si.shuttle
 		};
 	}
 	function isHourly() { return storeInfo(state.sel.store).hourly; }
 
+	/** この店舗の受付開始（現在時刻の何時間後から） */
+	function leadHours() {
+		var v = storeInfo(state.sel.store).leadTime;
+		return (v === undefined || v === null) ? 2 : +v;
+	}
+	/** この店舗で選べる補償プラン（定義順） */
+	function allowedCoverages() {
+		var only = storeInfo(state.sel.store).coverages;
+		return ['C', 'B', 'A'].filter(function (k) { return !only || only.indexOf(k) !== -1; });
+	}
+	/** この店舗で送迎を扱うか */
+	function shuttleAllowed() { return storeInfo(state.sel.store).shuttle; }
+
 	function studentAllowed() {
-		var c = state.config || {}, s = state.sel;
-		var list = (c.student_classes && c.student_classes.length) ? c.student_classes : ['kei'];
+		var s = state.sel;
+		var list = storeInfo(s.store).studentClasses || [];
 		return list.indexOf(s.vehicle_class) !== -1;
 	}
 
@@ -470,8 +490,7 @@
 		return new Date();
 	}
 	function earliestPickup() {
-		var c = state.config || {};
-		var lead = (c.lead_time_hours === undefined) ? 2 : +c.lead_time_hours;
+		var lead = leadHours();
 		var d = serverNow();
 		d.setHours(d.getHours() + lead);
 		/* 30分単位に切り上げ */
@@ -599,7 +618,7 @@
 		h += '<label>' + T.pickup + '</label><div class="bvbf-row"><input type="date" id="bv-pd" min="' + minDate + '" max="' + maxDate + '" value="' + s.pickup_date + '"><select id="bv-pt">';
 		times.forEach(function (t) { h += '<option' + (s.pickup_time === t ? ' selected' : '') + '>' + t + '</option>'; });
 		h += '</select></div>';
-		h += '<p class="bvbf-note">' + T.leadNote.replace('%h', (c.lead_time_hours === undefined ? 2 : c.lead_time_hours)).replace('%d', (c.max_advance_days === undefined ? 365 : c.max_advance_days)) + '</p>';
+		h += '<p class="bvbf-note">' + T.leadNote.replace('%h', leadHours()).replace('%d', (c.max_advance_days === undefined ? 365 : c.max_advance_days)) + '</p>';
 		h += '<label>' + T.ret + '</label><div class="bvbf-row"><input type="date" id="bv-rd" min="' + minDate + '" value="' + s.return_date + '"><select id="bv-rt">';
 		retTimes.forEach(function (t) { h += '<option' + (s.return_time === t ? ' selected' : '') + '>' + t + '</option>'; });
 		h += '</select></div>';
@@ -687,7 +706,7 @@
 			var e = earliestPickup();
 			var pickIso = dt(s.pickup_date, s.pickup_time);
 			var eIso = fmtDate(e) + ' ' + ('0' + e.getHours()).slice(-2) + ':' + ('0' + e.getMinutes()).slice(-2) + ':00';
-			if (pickIso < eIso) return renderStep1(errBox(T.tooSoon.replace('%h', (c.lead_time_hours === undefined ? 2 : c.lead_time_hours))));
+			if (pickIso < eIso) return renderStep1(errBox(T.tooSoon.replace('%h', leadHours())));
             if (s.pickup_date > maxDate) return renderStep1(errBox(T.tooFar.replace('%d', (c.max_advance_days === undefined ? 365 : c.max_advance_days))));
 			if (dt(s.return_date, s.return_time) <= dt(s.pickup_date, s.pickup_time)) return renderStep1(errBox(T.retAfter));
 			this.textContent = T.checking; this.disabled = true;
@@ -801,7 +820,9 @@
 			h += '</select></div>';
 		});
 		h += '<h4>' + T.coverage + '</h4>';
-		['C', 'B', 'A'].forEach(function (k) {
+		var covKeys = allowedCoverages();
+		if (covKeys.indexOf(s.coverage) === -1) s.coverage = covKeys[covKeys.length - 1];
+		covKeys.forEach(function (k) {
 			var cov = c.coverages[k];
 			var p = cov.price > 0 ? money(cov.price) + T.perDay : T.free;
 			if (isHourly() && c.hourly_rates) {
@@ -817,14 +838,20 @@
 				(LANG === 'en' ? 'The daily cap (' + money(dc) + ')' : '1日あたりの上限（' + money(dc) + '）'));
 			h += '<p class="bvbf-note" style="background:#fff8e5;border:1px solid #e0b900;color:#6b5200;padding:8px 10px;border-radius:6px">' + capTxt + '</p>';
 		}
-		h += '<h4>' + T.shuttle + '</h4><select id="bv-shuttle">';
-		Object.keys(c.shuttles).forEach(function (k) {
-			h += '<option value="' + k + '"' + (s.shuttle === k ? ' selected' : '') + '>' + c.shuttles[k][LANG] + '</option>';
-		});
-		h += '</select><div id="bv-shdet" style="display:' + (s.shuttle !== 'none' ? 'block' : 'none') + '">';
-		h += '<div class="bvbf-okmsg" style="background:#fff8e5;border-color:#e0b900;color:#6b5200">' + T.shuttleRequestNote + '</div>';
-		h += '<label>' + T.shuttleDetail + ' <span style="color:#d63638">*</span></label><textarea id="bv-shdetail" rows="3" placeholder="' + T.shuttleDetailPh + '">' + (s.shuttle_detail || '') + '</textarea>';
-		h += '<div id="bv-sherr"></div></div>';
+		/* 送迎を扱わない店舗では選択欄そのものを出さない */
+		if (shuttleAllowed()) {
+			h += '<h4>' + T.shuttle + '</h4><select id="bv-shuttle">';
+			Object.keys(c.shuttles).forEach(function (k) {
+				h += '<option value="' + k + '"' + (s.shuttle === k ? ' selected' : '') + '>' + c.shuttles[k][LANG] + '</option>';
+			});
+			h += '</select><div id="bv-shdet" style="display:' + (s.shuttle !== 'none' ? 'block' : 'none') + '">';
+			h += '<div class="bvbf-okmsg" style="background:#fff8e5;border-color:#e0b900;color:#6b5200">' + T.shuttleRequestNote + '</div>';
+			h += '<label>' + T.shuttleDetail + ' <span style="color:#d63638">*</span></label><textarea id="bv-shdetail" rows="3" placeholder="' + T.shuttleDetailPh + '">' + (s.shuttle_detail || '') + '</textarea>';
+			h += '<div id="bv-sherr"></div></div>';
+		} else {
+			s.shuttle = 'none';
+			s.shuttle_detail = '';
+		}
 		/* 学割は対象クラス（軽自動車など）を選んでいるときだけ表示する */
 		if (studentAllowed()) {
 			h += '<label class="bvbf-radio" style="margin-top:10px"><input type="checkbox" id="bv-student"' + (s.is_student ? ' checked' : '') + '> ' + T.student + '</label>';
@@ -849,7 +876,8 @@
 		root.querySelectorAll('input[name=bv-cov]').forEach(function (r) {
 			r.addEventListener('change', function () { s.coverage = this.value; refreshQuote(); });
 		});
-		document.getElementById('bv-shuttle').addEventListener('change', function () {
+		var shEl = document.getElementById('bv-shuttle'); /* 送迎を扱わない店舗では存在しない */
+		if (shEl) shEl.addEventListener('change', function () {
 			s.shuttle = this.value;
 			document.getElementById('bv-shdet').style.display = s.shuttle !== 'none' ? 'block' : 'none';
 			refreshQuote();

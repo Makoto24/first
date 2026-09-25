@@ -209,6 +209,11 @@ class BV_API {
 				'classes' => array_values( BV_Util::store_classes( $k ) ),
 				'open'    => $h['open'],
 				'close'   => $h['close'],
+				/* 店舗ごとの受付条件・取扱内容（予約フォームの出し分けに使う） */
+				'lead_time_hours'  => BV_Util::store_lead_time_hours( $k ),
+				'coverages'        => array_keys( BV_Util::store_coverages( $k ) ),
+				'student_classes'  => array_values( BV_Util::store_student_classes( $k ) ),
+				'shuttle'          => BV_Util::store_allows_shuttle( $k ) ? 1 : 0,
 			);
 		}
 		return $out;
@@ -232,7 +237,8 @@ class BV_API {
 		}
 		$s = BV_Util::settings();
 		$now = current_time( 'timestamp' );
-		$lead = max( 0, (int) $s['lead_time_hours'] );
+		/* 受付開始は店舗ごと（時間貸しの出張所は直前の予約も受け付ける） */
+		$lead = BV_Util::store_lead_time_hours( $store );
 		if ( strtotime( $pickup ) < $now + $lead * HOUR_IN_SECONDS ) {
 			return new WP_Error( 'too_soon', self::msg( 'too_soon', $lang, array( $lead ) ), array( 'status' => 400 ) );
 		}
@@ -292,6 +298,7 @@ class BV_API {
 		$p = $req->get_json_params();
 		$period = self::validate_period( $p );
 		if ( is_wp_error( $period ) ) return $period;
+		/* 見積も予約作成と同じ条件で計算する（店舗で扱わない内容は寄せる） */
 		$quote = BV_Pricing::quote( array_merge( self::strip_admin_args( $p ), array( 'pickup_dt' => $period[0], 'return_dt' => $period[1] ) ) );
 		if ( is_wp_error( $quote ) ) { $quote->add_data( array( 'status' => 400 ) ); return $quote; }
 		return $quote;
@@ -372,17 +379,27 @@ class BV_API {
 			return new WP_Error( $key, self::msg( $key, $lang ), array( 'status' => 409 ) );
 		}
 
+		/*
+		 * 店舗で扱わない内容は、ここで受け付けない形に寄せる。
+		 * 補償は選べるプランへ、学割・送迎は扱わない店舗では無効にする。
+		 */
+		$coverage   = BV_Util::store_coverage_or_default( $store, $p['coverage'] ?? 'A' );
+		$shuttle_in = BV_Util::store_allows_shuttle( $store ) ? sanitize_key( $p['shuttle'] ?? 'none' ) : 'none';
+		if ( ! isset( BV_Util::shuttles()[ $shuttle_in ] ) ) $shuttle_in = 'none';
+		$is_student = ! empty( $p['is_student'] )
+			&& BV_Util::is_student_class( $class )
+			&& BV_Util::store_allows_student( $store );
+
 		/* 送迎希望時は詳細場所を必須にする */
-		$shuttle_in = sanitize_key( $p['shuttle'] ?? 'none' );
 		if ( 'none' !== $shuttle_in && '' === trim( (string) ( $p['shuttle_detail'] ?? '' ) ) ) {
 			return new WP_Error( 'shuttle_detail_required', self::msg( 'shuttle_detail_required', $lang ), array( 'status' => 400 ) );
 		}
 
 		$quote_args = array(
 			'vehicle_class' => $class, 'pickup_dt' => $period[0], 'return_dt' => $period[1],
-			'coverage'       => sanitize_text_field( $p['coverage'] ?? 'A' ),
-			'shuttle'        => sanitize_key( $p['shuttle'] ?? 'none' ),
-			'is_student'     => ( ! empty( $p['is_student'] ) && BV_Util::is_student_class( $class ) ),
+			'coverage'       => $coverage,
+			'shuttle'        => $shuttle_in,
+			'is_student'     => $is_student,
 			'coupon_code'    => sanitize_text_field( $p['coupon_code'] ?? '' ),
 			'lang'           => $lang,
 			'store'          => $store,
@@ -437,7 +454,7 @@ class BV_API {
 		}
 
 		$code = BV_Util::reservation_code();
-		$shuttle = sanitize_key( $p['shuttle'] ?? 'none' );
+		$shuttle = $shuttle_in; /* 店舗で扱わない場合は 'none' に寄せてある */
 		$equip_data = array();
 		foreach ( BV_Util::equipment_keys() as $ek ) {
 			$equip_data[ 'opt_' . $ek ] = (int) ( $p[ 'opt_' . $ek ] ?? 0 );
@@ -453,11 +470,11 @@ class BV_API {
 			'address' => sanitize_textarea_field( $p['address'] ?? '' ),
 			'birthdate' => sanitize_text_field( $p['birthdate'] ?? '' ) ?: null,
 			'license_files' => wp_json_encode( $files ),
-			'coverage' => strtoupper( sanitize_text_field( $p['coverage'] ?? 'A' ) ),
+			'coverage' => $coverage,
 			'shuttle' => $shuttle,
-			'shuttle_detail' => sanitize_textarea_field( $p['shuttle_detail'] ?? '' ),
+			'shuttle_detail' => ( 'none' === $shuttle ) ? '' : sanitize_textarea_field( $p['shuttle_detail'] ?? '' ),
 			'shuttle_status' => ( 'none' === $shuttle ) ? 'none' : 'requested',
-			'is_student' => ( ! empty( $p['is_student'] ) && BV_Util::is_student_class( $class ) ) ? 1 : 0,
+			'is_student' => $is_student ? 1 : 0,
 			'coupon_code' => sanitize_text_field( $p['coupon_code'] ?? '' ),
 			'request_note' => sanitize_textarea_field( $p['request_note'] ?? '' ),
 			'price_breakdown' => wp_json_encode( $quote ),

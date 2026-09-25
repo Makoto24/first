@@ -1146,6 +1146,10 @@ class BV_Admin_Pages {
 				$new[ 'store_square_location_' . $sk ]    = sanitize_text_field( $P[ 'store_square_location_' . $sk ] ?? '' );
 				$new[ 'store_square_location_en_' . $sk ] = sanitize_text_field( $P[ 'store_square_location_en_' . $sk ] ?? '' );
 				$new[ 'store_review_url_' . $sk ]         = esc_url_raw( trim( $P[ 'store_review_url_' . $sk ] ?? '' ) );
+				$lt = trim( (string) ( $P[ 'store_lead_time_' . $sk ] ?? '' ) );
+				$new[ 'store_lead_time_' . $sk ]         = ( '' === $lt ) ? '' : (string) max( 0, min( 72, (int) $lt ) );
+				$ta = trim( (string) ( $P[ 'store_turnaround_' . $sk ] ?? '' ) );
+				$new[ 'store_turnaround_' . $sk ]        = ( '' === $ta ) ? '' : (string) max( 0, min( 72, (float) $ta ) );
 			}
 			$new['square_skip_sig']  = ! empty( $P['square_skip_sig'] ) ? 1 : 0;
 			/* 診断モードは戻し忘れ防止のため、オンにした時刻を記録して60分で自動失効させる */
@@ -1264,8 +1268,10 @@ class BV_Admin_Pages {
 		echo '<tr><th>返却の受付時間</th><td><label><input type="checkbox" name="return_24h" value="1"' . checked( (int) $s['return_24h'], 1, false ) . '> 返却は24時間受け付ける（営業時間外の返却を許可）</label>';
 		echo '<p class="description">チェックを外すと、返却も営業時間内のみになります。</p></td></tr>';
 		echo '<tr><th>返却後インターバル</th><td>返却予定時刻から <input type="number" name="turnaround_hours" value="' . esc_attr( $s['turnaround_hours'] ) . '" min="0" max="72" step="0.5" style="width:80px"> 時間後から次の貸出を可能にする';
+		echo '<p class="description">こちらも「店舗別設定」で店舗ごとに変えられます。</p>';
 		echo '<p class="description">清掃・給油・点検にかかる時間を確保します。この時間内は同じ車両の予約を受け付けません（0で無効）。<br>予約ガントでは、返却後のインターバルがオレンジの帯で表示されます。</p></td></tr>';
 		echo '<tr><th>ネット予約の受付範囲</th><td>現在時刻の <input type="number" name="lead_time_hours" value="' . (int) $s['lead_time_hours'] . '" min="0" max="72" style="width:70px"> 時間後以降　／　<input type="number" name="max_advance_days" value="' . (int) $s['max_advance_days'] . '" min="1" max="1095" style="width:80px"> 日先まで';
+		echo '<p class="description">受付開始は「店舗別設定」で店舗ごとに変えられます。</p>';
 		echo '<p class="description">直前予約を防ぐための猶予時間と、受付可能な先の期間です（既定：2時間後〜365日先）。スタッフによる管理画面・ポータルからの予約追加はこの制限を受けません。</p></td></tr>';
 		echo '<tr><th>お客様ご自身での日程変更</th><td>貸出の <input type="number" name="self_change_hours" value="' . (int) $s['self_change_hours'] . '" min="0" max="720" style="width:70px"> 時間前まで可能（0で無効）';
 		echo '<p class="description">予約確認ページから、お客様ご自身で貸出・返却の日時を変更できます。空き状況を確認し、必要なら同クラスの別車両へ自動で振り替えます。変更後はお客様と管理者の両方にメールが届きます。<br>'
@@ -1407,6 +1413,19 @@ class BV_Admin_Pages {
 			echo '<p><label style="display:inline-block;width:190px">Location ID（日本語予約）</label><input type="text" name="store_square_location_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_' . $sk ] ) . '" placeholder="未入力なら共通のLocation IDを使用"></p>';
 			echo '<p><label style="display:inline-block;width:190px">Location ID（英語予約）</label><input type="text" name="store_square_location_en_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_en_' . $sk ] ) . '" placeholder="未入力なら英語共通→日本語欄→共通の順で使用"></p>';
 			echo '<p><label style="display:inline-block;width:190px">口コミ投稿URL（Google）</label><input type="url" name="store_review_url_' . esc_attr( $sk ) . '" class="large-text" value="' . esc_attr( $s[ 'store_review_url_' . $sk ] ?? '' ) . '" placeholder="https://g.page/r/..../review"></p>';
+			$lt_def = BV_Util::store_lead_time_hours( $sk );
+			$ta_def = BV_Util::store_turnaround_hours( $sk );
+			echo '<p><label style="display:inline-block;width:190px">ネット予約の受付開始</label>現在の <input type="number" name="store_lead_time_' . esc_attr( $sk ) . '" min="0" max="72" style="width:80px" value="' . esc_attr( $s[ 'store_lead_time_' . $sk ] ?? '' ) . '" placeholder="' . (int) $lt_def . '"> 時間後から'
+				. ' <span class="description">空欄ならこの店舗の既定（' . (int) $lt_def . '時間後）</span></p>';
+			echo '<p><label style="display:inline-block;width:190px">返却後インターバル</label>返却から <input type="number" name="store_turnaround_' . esc_attr( $sk ) . '" min="0" max="72" step="0.5" style="width:80px" value="' . esc_attr( $s[ 'store_turnaround_' . $sk ] ?? '' ) . '" placeholder="' . esc_attr( $ta_def ) . '"> 時間後から次の貸出'
+				. ' <span class="description">空欄ならこの店舗の既定（' . esc_html( $ta_def ) . '時間）</span></p>';
+			$cov_names = array();
+			foreach ( BV_Util::store_coverages( $sk ) as $ck2 => $cv2 ) $cov_names[] = $ck2;
+			echo '<p><label style="display:inline-block;width:190px">取扱内容</label><span class="description">補償：' . esc_html( implode( '・', $cov_names ) )
+				. '　／　学割：' . ( BV_Util::store_allows_student( $sk ) ? 'あり' : 'なし' )
+				. '　／　送迎：' . ( BV_Util::store_allows_shuttle( $sk ) ? 'あり' : 'なし' )
+				. '　／　車両クラス：' . esc_html( implode( '・', array_map( function ( $c ) { $cl = BV_Util::classes(); return isset( $cl[ $c ] ) ? $cl[ $c ]['ja'] : $c; }, BV_Util::store_classes( $sk ) ) ) )
+				. '<br>これらはプラグイン側で店舗ごとに定義しています（変更が必要な場合はご相談ください）。</span></p>';
 			echo '</td></tr>';
 		}
 		echo '</table>';
