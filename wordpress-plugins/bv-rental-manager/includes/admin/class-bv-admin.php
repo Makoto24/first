@@ -1024,6 +1024,7 @@ class BV_Admin {
 
 	/** 予約フォーム（新規/編集） — 内容全体を編集できる */
 	public static function reservation_form( $id ) {
+		$addon_form = ''; /* 差額の請求欄を出したときだけ、本体フォームの外に実体を置く */
 		$r = $id ? BV_DB::get_reservation( $id ) : null;
 		$stores = BV_Util::stores(); $classes = BV_Util::classes(); $statuses = BV_Util::statuses();
 		/* 補償・送迎は店舗によって扱いが異なる（From P出張所は A・B のみ、送迎なし） */
@@ -1253,19 +1254,19 @@ class BV_Admin {
 					if ( ! is_email( $r->email ) ) {
 						echo '<p class="description" style="margin:0">メールアドレスが登録されていないため、決済リンクを送信できません。</p>';
 					} else {
-						echo '<form method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '" style="margin:0">';
-						echo '<input type="hidden" name="page" value="bvrm-reservations">';
-						echo '<input type="hidden" name="bvrm_action" value="charge_addon">';
-						echo '<input type="hidden" name="id" value="' . (int) $r->id . '">';
-						echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( wp_create_nonce( 'bvrm_charge_addon' ) ) . '">';
+						/*
+						 * ここは予約編集フォームの内側なので <form> を置けない（HTMLはフォームの
+						 * 入れ子を許さず、ブラウザが内側のタグを捨ててしまう）。返金・送迎と同じく、
+						 * フォームの実体は本体フォームの外に出し、form属性で結び付ける。
+						 */
+						$addon_form = 'bvrm-addon-form';
 						echo '<p style="margin:0 0 8px"><label style="display:inline-block;width:90px">請求額</label>';
-						echo '<input type="number" name="addon_amount" min="1" step="1" style="width:130px" value="' . (int) $bal . '"> 円';
+						echo '<input type="number" form="' . esc_attr( $addon_form ) . '" name="addon_amount" min="1" step="1" style="width:130px" value="' . (int) $bal . '"> 円';
 						echo ' <span class="description">既定は不足額です。必要に応じて変更できます。</span></p>';
 						echo '<p style="margin:0 0 10px"><label style="display:inline-block;width:90px">理由</label>';
-						echo '<input type="text" name="addon_note" class="regular-text" maxlength="120" placeholder="例：返却日を1日延長／補償プランをCに変更" value="' . esc_attr( self::guess_addon_note( $r ) ) . '"></p>';
-						echo '<button class="button button-primary">差額の決済リンクを作成してお客様へ送る</button>';
+						echo '<input type="text" form="' . esc_attr( $addon_form ) . '" name="addon_note" class="regular-text" maxlength="120" placeholder="例：返却日を1日延長／補償プランをCに変更" value="' . esc_attr( self::guess_addon_note( $r ) ) . '"></p>';
+						echo '<button class="button button-primary" form="' . esc_attr( $addon_form ) . '">差額の決済リンクを作成してお客様へ送る</button>';
 						echo '<p class="description" style="margin:6px 0 0">お客様には<strong>差額だけ</strong>を請求します。お支払い済みの分を重ねて請求することはありません。</p>';
-						echo '</form>';
 					}
 				} elseif ( 'paid' === $r->addon_status && (int) $r->addon_amount > 0 ) {
 					echo '<p class="description" style="margin:0">直近の追加請求 ' . esc_html( BV_Util::money( (int) $r->addon_amount ) ) . ' は入金済みです'
@@ -1432,6 +1433,16 @@ class BV_Admin {
 		echo '</table>';
 		submit_button( $id ? '予約を更新' : '予約を作成' );
 		echo '</form>';
+
+		/* 追加請求フォームの実体（上の欄の入力を form 属性で受け取る） */
+		if ( ! empty( $addon_form ) ) {
+			echo '<form id="' . esc_attr( $addon_form ) . '" method="get" action="' . esc_url( admin_url( 'admin.php' ) ) . '">';
+			echo '<input type="hidden" name="page" value="bvrm-reservations">';
+			echo '<input type="hidden" name="bvrm_action" value="charge_addon">';
+			echo '<input type="hidden" name="id" value="' . (int) $r->id . '">';
+			echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( wp_create_nonce( 'bvrm_charge_addon' ) ) . '">';
+			echo '</form>';
+		}
 
 		/* 返金フォームの実体（上の表の入力を form 属性で受け取る） */
 		if ( $r && $r->paid_at && (int) $r->refund_amount < (int) $r->price_total && $r->square_payment_id ) {
