@@ -208,6 +208,12 @@ class BV_Admin {
 		if ( 'export_analytics' === $action )    self::csv_analytics();
 		if ( 'export_report' === $action )       BV_Report::download_xlsx( isset( $_GET['fy'] ) ? (int) $_GET['fy'] : (int) current_time( 'Y' ) );
 		if ( 'export_backup' === $action )       self::export_backup();
+		if ( 'rotate_data_key' === $action ) {
+			BV_Data::rotate_key();
+			set_transient( 'bvrm_notice', 'データ連携キーを作り直しました。連携先の設定も入れ直してください。', 120 );
+			wp_safe_redirect( admin_url( 'admin.php?page=bvrm-settings' ) );
+			exit;
+		}
 
 		$id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
 		$r  = $id ? BV_DB::get_reservation( $id ) : null;

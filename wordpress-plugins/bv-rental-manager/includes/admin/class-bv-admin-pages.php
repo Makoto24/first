@@ -1160,6 +1160,7 @@ class BV_Admin_Pages {
 				: 0;
 			$new['doc_retention_days'] = max( 0, min( 3650, (int) ( $P['doc_retention_days'] ?? 0 ) ) );
 			$new['min_driver_age']     = max( 0, min( 99, (int) ( $P['min_driver_age'] ?? 0 ) ) );
+			update_option( 'bvrm_data_enabled', ! empty( $P['data_api_enabled'] ) ? 1 : 0 );
 			$new['review_mail_enabled']  = ! empty( $P['review_mail_enabled'] ) ? 1 : 0;
 			$new['review_coupon_amount'] = max( 1, min( 100000, (int) ( $P['review_coupon_amount'] ?? 500 ) ) );
 			$new['review_coupon_days']   = max( 1, min( 3650, (int) ( $P['review_coupon_days'] ?? 365 ) ) );
@@ -1477,6 +1478,16 @@ class BV_Admin_Pages {
 		echo ' <label style="margin-left:6px"><input type="checkbox" onclick="var f=document.getElementById(\'bvrm_staff_pass\');f.type=this.checked?\'text\':\'password\';"> 表示</label>';
 		echo '<p class="description">ポータルURL: <code>' . esc_html( home_url( '/?bv_staff=1' ) ) . '</code>（全店舗）<br>画面共有のときに見えてしまわないよう伏せ字にしています。スタッフに伝えるときだけ「表示」にしてください。<br>PASSを変更すると、いま開いている全員のログインが無効になります（総当たり対策として、同一端末から' . (int) BV_Staff_Portal::LOGIN_MAX_TRIES . '回連続で失敗すると15分間ログインできなくなります）。</p></td></tr>';
 		echo '<tr><th>From P出張所 専用PASS</th><td><input type="password" name="staff_pass_fromp" class="regular-text" autocomplete="off" value="' . esc_attr( $s['staff_pass_fromp'] ?? '' ) . '"><p class="description">専用ポータルURL: <code>' . esc_html( home_url( '/?bv_staff_fromp=1' ) ) . '</code><br>From P出張所の予約と、場所が「From P出張所」の車両だけを表示・操作できます。全店舗用とは別のPASSにしてください（空欄ならログイン不可）。</p></td></tr>';
+		echo '<tr><th>データ連携（Claude等）</th><td>';
+		echo '<label><input type="checkbox" name="data_api_enabled" value="1"' . checked( (int) get_option( 'bvrm_data_enabled', 0 ), 1, false ) . '> <strong>読み取り専用のデータ連携を有効にする</strong></label>';
+		if ( BV_Data::enabled() ) {
+			echo '<p style="margin:8px 0 2px"><span class="description">接続先URL</span><br><code style="user-select:all">' . esc_html( rest_url( 'bvrm/v1/data/' ) ) . '</code></p>';
+			echo '<p style="margin:6px 0 2px"><span class="description">連携キー（<code>X-BV-Data-Key</code> ヘッダーで送る）</span><br><code style="user-select:all">' . esc_html( BV_Data::get_key() ) . '</code></p>';
+			echo '<p><a class="button" onclick="return confirm(\'連携キーを作り直します。いま連携している設定はすべて接続できなくなります。よろしいですか？\')" href="' . esc_url( wp_nonce_url( admin_url( 'admin.php?page=bvrm-settings&bvrm_action=rotate_data_key' ), 'bvrm_rotate_data_key' ) ) . '">連携キーを作り直す</a></p>';
+		}
+		echo '<p class="description"><strong>読み取りのみで、このキーからデータを書き換えることはできません。</strong>売上・稼働率などの集計と、予約の見出し（予約番号・日時・店舗・車両・金額・姓）を返します。<br>'
+			. '<strong>お客様の連絡先・住所・生年月日・免許証画像は返しません。</strong>使わないときはチェックを外してください（既定は無効）。</p></td></tr>';
+
 		echo '<tr><th>地域サイト用APIキー</th><td><code>' . esc_html( BV_API::get_api_key() ) . '</code><p class="description">白馬・大町・松本サイトの予約フォームプラグイン設定に貼り付けてください。API URL: <code>' . esc_html( rest_url( 'bvrm/v1/' ) ) . '</code></p></td></tr>';
 		echo '</table>';
 
