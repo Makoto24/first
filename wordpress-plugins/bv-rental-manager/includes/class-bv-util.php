@@ -781,6 +781,25 @@ class BV_Util {
 		return 'quoted' === $r->addon_status && (int) $r->addon_amount > 0;
 	}
 
+	/**
+	 * その店舗の貸出場所（拠点名）
+	 *
+	 * お客様が実際に来店する場所を短い表記で返す（例：白馬駅前）。
+	 * 予約一覧などの「貸出場所」欄に使う。
+	 * 割り当てた車両の登録場所とは別物で、同じ店舗グループ内では別拠点の車両を
+	 * 使うことがあるほか、車両の登録場所は返却処理のたびに更新されるため、
+	 * 貸出場所として車両の場所を使ってはいけない。
+	 */
+	public static function store_place_label( $store, $lang = 'ja' ) {
+		$st = self::stores();
+		if ( ! empty( $st[ $store ]['location'] ) ) {
+			$loc = $st[ $store ]['location'];
+			$locs = self::locations();
+			if ( isset( $locs[ $loc ] ) ) return self::label( $locs, $loc, $lang );
+		}
+		return self::label( $st, $store, $lang );
+	}
+
 	/** その店舗のGoogleレビュー投稿URL（未設定なら空） */
 	public static function store_review_url( $store ) {
 		$s = self::settings();

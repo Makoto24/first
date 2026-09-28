@@ -668,14 +668,19 @@ class BV_Staff_Portal {
 		$from = sanitize_text_field( wp_unslash( $_GET['from'] ?? current_time( 'Y-m-d' ) ) );
 		$to   = sanitize_text_field( wp_unslash( $_GET['to'] ?? date( 'Y-m-d', current_time( 'timestamp' ) + 14 * DAY_IN_SECONDS ) ) );
 		$list = self::filter_reservations( BV_DB::get_reservations( array( 'from' => $from, 'to' => $to, 'exclude_cancelled' => true ) ) );
-		$locations = BV_Util::locations(); $stores = BV_Util::stores(); $statuses = BV_Util::statuses();
+		$statuses = BV_Util::statuses();
 		echo '<div class="card"><form method="get">';
 		echo '<input type="hidden" name="' . esc_attr( self::query_key() ) . '" value="1"><input type="hidden" name="view" value="list">';
 		echo '<label>貸出日</label><div style="display:flex;gap:8px"><input type="date" name="from" value="' . esc_attr( $from ) . '"><input type="date" name="to" value="' . esc_attr( $to ) . '"></div><button>表示</button></form></div>';
-		echo '<table><thead><tr><th>貸出</th><th>場所</th><th>車両</th><th>名前</th><th></th></tr></thead><tbody>';
+		echo '<table><thead><tr><th>貸出</th><th>貸出場所</th><th>車両</th><th>名前</th><th></th></tr></thead><tbody>';
 		foreach ( $list as $r ) {
 			$v = $r->vehicle_id ? BV_DB::get_vehicle( $r->vehicle_id ) : null;
-			$loc = $v ? BV_Util::label( $locations, $v->location ) : BV_Util::label( $stores, $r->store );
+			/*
+			 * お客様が来店する場所は予約の店舗で決まる。
+			 * 車両の登録場所は、別拠点から車両を回したときや返却処理で場所が
+			 * 変わったときに実際の貸出場所とずれるため、ここでは使わない。
+			 */
+			$loc = BV_Util::store_place_label( $r->store );
 			echo '<tr>';
 			echo '<td><strong>' . esc_html( date( 'n/j H:i', strtotime( $r->pickup_dt ) ) ) . '</strong><br><span class="note">' . esc_html( BV_Util::label( $statuses, $r->status ) ) . '</span></td>';
 			echo '<td>' . esc_html( $loc ) . '</td>';
