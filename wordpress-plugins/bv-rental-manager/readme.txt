@@ -323,3 +323,15 @@ Zipは wordpress-plugins/build.sh で作れます（プラグインヘッダー�
 * 接続用のMCPサーバー（`bv-mcp-server/`）を同梱しています。お手元のPCで動き、
   連携キーがインターネット上に公開されることはありません。導入手順は
   `bv-mcp-server/README.md` をご覧ください。
+
+= Claude連携の拡張ファイル 1.1.0（bv-rental-claude-1.1.0.mcpb）=
+
+中央プラグインの変更はありません。Claude連携の接続用ファイルの形式を変えました。
+
+* これまでは Node.js の導入と設定ファイルの編集が必要でしたが、**Claude Desktop に
+  ファイルをダブルクリックして入れるだけ**になりました（Claude Desktop には
+  Node.js が最初から入っています）。
+* 連携キーは Claude Desktop の設定画面に入力します（伏せ字で安全に保管されます）。
+  接続先URLは入力済みなので、入れるのは連携キーだけです。
+* 手順書（bv-mcp-server/README.md）を、初めての方向けに書き直しました。
+* Windows / Mac のデスクトップ版が対象です。スマホアプリやブラウザ版では使えません。

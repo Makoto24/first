@@ -7,7 +7,8 @@
 # WordPressはこのフォルダ名でプラグインを識別するため、ここにバージョンを入れると
 # 更新ではなく「別のプラグイン」として二重にインストールされてしまう。
 #
-# 使い方： sh build.sh [出力先ディレクトリ]   （既定は ./dist）
+# 使い方： sh build.sh [出力先ディレクトリ]   （既定は wordpress-plugins/dist）
+# ※相対パスで指定すると、このスクリプトのある場所が基準になる。迷うときは絶対パスで指定する。
 
 set -e
 cd "$(dirname "$0")"
@@ -27,3 +28,17 @@ for dir in bv-rental-manager bv-booking-form; do
 	zip -rq "$zipfile" "$dir" -x '*.DS_Store' '*/.*'
 	echo "$zipfile"
 done
+
+# Claude連携の拡張ファイル（.mcpb）。Claude Desktopでダブルクリックして入れる。
+# .mcpb は manifest.json をルートに置いたZIP。
+mcp="bv-mcp-server"
+if [ -f "$mcp/manifest.json" ]; then
+	mver=$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([0-9][0-9.]*\)".*/\1/p' "$mcp/manifest.json" | head -1)
+	[ -n "$mver" ] || { echo "バージョンを読み取れません: $mcp/manifest.json"; exit 1; }
+	mfile="$out/bv-rental-claude-$mver.mcpb"
+	rm -f "$mfile"
+	# cd した先でも出力先を指せるよう、絶対パスにしてから作る
+	mabs="$(cd "$(dirname "$mfile")" && pwd)/$(basename "$mfile")"
+	( cd "$mcp" && zip -rq "$mabs" manifest.json server README.md -x '*.DS_Store' )
+	echo "$mfile"
+fi

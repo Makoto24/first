@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "bv-rental-manager",
+  "display_name": "BV レンタカー管理",
+  "version": "1.1.0",
+  "description": "レンタカー予約管理の売上・稼働率・予約の見出しを Claude から参照できます（読み取り専用）。",
+  "long_description": "Be Village のレンタカー予約管理システムに接続し、売上・稼働率・車両別の収支・予約の見出しを Claude に質問できるようにします。読み取り専用で、予約や車両のデータを書き換えることはありません。お客様の連絡先・住所・生年月日・免許証画像は取得しません。",
+  "author": {
+    "name": "Be Village株式会社"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "BV_API_URL": "${user_config.api_url}",
+        "BV_API_KEY": "${user_config.api_key}"
+      }
+    }
+  },
+  "tools": [
+    { "name": "rental_summary", "description": "期間の売上・件数・稼働率のまとめ" },
+    { "name": "rental_by_store", "description": "店舗別の売上・件数" },
+    { "name": "rental_by_class", "description": "車両クラス別の売上・件数" },
+    { "name": "rental_by_vehicle", "description": "車両ごとの売上・稼働率・収支" },
+    { "name": "rental_monthly", "description": "月ごとの売上の推移" },
+    { "name": "rental_reservations", "description": "予約の一覧（個人情報なし）" },
+    { "name": "rental_vehicles", "description": "車両台帳（車検日など）" }
+  ],
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "連携キー",
+      "description": "管理画面「設定 → スタッフポータル・API → データ連携」に表示されるキーを貼り付けてください。",
+      "sensitive": true,
+      "required": true
+    },
+    "api_url": {
+      "type": "string",
+      "title": "接続先URL",
+      "description": "通常は変更不要です。",
+      "default": "https://be-village.com/wp-json/bvrm/v1/data/",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

@@ -1,9 +1,0 @@
-{
-  "name": "bv-rental-mcp",
-  "version": "1.0.0",
-  "description": "BV Rental Manager の読み取り専用データを Claude から参照するための MCP サーバー",
-  "type": "module",
-  "bin": { "bv-rental-mcp": "./index.js" },
-  "engines": { "node": ">=18" },
-  "private": true
-}
