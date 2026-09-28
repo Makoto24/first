@@ -1419,7 +1419,6 @@ class BV_Staff_Portal {
 		$selected = isset( $_GET['res'] ) ? (int) $_GET['res'] : 0;
 		if ( ! $list ) { echo '<p class="warn">返却待ちの予約がありません。</p>'; self::footer(); return; }
 
-		$stores = BV_Util::stores();
 		echo '<div class="card"><form method="post" id="retform">';
 		wp_nonce_field( 'bv_staff_return' );
 		echo '<input type="hidden" name="bv_staff_return" value="1">';
@@ -1428,8 +1427,14 @@ class BV_Staff_Portal {
 		foreach ( $list as $r ) {
 			$v = $r->vehicle_id ? BV_DB::get_vehicle( $r->vehicle_id ) : null;
 			$label = date( 'n/j H:i', strtotime( $r->return_dt ) ) . '返却 ｜ ' . ( $v ? $v->name : '未割当' ) . ' ｜ ' . $r->sei . $r->mei . ' ｜ ' . $r->code;
-			$loc_default = isset( $stores[ $r->store ] ) ? $stores[ $r->store ]['location'] : 'hakuba_norikura';
-			$meta[ $r->id ] = array( 'odo' => $v ? (int) $v->mileage : 0, 'loc' => $v ? $v->location : $loc_default );
+			/*
+			 * 返却場所の初期値は貸出場所（予約した店舗の拠点）。
+			 * 車両の登録場所を使うと、別拠点から車両を回したときに
+			 * 実際に貸し出した場所と違う値が初期表示されてしまう。
+			 */
+			$loc_default = BV_Util::store_base_location( $r->store );
+			if ( ! $loc_default ) $loc_default = $v ? $v->location : key( $locations );
+			$meta[ $r->id ] = array( 'odo' => $v ? (int) $v->mileage : 0, 'loc' => $loc_default );
 			echo '<option value="' . (int) $r->id . '"' . selected( $selected, (int) $r->id, false ) . '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';

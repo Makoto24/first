@@ -791,13 +791,20 @@ class BV_Util {
 	 * 貸出場所として車両の場所を使ってはいけない。
 	 */
 	public static function store_place_label( $store, $lang = 'ja' ) {
+		$loc = self::store_base_location( $store );
+		if ( $loc ) return self::label( self::locations(), $loc, $lang );
+		return self::label( self::stores(), $store, $lang );
+	}
+
+	/**
+	 * その店舗の貸出場所の拠点キー（貸渡・返却の既定値に使う）
+	 * @return string 拠点キー。店舗が不明なら空文字
+	 */
+	public static function store_base_location( $store ) {
 		$st = self::stores();
-		if ( ! empty( $st[ $store ]['location'] ) ) {
-			$loc = $st[ $store ]['location'];
-			$locs = self::locations();
-			if ( isset( $locs[ $loc ] ) ) return self::label( $locs, $loc, $lang );
-		}
-		return self::label( $st, $store, $lang );
+		if ( empty( $st[ $store ]['location'] ) ) return '';
+		$loc = $st[ $store ]['location'];
+		return isset( self::locations()[ $loc ] ) ? $loc : '';
 	}
 
 	/** その店舗のGoogleレビュー投稿URL（未設定なら空） */
