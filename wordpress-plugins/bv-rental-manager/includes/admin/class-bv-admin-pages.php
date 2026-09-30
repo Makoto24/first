@@ -1148,6 +1148,7 @@ class BV_Admin_Pages {
 				$new[ 'store_square_location_' . $sk ]    = sanitize_text_field( $P[ 'store_square_location_' . $sk ] ?? '' );
 				$new[ 'store_square_location_en_' . $sk ] = sanitize_text_field( $P[ 'store_square_location_en_' . $sk ] ?? '' );
 				$new[ 'store_review_url_' . $sk ]         = esc_url_raw( trim( $P[ 'store_review_url_' . $sk ] ?? '' ) );
+				$new[ 'store_terms_url_' . $sk ]          = esc_url_raw( trim( $P[ 'store_terms_url_' . $sk ] ?? '' ) );
 				$lt = trim( (string) ( $P[ 'store_lead_time_' . $sk ] ?? '' ) );
 				$new[ 'store_lead_time_' . $sk ]         = ( '' === $lt ) ? '' : (string) max( 0, min( 72, (int) $lt ) );
 				$ta = trim( (string) ( $P[ 'store_turnaround_' . $sk ] ?? '' ) );
@@ -1415,6 +1416,7 @@ class BV_Admin_Pages {
 			echo '</p>';
 			echo '<p><label style="display:inline-block;width:190px">Location ID（日本語予約）</label><input type="text" name="store_square_location_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_' . $sk ] ) . '" placeholder="未入力なら共通のLocation IDを使用"></p>';
 			echo '<p><label style="display:inline-block;width:190px">Location ID（英語予約）</label><input type="text" name="store_square_location_en_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_square_location_en_' . $sk ] ) . '" placeholder="未入力なら英語共通→日本語欄→共通の順で使用"></p>';
+			echo '<p><label style="display:inline-block;width:190px">利用規約（貸渡約款）のURL</label><input type="url" name="store_terms_url_' . esc_attr( $sk ) . '" class="large-text" value="' . esc_attr( $s[ 'store_terms_url_' . $sk ] ?? '' ) . '" placeholder="https://.../terms/"><br><span class="description" style="margin-left:190px">予約フォームの同意チェックにリンクされます。空欄なら「キャンセルポリシーへの同意」のみになります。</span></p>';
 			echo '<p><label style="display:inline-block;width:190px">口コミ投稿URL（Google）</label><input type="url" name="store_review_url_' . esc_attr( $sk ) . '" class="large-text" value="' . esc_attr( $s[ 'store_review_url_' . $sk ] ?? '' ) . '" placeholder="https://g.page/r/..../review"></p>';
 			$lt_def = BV_Util::store_lead_time_hours( $sk );
 			$ta_def = BV_Util::store_turnaround_hours( $sk );

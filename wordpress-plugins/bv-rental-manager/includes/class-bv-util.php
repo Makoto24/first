@@ -685,6 +685,7 @@ class BV_Util {
 			$defaults[ 'store_square_location_' . $sk ]      = ''; /* 店舗ごとのSquare Location ID（日本語予約） */
 			$defaults[ 'store_square_location_en_' . $sk ]   = ''; /* 同（英語予約） */
 			$defaults[ 'store_review_url_' . $sk ]           = ''; /* Googleマップのレビュー投稿URL（店舗ごとに異なる） */
+			$defaults[ 'store_terms_url_' . $sk ]            = ''; /* 利用規約（貸渡約款）のURL（店舗ごとに異なる） */
 			$defaults[ 'store_lead_time_' . $sk ]           = ''; /* ネット予約の受付開始（空なら店舗既定→全体設定） */
 			$defaults[ 'store_turnaround_' . $sk ]          = ''; /* 返却後インターバル（空なら店舗既定→全体設定） */
 		}
@@ -805,6 +806,12 @@ class BV_Util {
 		if ( empty( $st[ $store ]['location'] ) ) return '';
 		$loc = $st[ $store ]['location'];
 		return isset( self::locations()[ $loc ] ) ? $loc : '';
+	}
+
+	/** その店舗の利用規約（貸渡約款）のURL（未設定なら空） */
+	public static function store_terms_url( $store ) {
+		$s = self::settings();
+		return (string) ( $s[ 'store_terms_url_' . $store ] ?? '' );
 	}
 
 	/** その店舗のGoogleレビュー投稿URL（未設定なら空） */

@@ -1126,6 +1126,12 @@ class BV_Admin {
 		echo '<tr><th>住所</th><td><textarea name="address" rows="2" class="large-text">' . esc_textarea( $val( 'address' ) ) . '</textarea></td></tr>';
 		echo '<tr><th>生年月日</th><td><input type="date" name="birthdate" value="' . esc_attr( $val( 'birthdate' ) ) . '"></td></tr>';
 
+		if ( $r && ! empty( $r->terms_agreed_at ) ) {
+			echo '<tr><th>規約への同意</th><td>' . esc_html( date( 'Y-m-d H:i', strtotime( $r->terms_agreed_at ) ) ) . ' に同意'
+				. ( $r->terms_agreed_url ? '（<a href="' . esc_url( $r->terms_agreed_url ) . '" target="_blank" rel="noreferrer">そのとき示していた規約</a>）' : '（キャンセルポリシーのみ）' )
+				. '</td></tr>';
+		}
+
 		if ( $r && $r->license_files ) {
 			$files = json_decode( $r->license_files, true ) ?: array();
 			if ( $files ) {

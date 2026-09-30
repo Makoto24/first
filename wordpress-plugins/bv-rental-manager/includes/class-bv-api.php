@@ -110,6 +110,10 @@ class BV_API {
 				'ja' => '%s歳未満の方へのお貸出しはできません。保険および各種補償が%s歳以上の運転者にのみ適用されるためです。',
 				'en' => 'We are unable to rent to drivers under %s years old. Insurance and coverage apply only to drivers aged %s and over.',
 			),
+			'need_terms' => array(
+				'ja' => '利用規約・キャンセルポリシーへの同意が必要です。チェックを入れてからお申し込みください。',
+				'en' => 'You must agree to the terms and cancellation policy before booking.',
+			),
 			'need_birthdate' => array(
 				'ja' => '生年月日をご入力ください。',
 				'en' => 'Please enter your date of birth.',
@@ -214,6 +218,7 @@ class BV_API {
 				'coverages'        => array_keys( BV_Util::store_coverages( $k ) ),
 				'student_classes'  => array_values( BV_Util::store_student_classes( $k ) ),
 				'shuttle'          => BV_Util::store_allows_shuttle( $k ) ? 1 : 0,
+				'terms_url'        => BV_Util::store_terms_url( $k ),
 			);
 		}
 		return $out;
@@ -356,6 +361,14 @@ class BV_API {
 		}
 
 		/*
+		 * 利用規約・キャンセルポリシーへの同意（ネット予約は必須）。
+		 * フォーム側でもチェックを求めるが、迂回されても受け付けないよう中央でも確認する。
+		 */
+		if ( empty( $p['agreed_terms'] ) ) {
+			return new WP_Error( 'need_terms', self::msg( 'need_terms', $lang ), array( 'status' => 400 ) );
+		}
+
+		/*
 		 * 運転者の年齢制限（貸出日時点で判定）
 		 * 生年月日を受け取るのはこの処理だけなので、ここで確認する。
 		 * 空き状況の確認・見積では判定しない（あちらに生年月日の入力欄はない）。
@@ -475,6 +488,9 @@ class BV_API {
 			'shuttle_detail' => ( 'none' === $shuttle ) ? '' : sanitize_textarea_field( $p['shuttle_detail'] ?? '' ),
 			'shuttle_status' => ( 'none' === $shuttle ) ? 'none' : 'requested',
 			'is_student' => $is_student ? 1 : 0,
+			/* 同意した日時と、そのとき示していた規約のURLを残す */
+			'terms_agreed_at'  => current_time( 'mysql' ),
+			'terms_agreed_url' => BV_Util::store_terms_url( $store ),
 			'coupon_code' => sanitize_text_field( $p['coupon_code'] ?? '' ),
 			'request_note' => sanitize_textarea_field( $p['request_note'] ?? '' ),
 			'price_breakdown' => wp_json_encode( $quote ),

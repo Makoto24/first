@@ -50,6 +50,9 @@
 			memberPass: '会員登録用パスワード（8文字以上）',
 			memberNote: 'お支払いへ進むと同時に会員登録が行われ、次回から予約状況の確認・変更がかんたんになります。',
 			submit: '仮予約を確定する', submitting: '送信中…',
+			agreeBoth: '<a href="%u" target="_blank" rel="noopener">利用規約</a>と上記のキャンセルポリシーに同意します',
+			agreePolicy: '上記のキャンセルポリシーに同意します',
+			agreeRequired: '利用規約・キャンセルポリシーへの同意にチェックを入れてください。',
 			doneMsg: '仮予約を受け付けました。確認メールをお送りしましたのでご確認ください。',
 			doneMsgNow: 'ご予約を受け付けました。<strong>お支払いの完了をもってご予約が確定</strong>します。下のボタンからお手続きください。',
 			immediateNote: '貸出まで%tを切っているため、このご予約は<strong>お支払いの完了で確定</strong>となります。%m分以内にお支払いがない場合、お車は自動的に解放されます。',
@@ -136,6 +139,9 @@
 			memberPass: 'Password for member registration (8+ characters)',
 			memberNote: 'A member account will be created when you proceed to payment, making it easy to view or change your reservations next time.',
 			submit: 'Confirm provisional booking', submitting: 'Sending…',
+			agreeBoth: 'I agree to the <a href="%u" target="_blank" rel="noopener">terms</a> and the cancellation policy above',
+			agreePolicy: 'I agree to the cancellation policy above',
+			agreeRequired: 'Please tick the box to agree to the terms and cancellation policy.',
 			doneMsg: 'Your provisional reservation has been received. Please check your confirmation email.',
 			doneMsgNow: 'Your booking has been received. <strong>It is confirmed once payment is completed.</strong> Please pay using the button below.',
 			immediateNote: 'Your pick-up is less than %t away, so this booking is <strong>confirmed only once payment is completed</strong>. If we do not receive payment within %m minutes, the vehicle will be released.',
@@ -189,6 +195,19 @@
 
 	function money(n) { n = Math.round(n); return LANG === 'en' ? 'JPY ' + n.toLocaleString() : '¥' + n.toLocaleString(); }
 	function lbl(map, key) { return map && map[key] ? map[key][LANG] : key; }
+
+	/** この店舗の利用規約URL（http(s)のみ通す） */
+	function termsUrl() {
+		var c = state.config || {};
+		var si = (c.store_info && c.store_info[state.sel.store]) ? c.store_info[state.sel.store] : {};
+		var u = si.terms_url || '';
+		return /^https?:\/\//i.test(u) ? u : '';
+	}
+	function agreeHtml() {
+		var u = termsUrl();
+		var label = u ? T.agreeBoth.replace('%u', u.replace(/"/g, '&quot;')) : T.agreePolicy;
+		return '<label class="bvbf-radio" style="margin:14px 0 6px"><input type="checkbox" id="bv-agree"> ' + label + '</label>';
+	}
 
 	/* ---- 運転者の年齢制限（中央プラグインの設定に従う。未提供なら21歳） ---- */
 
@@ -1031,6 +1050,7 @@
 			h += '<p class="bvbf-note">' + T.memberNote + '</p>';
 		}
 		h += finalNoticeHtml();
+		h += agreeHtml();
 		h += '<div id="bv-suberr"></div>';
 		h += '<button class="bvbf-btn bvbf-primary" id="bv-submit">' + (isImmediate() ? T.submitNow : T.submit) + '</button>';
 		document.getElementById('bv-details').innerHTML = h;
@@ -1057,6 +1077,11 @@
 				return;
 			}
 			var birthdate = by + '-' + ('0' + bm).slice(-2) + '-' + ('0' + bdd).slice(-2);
+			var agreeEl = document.getElementById('bv-agree');
+			if (!agreeEl || !agreeEl.checked) {
+				document.getElementById('bv-suberr').innerHTML = errBox(T.agreeRequired);
+				return;
+			}
 			/* 貸出日時点の年齢を確認（中央側でも同じ判定を行うため、ここを迂回しても通らない） */
 			if (!ageOk(birthdate)) {
 				document.getElementById('bv-suberr').innerHTML = errBox(ageText('ageTooYoung'));
@@ -1075,6 +1100,7 @@
 						phone: document.getElementById('bv-phone').value.trim(),
 						address: document.getElementById('bv-address').value.trim(),
 						birthdate: birthdate,
+						agreed_terms: 1,
 						member_password: m ? '' : document.getElementById('bv-mpass').value,
 						shuttle_detail: s.shuttle_detail, request_note: s.request_note
 					});

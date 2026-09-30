@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class BV_DB {
 
-	const DB_VERSION = '1.8.0';
+	const DB_VERSION = '1.9.0';
 
 	public static function table( $name ) {
 		global $wpdb;
@@ -108,6 +108,8 @@ class BV_DB {
 			addon_order_id VARCHAR(120) DEFAULT '',
 			addon_payment_id VARCHAR(120) DEFAULT '',
 			addon_paid_at DATETIME NULL,
+			terms_agreed_at DATETIME NULL,
+			terms_agreed_url VARCHAR(255) DEFAULT '',
 			review_mail_at DATETIME NULL,
 			review_done_at DATETIME NULL,
 			review_coupon_code VARCHAR(60) DEFAULT '',
