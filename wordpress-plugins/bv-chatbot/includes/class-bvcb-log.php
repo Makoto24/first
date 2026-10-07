@@ -59,7 +59,7 @@ class BVCB_Log {
 			'role'       => substr( (string) $role, 0, 12 ),
 			'body'       => (string) $body,
 			'lang'       => ( 'en' === $lang ) ? 'en' : 'ja',
-			'created_at' => current_time( 'mysql' ),
+			'created_at' => BVCB_Settings::now(),
 		) );
 	}
 
@@ -67,7 +67,7 @@ class BVCB_Log {
 		global $wpdb;
 		$days = max( 1, (int) BVCB_Settings::get()['log_days'] );
 		$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . self::table() . ' WHERE created_at < %s',
-			date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $days * DAY_IN_SECONDS ) ) );
+			gmdate( 'Y-m-d H:i:s', strtotime( BVCB_Settings::now() . ' UTC' ) - $days * DAY_IN_SECONDS ) ) );
 	}
 
 	/** 直近の会話（セッションごと） */
@@ -89,7 +89,7 @@ class BVCB_Log {
 
 	public static function usage() {
 		$u = get_option( self::USAGE, array() );
-		$today = current_time( 'Y-m-d' );
+		$today = BVCB_Settings::now( 'Y-m-d' );
 		if ( ! is_array( $u ) || ( $u['date'] ?? '' ) !== $today ) {
 			$u = array( 'date' => $today, 'calls' => 0, 'input' => 0, 'output' => 0, 'cache_read' => 0, 'cache_write' => 0 );
 		}

@@ -9,6 +9,16 @@ class BVCB_Settings {
 
 	const OPT = 'bvcb_options';
 
+	/**
+	 * 日本時間の現在日時
+	 * WordPressの「タイムゾーン」設定がUTCのままのサイトでも日付がずれないよう、
+	 * サイトの設定に関係なく日本時間で数える（店舗はすべて長野県）。
+	 */
+	public static function now( $format = 'Y-m-d H:i:s' ) {
+		$d = new DateTimeImmutable( 'now', new DateTimeZone( 'Asia/Tokyo' ) );
+		return $d->format( $format );
+	}
+
 	/** 選べるモデル（既定は最上位の汎用モデル） */
 	public static function models() {
 		return array(
