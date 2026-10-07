@@ -177,9 +177,9 @@ class BVCB_Admin {
 			. '<p class="description">空きがあったときなどに、ここへご案内します。</p></td></tr>';
 
 		echo '<tr><th>問い合わせ先</th><td>'
-			. '<textarea name="contact_ja" rows="3" class="large-text" placeholder="例：お電話 0261-00-0000（9:00〜18:00）／メール info@example.com">' . esc_textarea( $o['contact_ja'] ) . '</textarea>'
+			. '<textarea name="contact_ja" rows="3" class="large-text" placeholder="例：お電話 050-0000-0000（AI音声受付）ご用件を録音いただくと、スタッフから折り返しご連絡します。">' . esc_textarea( $o['contact_ja'] ) . '</textarea>'
 			. '<textarea name="contact_en" rows="2" class="large-text" placeholder="English contact info (optional)">' . esc_textarea( $o['contact_en'] ) . '</textarea>'
-			. '<p class="description">チャットで答えられないときに案内します。</p></td></tr>';
+			. '<p class="description">チャットで答えられないときに案内します。電話の受付方法（AI音声受付で録音・スタッフが折り返す、など）も書いておくと、そのとおりにお伝えします。</p></td></tr>';
 
 		echo '<tr><th>表示</th><td>'
 			. '<p><label style="display:inline-block;width:110px">チャットの名前</label><input type="text" name="bot_name" class="regular-text" value="' . esc_attr( $o['bot_name'] ) . '"></p>'
