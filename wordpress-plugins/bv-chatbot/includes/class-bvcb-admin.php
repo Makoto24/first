@@ -135,7 +135,7 @@ class BVCB_Admin {
 		foreach ( BVCB_Settings::models() as $k => $v ) echo '<option value="' . esc_attr( $k ) . '"' . selected( $o['model'], $k, false ) . '>' . esc_html( $v ) . '</option>';
 		echo '</select> <select name="effort">';
 		foreach ( BVCB_Settings::efforts() as $k => $v ) echo '<option value="' . esc_attr( $k ) . '"' . selected( $o['effort'], $k, false ) . '>考える深さ：' . esc_html( $v ) . '</option>';
-		echo '</select><p class="description">まずは既定のまま試し、費用や応答の速さが気になる場合に変えてください（Haikuでは「考える深さ」は使われません）。</p></td></tr>';
+		echo '</select><p class="description">まずは既定のまま試し、費用や応答の速さが気になる場合に変えてください（Haiku 4.5では「考える深さ」は使われません）。</p></td></tr>';
 
 		echo '<tr><th>中央サイトの接続先</th><td>';
 		echo '<input type="url" name="api_url" class="large-text" value="' . esc_attr( $o['api_url'] ) . '" placeholder="https://be-village.com/wp-json/bvrm/v1/">';

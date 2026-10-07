@@ -14,7 +14,8 @@ class BVCB_Settings {
 		return array(
 			'claude-opus-5-5'   => 'Claude Opus 5.5（既定・いちばん賢い）',
 			'claude-sonnet-5-5' => 'Claude Sonnet 5.5（速い・費用はOpusの約半分）',
-			'claude-haiku-4-5'  => 'Claude Haiku 4.5（最も安い・簡単な質問向け）',
+			'claude-haiku-5-5'  => 'Claude Haiku 5.5（とても安い・速い。費用はOpusの約40分の1）',
+			'claude-haiku-4-5'  => 'Claude Haiku 4.5（旧モデル）',
 		);
 	}
 

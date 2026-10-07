@@ -293,7 +293,7 @@ class BVCB_Claude {
 		);
 		if ( $tools ) $body['tools'] = $tools;
 		if ( 'claude-haiku-4-5' !== $model ) {
-			/* Opus 5.5 / Sonnet 5.5 は考える処理が常に有効。深さは effort で調整する */
+			/* Opus 5.5 / Sonnet 5.5 / Haiku 5.5 は考える処理が常に有効。深さは effort で調整する */
 			$body['output_config'] = array( 'effort' => $effort );
 		} elseif ( $tools ) {
 			unset( $body['tools'][0]['strict'] );
