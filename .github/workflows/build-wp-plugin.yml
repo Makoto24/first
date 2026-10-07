@@ -1,0 +1,39 @@
+name: Build WordPress plugin (rentacar-ai-concierge)
+
+# レンタカー AIコンシェルジュの配布用 zip（vendor 同梱）を作成する。
+# Actions の実行結果ページの「Artifacts」からダウンロードした zip を、
+# そのまま WordPress の「プラグインのアップロード」でインストールできる。
+on:
+  push:
+    paths:
+      - "rentacar-ai-concierge/**"
+      - ".github/workflows/build-wp-plugin.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP の構文チェック
+        run: find rentacar-ai-concierge -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
+
+      - name: 配布用 zip を作成
+        run: bash rentacar-ai-concierge/bin/build-zip.sh
+
+      # アーティファクトは GitHub がさらに zip にまとめるため、展開したフォルダをアップロードして
+      # ダウンロードした zip がそのままプラグインの zip になるようにする。
+      - name: アーティファクト用に展開
+        run: |
+          mkdir -p artifact
+          unzip -q dist/rentacar-ai-concierge.zip -d artifact
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rentacar-ai-concierge
+          path: artifact/
+          retention-days: 30
