@@ -41,6 +41,11 @@ class BV_API {
 			'methods' => 'POST', 'callback' => array( __CLASS__, 'availability_summary' ),
 			'permission_callback' => array( __CLASS__, 'check_key' ),
 		) );
+		/* チャットボット用：クラス別の料金表と、通常／グリーンシーズンの料金カレンダー（読み取り専用） */
+		register_rest_route( self::NS, '/rates', array(
+			'methods' => 'GET', 'callback' => array( __CLASS__, 'rates' ),
+			'permission_callback' => array( __CLASS__, 'check_key' ),
+		) );
 		register_rest_route( self::NS, '/quote', array(
 			'methods' => 'POST', 'callback' => array( __CLASS__, 'quote' ),
 			'permission_callback' => array( __CLASS__, 'check_key' ),
@@ -320,13 +325,12 @@ class BV_API {
 				'label'     => BV_Util::class_label_with_capacity( $c, $lang ),
 				'available' => (bool) BV_Availability::is_available( $c, $period[0], $period[1], 0, $store ),
 			);
-			if ( $row['available'] ) {
-				$q = BV_Pricing::quote( array(
-					'vehicle_class' => $c, 'pickup_dt' => $period[0], 'return_dt' => $period[1],
-					'store' => $store, 'coverage' => $coverage, 'lang' => $lang,
-				) );
-				if ( ! is_wp_error( $q ) ) $row['price_from'] = (int) $q['total'];
-			}
+			/* 満車でも料金の目安は返す（「いくら？」への回答用） */
+			$q = BV_Pricing::quote( array(
+				'vehicle_class' => $c, 'pickup_dt' => $period[0], 'return_dt' => $period[1],
+				'store' => $store, 'coverage' => $coverage, 'lang' => $lang,
+			) );
+			if ( ! is_wp_error( $q ) ) $row['price_from'] = (int) $q['total'];
 			$out[] = $row;
 		}
 		return array(
@@ -338,6 +342,70 @@ class BV_API {
 			/* price_from：オプション・追加補償なしの目安（学割・クーポンは含まない） */
 			'price_note' => ( 'en' === $lang ) ? 'Estimate without options or extra coverage.' : 'オプション・追加補償なしの目安料金です。',
 		);
+	}
+
+	/**
+	 * クラス別の料金表と、料金カレンダー（どの日が通常料金／グリーンシーズン料金か）
+	 * カレンダーは今月1日から予約受付期間の終わりの月末までを、同じ区分が続く期間ごとにまとめて返す。
+	 * 予約・お客様の情報は含まない。
+	 */
+	public static function rates( $req ) {
+		$s = BV_Util::settings();
+		$classes = array();
+		foreach ( array_keys( BV_Util::classes() ) as $c ) {
+			$row = array(
+				'normal' => (int) $s[ 'rate_normal_' . $c ],
+				'green'  => (int) $s[ 'rate_green_' . $c ],
+				'month'  => (int) $s[ 'rate_month_' . $c ],
+			);
+			if ( BV_Util::is_student_class( $c ) ) {
+				$row['student_normal'] = (int) $s[ 'rate_student_' . $c ];
+				$row['student_green']  = (int) $s[ 'rate_student_green_' . $c ];
+			}
+			$classes[ $c ] = $row;
+		}
+
+		$now  = current_time( 'timestamp' );
+		$from = date( 'Y-m-01', $now );
+		$days = min( 400, max( 31, (int) $s['max_advance_days'] + 1 ) );
+		/* 終わりも月末にそろえる（日付が変わるたびに内容が変わらないように） */
+		$to   = date( 'Y-m-t', strtotime( date( 'Y-m-d', $now ) ) + $days * DAY_IN_SECONDS );
+		return array(
+			'default_category' => ( 'normal' === $s['rate_default_category'] ) ? 'normal' : 'green',
+			'classes'          => $classes,
+			'longterm'         => array(
+				array( 'days' => 3,  'pct' => (int) $s['longterm_3days'] ),
+				array( 'days' => 7,  'pct' => (int) $s['longterm_7days'] ),
+				array( 'days' => 14, 'pct' => (int) $s['longterm_14days'] ),
+			),
+			'longterm_green'   => ! empty( $s['longterm_green'] ) ? 1 : 0,
+			'monthly'          => array(
+				array( 'months' => 2, 'pct' => (int) $s['monthly_2m'] ),
+				array( 'months' => 3, 'pct' => (int) $s['monthly_3m'] ),
+			),
+			'monthly_cap'      => ! empty( $s['monthly_cap'] ) ? 1 : 0,
+			'calendar'         => array(
+				'from'   => $from,
+				'to'     => $to,
+				'ranges' => self::rate_ranges( $from, $to ),
+			),
+		);
+	}
+
+	/** 料金区分が同じ日の続きを、1つの期間にまとめる */
+	public static function rate_ranges( $from, $to ) {
+		$n = (int) round( ( strtotime( $to ) - strtotime( $from ) ) / DAY_IN_SECONDS ) + 1;
+		if ( $n < 1 ) return array();
+		$out = array();
+		foreach ( BV_Pricing::day_categories( $from . ' 00:00:00', $n ) as $d => $cat ) {
+			$i = count( $out ) - 1;
+			if ( $i >= 0 && $out[ $i ]['category'] === $cat ) {
+				$out[ $i ]['to'] = $d;
+			} else {
+				$out[] = array( 'from' => $d, 'to' => $d, 'category' => $cat );
+			}
+		}
+		return $out;
 	}
 
 	/** リクエストから装備の数量だけを取り出す（opt_navi など） */

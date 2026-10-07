@@ -6,6 +6,7 @@ delete_option( 'bvcb_knowledge' );
 delete_option( 'bvcb_usage' );
 delete_option( 'bvcb_db_version' );
 delete_transient( 'bvcb_central_config' );
+delete_transient( 'bvcb_central_rates' );
 wp_clear_scheduled_hook( 'bvcb_purge_logs' );
 global $wpdb;
 $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'bvcb_logs' );

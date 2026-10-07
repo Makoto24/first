@@ -56,7 +56,7 @@ class BVCB_Admin {
 			$new['log_enabled'] = ! empty( $P['log_enabled'] ) ? 1 : 0;
 			$new['log_days']    = min( 365, max( 1, (int) ( $P['log_days'] ?? 30 ) ) );
 			BVCB_Settings::save( $new );
-			delete_transient( BVCB_Central::CONFIG_CACHE );
+			BVCB_Central::flush();
 			self::notice( '設定を保存しました。' );
 			wp_safe_redirect( self::url( 'settings' ) );
 			exit;
@@ -140,11 +140,23 @@ class BVCB_Admin {
 		echo '<tr><th>中央サイトの接続先</th><td>';
 		echo '<input type="url" name="api_url" class="large-text" value="' . esc_attr( $o['api_url'] ) . '" placeholder="https://be-village.com/wp-json/bvrm/v1/">';
 		echo '<input type="password" name="api_key" class="regular-text" style="margin-top:6px" autocomplete="new-password" placeholder="' . ( $o['api_key'] ? 'APIキー設定済み（変更するときだけ入力）' : '中央サイトのAPIキー' ) . '">';
-		echo '<p class="description">予約フォームと同じURL・APIキーです。同じサイトに予約フォームのプラグインがあれば自動で引き継ぎます。空車確認に使います。</p>';
+		echo '<p class="description">予約フォームと同じURL・APIキーです。同じサイトに予約フォームのプラグインがあれば自動で引き継ぎます。空車確認と、料金表・料金カレンダーの読み込みに使います。</p>';
 		if ( is_wp_error( $cfg ) ) {
 			echo '<p style="color:#b32d2e">接続できません：' . esc_html( $cfg->get_error_message() ) . '（空車確認なしで、Q&A集だけで答えます）</p>';
 		} else {
 			echo '<p style="color:#00a32a">接続OK（店舗 ' . count( $all_stores ) . '件）</p>';
+			$rates = BVCB_Central::rates( true );
+			if ( is_wp_error( $rates ) ) {
+				echo '<p style="color:#b32d2e">料金表・料金カレンダーを読み込めません：' . esc_html( $rates->get_error_message() ) . '</p>';
+			} else {
+				$ranges = (array) ( $rates['calendar']['ranges'] ?? array() );
+				echo '<p style="color:#00a32a">料金表・料金カレンダーも連携しています（' . esc_html( ( $rates['calendar']['from'] ?? '' ) . '〜' . ( $rates['calendar']['to'] ?? '' ) ) . '・' . count( $ranges ) . '期間）</p>';
+				echo '<details><summary>チャットに渡している料金カレンダーを見る</summary><ul style="margin:6px 0 0 1.2em;list-style:disc">';
+				foreach ( $ranges as $r ) {
+					echo '<li>' . esc_html( BVCB_Claude::range_label( $r ) ) . '</li>';
+				}
+				echo '</ul><p class="description">変更は中央サイトの「料金設定」で行います。チャットへの反映は最大10分後です（この画面を開くと、すぐに取り直します）。</p></details>';
+			}
 		}
 		echo '</td></tr>';
 
