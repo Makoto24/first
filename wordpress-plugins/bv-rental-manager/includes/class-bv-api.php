@@ -36,6 +36,11 @@ class BV_API {
 			'methods' => 'POST', 'callback' => array( __CLASS__, 'availability' ),
 			'permission_callback' => array( __CLASS__, 'check_key' ),
 		) );
+		/* チャットボット用：店舗の全クラスの空き状況をまとめて返す（読み取り専用） */
+		register_rest_route( self::NS, '/availability/summary', array(
+			'methods' => 'POST', 'callback' => array( __CLASS__, 'availability_summary' ),
+			'permission_callback' => array( __CLASS__, 'check_key' ),
+		) );
 		register_rest_route( self::NS, '/quote', array(
 			'methods' => 'POST', 'callback' => array( __CLASS__, 'quote' ),
 			'permission_callback' => array( __CLASS__, 'check_key' ),
@@ -281,6 +286,58 @@ class BV_API {
 			if ( ! is_wp_error( $quote ) ) $out['quote'] = $quote;
 		}
 		return $out;
+	}
+
+	/**
+	 * 店舗・期間を指定して、取り扱いクラスごとの空き状況と目安料金を返す
+	 * 予約管理（ガントチャート）と同じ判定を使う。個人情報・予約の中身は返さない。
+	 * vehicle_class を指定すればそのクラスだけ。
+	 */
+	public static function availability_summary( $req ) {
+		$p = $req->get_json_params();
+		$lang  = self::req_lang( $p );
+		$store = sanitize_key( $p['store'] ?? '' );
+		if ( ! isset( BV_Util::stores()[ $store ] ) ) {
+			return new WP_Error( 'bad_store', ( 'en' === $lang ) ? 'Unknown branch.' : '店舗が正しくありません。', array( 'status' => 400 ) );
+		}
+		$period = self::validate_period( $p );
+		if ( is_wp_error( $period ) ) return $period;
+
+		$classes = array_values( BV_Util::store_classes( $store ) );
+		$want = sanitize_key( $p['vehicle_class'] ?? '' );
+		if ( $want ) {
+			if ( ! in_array( $want, $classes, true ) ) {
+				return new WP_Error( 'bad_class', self::msg( 'bad_class', $lang ), array( 'status' => 400 ) );
+			}
+			$classes = array( $want );
+		}
+
+		$coverage = BV_Util::store_coverage_or_default( $store, 'A' );
+		$out = array();
+		foreach ( $classes as $c ) {
+			$row = array(
+				'class'     => $c,
+				'label'     => BV_Util::class_label_with_capacity( $c, $lang ),
+				'available' => (bool) BV_Availability::is_available( $c, $period[0], $period[1], 0, $store ),
+			);
+			if ( $row['available'] ) {
+				$q = BV_Pricing::quote( array(
+					'vehicle_class' => $c, 'pickup_dt' => $period[0], 'return_dt' => $period[1],
+					'store' => $store, 'coverage' => $coverage, 'lang' => $lang,
+				) );
+				if ( ! is_wp_error( $q ) ) $row['price_from'] = (int) $q['total'];
+			}
+			$out[] = $row;
+		}
+		return array(
+			'store'     => $store,
+			'store_label' => BV_Util::label( BV_Util::stores(), $store, $lang ),
+			'pickup_dt' => $period[0],
+			'return_dt' => $period[1],
+			'classes'   => $out,
+			/* price_from：オプション・追加補償なしの目安（学割・クーポンは含まない） */
+			'price_note' => ( 'en' === $lang ) ? 'Estimate without options or extra coverage.' : 'オプション・追加補償なしの目安料金です。',
+		);
 	}
 
 	/** リクエストから装備の数量だけを取り出す（opt_navi など） */

@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 out="${1:-dist}"
 mkdir -p "$out"
 
-for dir in bv-rental-manager bv-booking-form; do
+for dir in bv-rental-manager bv-booking-form bv-chatbot; do
 	main="$dir/$dir.php"
 	[ -f "$main" ] || { echo "見つかりません: $main"; exit 1; }
 
