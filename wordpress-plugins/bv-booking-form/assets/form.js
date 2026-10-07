@@ -52,6 +52,8 @@
 			submit: '仮予約を確定する', submitting: '送信中…',
 			agreeBoth: '<a href="%u" target="_blank" rel="noopener">利用規約</a>と上記のキャンセルポリシーに同意します',
 			agreePolicy: '上記のキャンセルポリシーに同意します',
+			etcTitle: 'ETCユニットをお申し込みの方へ',
+			etcNotice: 'ETCカードのレンタルは行っておりません。お客様のETCカードをご持参ください。高速道路を不正に通行した場合は、当社規定の違約金を請求いたします。',
 			agreeRequired: '利用規約・キャンセルポリシーへの同意にチェックを入れてください。',
 			doneMsg: '仮予約を受け付けました。確認メールをお送りしましたのでご確認ください。',
 			doneMsgNow: 'ご予約を受け付けました。<strong>お支払いの完了をもってご予約が確定</strong>します。下のボタンからお手続きください。',
@@ -141,6 +143,8 @@
 			submit: 'Confirm provisional booking', submitting: 'Sending…',
 			agreeBoth: 'I agree to the <a href="%u" target="_blank" rel="noopener">terms</a> and the cancellation policy above',
 			agreePolicy: 'I agree to the cancellation policy above',
+			etcTitle: 'If you have selected the ETC unit',
+			etcNotice: 'We do not rent out ETC cards. Please bring your own ETC card. If the expressway is used improperly (e.g. passing through an ETC gate without a valid card or without paying the toll), a penalty will be charged in accordance with our company rules.',
 			agreeRequired: 'Please tick the box to agree to the terms and cancellation policy.',
 			doneMsg: 'Your provisional reservation has been received. Please check your confirmation email.',
 			doneMsgNow: 'Your booking has been received. <strong>It is confirmed once payment is completed.</strong> Please pay using the button below.',
@@ -202,6 +206,12 @@
 		var si = (c.store_info && c.store_info[state.sel.store]) ? c.store_info[state.sel.store] : {};
 		var u = si.terms_url || '';
 		return /^https?:\/\//i.test(u) ? u : '';
+	}
+	/* ETCユニットを選んだ方への注意書き（カードは貸し出さない・不正通行は違約金） */
+	function etcNoticeHtml() {
+		if (!(state.sel.opt_etc > 0)) return '';
+		return '<div class="bvbf-etcwarn" style="background:#fff4f4;border:1px solid #d63638;border-radius:8px;padding:12px 14px;margin:14px 0;color:#8a1f11;text-align:left">' +
+			'<strong>' + T.etcTitle + '</strong><br>' + T.etcNotice + '</div>';
 	}
 	function agreeHtml() {
 		var u = termsUrl();
@@ -844,6 +854,7 @@
 			for (var i = 0; i <= max; i++) h += '<option value="' + i + '"' + (s[key] === i ? ' selected' : '') + '>' + i + '</option>';
 			h += '</select></div>';
 		});
+		h += '<div id="bv-etcwarn">' + etcNoticeHtml() + '</div>';
 		h += '<h4>' + T.coverage + '</h4>';
 		var covKeys = allowedCoverages();
 		if (covKeys.indexOf(s.coverage) === -1) s.coverage = covKeys[covKeys.length - 1];
@@ -896,7 +907,12 @@
 		scrollTop();
 
 		root.querySelectorAll('[data-opt]').forEach(function (sel) {
-			sel.addEventListener('change', function () { s[this.dataset.opt] = parseInt(this.value, 10); refreshQuote(); });
+			sel.addEventListener('change', function () {
+				s[this.dataset.opt] = parseInt(this.value, 10);
+				var ew = document.getElementById('bv-etcwarn');
+				if (ew) ew.innerHTML = etcNoticeHtml();
+				refreshQuote();
+			});
 		});
 		root.querySelectorAll('input[name=bv-cov]').forEach(function (r) {
 			r.addEventListener('change', function () { s.coverage = this.value; refreshQuote(); });
@@ -1050,6 +1066,7 @@
 			h += '<p class="bvbf-note">' + T.memberNote + '</p>';
 		}
 		h += finalNoticeHtml();
+		h += etcNoticeHtml();
 		h += agreeHtml();
 		h += '<div id="bv-suberr"></div>';
 		h += '<button class="bvbf-btn bvbf-primary" id="bv-submit">' + (isImmediate() ? T.submitNow : T.submit) + '</button>';

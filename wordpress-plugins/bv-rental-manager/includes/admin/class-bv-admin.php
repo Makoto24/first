@@ -15,6 +15,7 @@ class BV_Admin {
 		add_action( 'admin_init', array( __CLASS__, 'handle_reservation_save' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_mark_paid' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_refund' ) );
+		add_action( 'admin_init', array( __CLASS__, 'handle_message' ) );
 		add_action( 'admin_init', array( 'BV_Admin_Pages', 'handle_vehicle_save' ) );
 		add_action( 'admin_init', array( 'BV_Admin_Pages', 'handle_vehicle_delete' ) );
 		add_action( 'wp_ajax_bvrm_gantt', array( __CLASS__, 'ajax_gantt' ) );
@@ -125,64 +126,55 @@ class BV_Admin {
 		if ( ! $r ) return;
 		$back = admin_url( 'admin.php?page=bvrm-reservations&edit=' . $id );
 
-		$total     = (int) $r->price_total;
-		$already   = (int) $r->refund_amount;
-		$available = max( 0, $total - $already );
-		if ( $available < 1 ) {
-			set_transient( 'bvrm_notice', 'この予約はすでに全額返金済みです。', 60 );
-			wp_safe_redirect( $back ); exit;
-		}
-
 		$P = wp_unslash( $_POST );
-		$mode = sanitize_key( $P['refund_mode'] ?? '' );
-		$label = '';
-
-		if ( 'policy' === $mode ) {
-			$c = BV_Util::cancel_charge( $r );
-			$amount = (int) $c['refund'];
-			$label = 'キャンセルポリシー適用（' . $c['label_ja'] . '／キャンセル料 ' . $c['pct'] . '%）';
-		} elseif ( 'manual' === $mode ) {
-			$amount = (int) preg_replace( '/[^0-9]/', '', (string) ( $P['refund_manual'] ?? '' ) );
-			$label = '金額を指定';
-		} elseif ( preg_match( '/^pct(\d+)$/', $mode, $m ) ) {
-			$pct = max( 1, min( 100, (int) $m[1] ) );
-			$amount = (int) round( $total * $pct / 100 );
-			$label = $pct . '%返金';
-		} else {
-			set_transient( 'bvrm_notice', '返金方法を選んでください。', 60 );
-			wp_safe_redirect( $back ); exit;
-		}
-
-		if ( $amount < 1 ) {
-			set_transient( 'bvrm_notice', '返金額が0円です。金額をご確認ください。', 60 );
-			wp_safe_redirect( $back ); exit;
-		}
-		if ( $amount > $available ) {
-			set_transient( 'bvrm_notice', '返金額が返金可能額（' . BV_Util::money( $available ) . '）を超えています。', 120 );
-			wp_safe_redirect( $back ); exit;
-		}
-
-		$res = BV_Square::refund( $r, $amount );
-		if ( is_wp_error( $res ) ) {
-			set_transient( 'bvrm_notice', '返金エラー：' . $res->get_error_message(), 180 );
-			wp_safe_redirect( $back ); exit;
-		}
-
-		$done = (int) $res;
-		$memo = trim( (string) $r->admin_memo );
-		$memo .= ( $memo ? "\n" : '' ) . '[返金 ' . current_time( 'Y-m-d H:i' ) . '] '
-			. BV_Util::money( $done ) . '（' . $label . '）'
-			. ( ! empty( $P['refund_memo'] ) ? '／' . sanitize_text_field( $P['refund_memo'] ) : '' );
-		BV_DB::update_reservation( $id, array( 'admin_memo' => $memo ) );
-
-		$r = BV_DB::get_reservation( $id );
-		$rest = max( 0, $total - (int) $r->refund_amount );
-		set_transient( 'bvrm_notice',
-			BV_Util::money( $done ) . ' を返金しました（' . $label . '）。'
-			. '返金合計 ' . BV_Util::money( (int) $r->refund_amount )
-			. '／お預かり残 ' . BV_Util::money( $rest ) . '。', 180 );
+		$res = BV_Ops::refund( $r, $P['refund_mode'] ?? '', $P['refund_manual'] ?? '', $P['refund_memo'] ?? '', 'admin' );
+		set_transient( 'bvrm_notice', ( $res['ok'] ? '' : '返金できませんでした：' ) . $res['msg'], 180 );
 		wp_safe_redirect( $back );
 		exit;
+	}
+
+	/**
+	 * お客様へメッセージを送る（変更申請への返信など）
+	 * 店舗のアドレスから送り、管理画面のリンクなどは含めない。
+	 */
+	public static function handle_message() {
+		if ( ! isset( $_POST['bvrm_send_message'] ) ) return;
+		if ( ! current_user_can( 'manage_options' ) ) return;
+		$id = (int) ( $_POST['reservation_id'] ?? 0 );
+		check_admin_referer( 'bvrm_message_' . $id );
+		$r = BV_DB::get_reservation( $id );
+		if ( ! $r ) return;
+		$P = wp_unslash( $_POST );
+		$res = BV_Ops::message_customer( $r, $P['msg_subject'] ?? '', $P['msg_body'] ?? '', 'admin' );
+		set_transient( 'bvrm_notice', $res['msg'], 120 );
+		wp_safe_redirect( admin_url( 'admin.php?page=bvrm-reservations&edit=' . $id ) . '#bvrm-message' );
+		exit;
+	}
+
+	/** お客様へのメッセージ欄（予約詳細の本体フォームの外に置く） */
+	protected static function message_panel( $r ) {
+		$req = BV_Ops::latest_change_request( $r );
+		echo '<div style="background:#fff;border:1px solid #dcdcde;border-left:4px solid #8c5ad3;padding:12px;max-width:720px">';
+		if ( $req ) {
+			echo '<p style="margin:0 0 8px"><strong>直近の変更申請</strong>（' . esc_html( $req['at'] ) . '）<br>'
+				. '<span style="white-space:pre-wrap">' . esc_html( $req['text'] ) . '</span></p>';
+		}
+		if ( ! is_email( $r->email ) ) {
+			echo '<p class="description" style="margin:0">メールアドレスが登録されていないため送信できません。</p></div>';
+			return;
+		}
+		echo '<form method="post">';
+		wp_nonce_field( 'bvrm_message_' . $r->id );
+		echo '<input type="hidden" name="reservation_id" value="' . (int) $r->id . '">';
+		echo '<p style="margin:0 0 8px"><label style="display:inline-block;width:90px">宛先</label>' . esc_html( $r->email )
+			. '　<span class="description">（' . esc_html( 'en' === $r->lang ? '英語' : '日本語' ) . 'の定型文で送ります）</span></p>';
+		echo '<p style="margin:0 0 8px"><label style="display:inline-block;width:90px">件名</label>'
+			. '<input type="text" name="msg_subject" class="regular-text" maxlength="100" placeholder="空欄なら「ご予約についてのご連絡」"></p>';
+		echo '<p style="margin:0 0 8px"><textarea name="msg_body" rows="7" style="width:100%" required placeholder="例：ご希望の返却日の延長を承りました。差額のお支払いリンクを別途お送りしますので、ご確認ください。"></textarea></p>';
+		echo '<p style="margin:0"><button class="button button-primary" name="bvrm_send_message" value="1" onclick="return confirm(\'お客様へメッセージを送信します。よろしいですか？\')">お客様へ送信</button></p>';
+		echo '<p class="description" style="margin:6px 0 0">店舗のアドレスから送信します。本文の後に予約番号・日時・予約確認ページのリンクが自動で付きます（管理画面のリンクは付きません）。'
+			. 'お客様が返信すると店舗のアドレスに届きます。送信した内容は管理メモに残ります。</p>';
+		echo '</form></div>';
 	}
 
 	/** 手動で入金を記録するときの受領方法 */
@@ -329,71 +321,24 @@ class BV_Admin {
 			}
 			/* ---- 追加請求（差額） ---- */
 			if ( 'charge_addon' === $action ) {
-				$amount = (int) ( $_GET['addon_amount'] ?? 0 );
-				$note   = sanitize_text_field( wp_unslash( $_GET['addon_note'] ?? '' ) );
-				if ( $amount < 1 ) {
-					set_transient( 'bvrm_notice', '追加請求の金額を1円以上で指定してください。', 60 );
-				} elseif ( ! is_email( $r->email ) ) {
-					set_transient( 'bvrm_notice', 'メールアドレスが登録されていないため送信できません。', 60 );
-				} else {
-					BV_DB::update_reservation( $id, array(
-						'addon_amount' => $amount,
-						'addon_note'   => $note,
-						'addon_status' => 'quoted',
-						'addon_link'   => '',
-						'addon_order_id' => '',
-						'addon_payment_id' => '',
-						'addon_paid_at' => null,
-					) );
-					$r = BV_DB::get_reservation( $id );
-					$link = BV_Square::create_addon_payment_link( $r );
-					if ( is_wp_error( $link ) ) {
-						/* リンクが作れなければ請求中のままにしない */
-						BV_DB::update_reservation( $id, array( 'addon_status' => '', 'addon_amount' => 0, 'addon_note' => '' ) );
-						set_transient( 'bvrm_notice', '追加請求の決済リンクを作成できませんでした: ' . $link->get_error_message(), 120 );
-					} else {
-						$memo = trim( (string) $r->admin_memo );
-						$memo .= ( $memo ? "\n" : '' ) . '[追加請求を発行 ' . current_time( 'Y-m-d H:i' ) . '] '
-							. BV_Util::money( $amount ) . ( $note ? '／' . $note : '' );
-						BV_DB::update_reservation( $id, array(
-							'addon_link' => $link['url'], 'addon_order_id' => $link['order_id'], 'admin_memo' => $memo,
-						) );
-						$r = BV_DB::get_reservation( $id );
-						BV_Mailer::send_addon_request( $r );
-						set_transient( 'bvrm_notice', '差額 ' . BV_Util::money( $amount ) . ' の決済リンクをお客様へ送信しました。', 120 );
-					}
-				}
+				$res = BV_Ops::charge_addon( $r, (int) ( $_GET['addon_amount'] ?? 0 ), wp_unslash( $_GET['addon_note'] ?? '' ), 'admin' );
+				set_transient( 'bvrm_notice', $res['msg'], 120 );
 			}
 			if ( 'resend_addon' === $action ) {
-				if ( BV_Util::has_pending_addon( $r ) && $r->addon_link && is_email( $r->email ) ) {
-					BV_Mailer::send_addon_request( $r );
-					set_transient( 'bvrm_notice', '追加請求のメールを再送しました。', 60 );
-				} else {
-					set_transient( 'bvrm_notice', '再送できる追加請求がありません。', 60 );
-				}
+				$res = BV_Ops::resend_addon( $r );
+				set_transient( 'bvrm_notice', $res['msg'], 60 );
 			}
 			if ( 'sync_addon' === $action ) {
-				$res = BV_Square::sync_payment_status( $r, 'addon' );
-				set_transient( 'bvrm_notice', is_wp_error( $res ) ? $res->get_error_message() : $res, 120 );
+				$res = BV_Ops::sync_addon( $r );
+				set_transient( 'bvrm_notice', $res['msg'], 120 );
 			}
 			if ( 'mark_addon_paid' === $action ) {
-				if ( BV_Util::has_pending_addon( $r ) ) {
-					$res = BV_Square::mark_addon_paid( $r, '', '手動記録' );
-					set_transient( 'bvrm_notice', $res, 120 );
-				} else {
-					set_transient( 'bvrm_notice', '入金待ちの追加請求がありません。', 60 );
-				}
+				$res = BV_Ops::mark_addon_paid( $r, 'admin' );
+				set_transient( 'bvrm_notice', $res['msg'], 120 );
 			}
 			if ( 'cancel_addon' === $action ) {
-				if ( BV_Util::has_pending_addon( $r ) ) {
-					$memo = trim( (string) $r->admin_memo );
-					$memo .= ( $memo ? "\n" : '' ) . '[追加請求を取り消し ' . current_time( 'Y-m-d H:i' ) . '] ' . BV_Util::money( (int) $r->addon_amount );
-					BV_DB::update_reservation( $id, array(
-						'addon_status' => '', 'addon_amount' => 0, 'addon_note' => '',
-						'addon_link' => '', 'addon_order_id' => '', 'admin_memo' => $memo,
-					) );
-					set_transient( 'bvrm_notice', '追加請求を取り消しました。発行済みのリンクは使わないようお客様にご連絡ください。', 120 );
-				}
+				$res = BV_Ops::cancel_addon( $r, 'admin' );
+				set_transient( 'bvrm_notice', $res['msg'], 120 );
 			}
 
 			/* お礼＋口コミ依頼メールの送信・再送 */
@@ -1290,9 +1235,9 @@ class BV_Admin {
 			/* ---- 返金 ---- */
 			if ( $r->paid_at ) {
 				/* 返金できるのは実際に収納した額まで（金額変更後も正しく上限がかかるようにする） */
-				$rf_total = (int) $r->paid_amount ?: (int) $r->price_total;
+				$rf_total = BV_Ops::refund_base( $r );
 				$rf_done  = (int) $r->refund_amount;
-				$rf_left  = max( 0, $rf_total - $rf_done );
+				$rf_left  = BV_Ops::refund_left( $r );
 				$rf_form  = 'bvrm-refund-form';
 				$cc_rf    = BV_Util::cancel_charge( $r );
 
@@ -1320,7 +1265,7 @@ class BV_Admin {
 							. $dis . ' style="margin:0 6px 6px 0" onclick="return confirm(\'' . esc_js( $cf ) . '\')">'
 							. $pct . '%<small style="color:#666"> ' . esc_html( BV_Util::money( $amt ) ) . '</small></button>';
 					}
-					echo '<p class="description" style="margin:2px 0 0">ご予約金額に対する割合です。返金可能額を超えるものは押せません。</p></td></tr>';
+					echo '<p class="description" style="margin:2px 0 0">お預かり額に対する割合です。返金可能額を超えるものは押せません。</p></td></tr>';
 
 					/* キャンセルポリシー適用 */
 					echo '<tr><th style="padding:8px 10px 8px 0">ポリシー適用</th><td style="padding:8px 0">';
@@ -1457,7 +1402,7 @@ class BV_Admin {
 		}
 
 		/* 返金フォームの実体（上の表の入力を form 属性で受け取る） */
-		if ( $r && $r->paid_at && (int) $r->refund_amount < (int) $r->price_total && $r->square_payment_id ) {
+		if ( BV_Ops::can_refund( $r ) ) {
 			echo '<form id="bvrm-refund-form" method="post">';
 			wp_nonce_field( 'bvrm_refund_' . $r->id );
 			echo '<input type="hidden" name="reservation_id" value="' . (int) $r->id . '">';
@@ -1473,6 +1418,12 @@ class BV_Admin {
 			echo '<input type="hidden" name="id" value="' . (int) $r->id . '">';
 			echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( wp_create_nonce( 'bvrm_approve_shuttle' ) ) . '">';
 			echo '</form>';
+		}
+
+		/* ---- お客様へメッセージ（変更申請への返信など） ---- */
+		if ( $r ) {
+			echo '<hr id="bvrm-message"><h2>お客様へメッセージを送る</h2>';
+			self::message_panel( $r );
 		}
 
 		/* ---- 入金の手動記録（未払いの予約のみ） ---- */

@@ -82,9 +82,17 @@ class BV_Mailer {
 				'subject' => '[{company}] Regarding your shuttle request (Ref: {code})',
 				'body'    => "Dear {name},\n\nWe are very sorry, but we are unable to arrange the shuttle service for your requested date and time.\n\nReservation No.: {code}\nShuttle type: {shuttle}\nLocation: {shuttle_detail}\n\nYour car reservation remains valid.\nPlease feel free to contact us — we may be able to suggest an alternative.\n\n{company}",
 			),
+			'staff_message_ja' => array(
+				'subject' => '【{company}】ご予約についてのご連絡（予約番号 {code}）',
+				'body'    => "{name} 様\n\n{message}\n\n――――――――――\n予約番号：{code}\n店舗：{store}\n貸出：{pickup}\n返却：{return}\n\nご予約内容の確認はこちら：\n{manage_link}\n\nこのメールにご返信いただくと、店舗の担当者に届きます。\n\n{company}",
+			),
+			'staff_message_en' => array(
+				'subject' => '[{company}] Regarding your reservation (Ref: {code})',
+				'body'    => "Dear {name},\n\n{message}\n\n----------\nReservation No.: {code}\nBranch: {store}\nPick-up: {pickup}\nReturn: {return}\n\nView your reservation:\n{manage_link}\n\nIf you reply to this email, it will reach our branch staff.\n\n{company}",
+			),
 			'admin_shuttle_ja' => array(
 				'subject' => '【送迎リクエスト】{store} {code} {name}様 {pickup}〜',
-				'body'    => "送迎のリクエストが届きました。内容を確認し、管理画面から料金を選んで承認してください。\n\n予約番号：{code}\n店舗：{store}\n送迎区分：{shuttle}\n送迎場所：{shuttle_detail}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n\n管理画面で承認・料金設定：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "送迎のリクエストが届きました。内容を確認し、管理画面から料金を選んで承認してください。\n\n予約番号：{code}\n店舗：{store}\n送迎区分：{shuttle}\n送迎場所：{shuttle_detail}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n\n管理画面で承認・料金設定：{admin_link}",
 			),
 			'change_customer_ja' => array(
 				'subject' => '【{company}】変更申請を受け付けました（予約番号 {code}）',
@@ -96,11 +104,11 @@ class BV_Mailer {
 			),
 			'admin_change_ja' => array(
 				'subject' => '【変更申請】{store} {code} {name}様 {pickup}〜',
-				'body'    => "お客様から予約変更の申請がありました。\n\n【ご希望の変更内容】\n{change_request}\n\n【現在の予約内容】\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n{payment_status}\n\n管理画面で変更・再計算：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "お客様から予約変更の申請がありました。\n\n【ご希望の変更内容】\n{change_request}\n\n【現在の予約内容】\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n{payment_status}\n\n管理画面で変更・再計算：{admin_link}",
 			),
 			'admin_cancel_ja' => array(
 				'subject' => '【キャンセル】{store} {code} {name}様 {pickup}〜',
-				'body'    => "お客様によりキャンセルされました。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n\n{payment_status}\n\n管理画面：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "お客様によりキャンセルされました。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n\n{payment_status}\n\n管理画面：{admin_link}",
 			),
 			'inquiry_admin_ja' => array(
 				'subject' => '【{store}】車両調整問い合わせ',
@@ -140,7 +148,7 @@ class BV_Mailer {
 			),
 			'admin_change_done_ja' => array(
 				'subject' => '【日程変更】{store} {code} {name}様 {pickup}〜',
-				'body'    => "お客様ご自身の操作で日程が変更されました。\n\n【変更前】\n貸出：{old_pickup}\n返却：{old_return}\n合計：{old_total}\n\n【変更後】\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n合計：{total}\n\n{vehicle_note}{price_note}氏名：{name}\nメール：{email}\n電話：{phone}\n\n管理画面：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "お客様ご自身の操作で日程が変更されました。\n\n【変更前】\n貸出：{old_pickup}\n返却：{old_return}\n合計：{old_total}\n\n【変更後】\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n合計：{total}\n\n{vehicle_note}{price_note}氏名：{name}\nメール：{email}\n電話：{phone}\n\n管理画面：{admin_link}",
 			),
 			'autocancel_ja' => array(
 				'subject' => '【{company}】ご予約の受付期限が過ぎたためキャンセルとなりました（予約番号 {code}）',
@@ -152,11 +160,11 @@ class BV_Mailer {
 			),
 			'admin_autocancel_ja' => array(
 				'subject' => '【自動キャンセル】{store} {code} {name}様 {pickup}〜',
-				'body'    => "{immediate_note}支払期限（{deadline_text}）を過ぎたため、未入金の予約を自動キャンセルしました。車両の空き枠は解放されています。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n\nお客様にもキャンセルのご案内を送信しています（設定で無効にできます）。\n行き違いで入金があった場合は、管理画面からステータスを戻してください。\n\n管理画面：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "{immediate_note}支払期限（{deadline_text}）を過ぎたため、未入金の予約を自動キャンセルしました。車両の空き枠は解放されています。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n合計：{total}\n\nお客様にもキャンセルのご案内を送信しています（設定で無効にできます）。\n行き違いで入金があった場合は、管理画面からステータスを戻してください。\n\n管理画面：{admin_link}",
 			),
 			'admin_paid_ja' => array(
 				'subject' => '【予約確定】{store} {code} {name}様 {pickup}〜',
-				'body'    => "決済が完了し、予約が確定しました。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n補償：{coverage}\n装備：{equipment}\n送迎：{shuttle_text}\n合計：{total}\n入金日時：{paid_at}\n要望：{request}\n\n管理画面：{admin_link}\n\n※このメールに返信すると、お客様へ直接返信できます。",
+				'body'    => "決済が完了し、予約が確定しました。\n\n予約番号：{code}\n店舗：{store}\nクラス：{class}\n車両：{vehicle}\n貸出：{pickup}\n返却：{return}\n氏名：{name}\nメール：{email}\n電話：{phone}\n補償：{coverage}\n装備：{equipment}\n送迎：{shuttle_text}\n合計：{total}\n入金日時：{paid_at}\n要望：{request}\n\n管理画面：{admin_link}",
 			),
 			'admin_new_ja' => array(
 				'subject' => '【新規予約】{store} {code} {name}様 {pickup}〜',
@@ -420,6 +428,10 @@ class BV_Mailer {
 			if ( $n > 0 ) $opts[] = $ev[ $lang ] . ' × ' . $n;
 		}
 		$equipment_text = $opts ? implode( '、', $opts ) : ( 'en' === $lang ? 'None' : 'なし' );
+		/* ETCユニットを申し込まれた方には、カード持参と違約金の注意書きを必ず添える */
+		if ( ! empty( $r->opt_etc ) && (int) $r->opt_etc > 0 ) {
+			$equipment_text .= "\n" . ( 'en' === $lang ? '* ' : '※' ) . BV_Util::etc_notice( $lang );
+		}
 
 		/* 送迎の表示 */
 		if ( 'none' === $r->shuttle ) {
@@ -470,6 +482,7 @@ class BV_Mailer {
 			'request'     => $r->request_note,
 			/* お客様向けメールでは店舗名を表示（{company_legal} で法人名） */
 			'company'     => BV_Util::store_company( $r->store, $lang ),
+			'staff_link'  => BV_Staff_Portal::detail_url( $r ),
 			'company_legal' => $s['company_name'],
 			'admin_link'  => admin_url( 'admin.php?page=bvrm-reservations&edit=' . $r->id ),
 		);
@@ -536,7 +549,7 @@ class BV_Mailer {
 		$m = self::render( self::get_template( 'admin_new_ja' ), $vars );
 		$to = $s['admin_email'];
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		self::send( $to, $m['subject'], $m['body'], $cc, $r->store, $r->email );
+		self::send_admin_notice( $r, $to, $m['subject'], $m['body'], $cc );
 	}
 
 	public static function send_paid( $r ) {
@@ -562,7 +575,7 @@ class BV_Mailer {
 
 		$m2 = self::render( self::get_template( 'admin_paid_ja' ), $av );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
+		self::send_admin_notice( $r, $s['admin_email'], $m2['subject'], $m2['body'], $cc );
 	}
 
 	/* ---------- 追加請求（差額） ---------- */
@@ -618,7 +631,7 @@ class BV_Mailer {
 
 		$m2 = self::render( self::get_template( 'admin_addon_paid_ja' ), $av );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
+		self::send_admin_notice( $r, $s['admin_email'], $m2['subject'], $m2['body'], $cc );
 	}
 
 	/* ---------- 返却後のお礼・レビュー依頼 ---------- */
@@ -714,7 +727,7 @@ class BV_Mailer {
 		$vars['name'] = trim( $r->sei . ' ' . $r->mei );
 		$m = self::render( self::get_template( 'admin_shuttle_ja' ), $vars );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		return self::send( $s['admin_email'], $m['subject'], $m['body'], $cc, $r->store, $r->email );
+		return self::send_admin_notice( $r, $s['admin_email'], $m['subject'], $m['body'], $cc );
 	}
 
 	/** 送迎承認 → お客様へ決済リンク */
@@ -777,7 +790,7 @@ class BV_Mailer {
 			: '支払状況：未入金　※変更後の金額で決済リンクを送り直せます。';
 		$m2 = self::render( self::get_template( 'admin_change_ja' ), $av );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		self::send( $s['admin_email'], $m2['subject'], $m2['body'], $cc, $r->store, $r->email );
+		self::send_admin_notice( $r, $s['admin_email'], $m2['subject'], $m2['body'], $cc );
 
 		return true;
 	}
@@ -821,7 +834,7 @@ class BV_Mailer {
 		$m = self::render( self::get_template( 'admin_cancel_ja' ), $vars );
 		$prefix = ( 'customer' === $by ) ? '' : '［管理側操作］';
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		return self::send( $s['admin_email'], $prefix . $m['subject'], $m['body'], $cc, $r->store, $r->email );
+		return self::send_admin_notice( $r, $s['admin_email'], $prefix . $m['subject'], $m['body'], $cc );
 	}
 
 	public static function send_otp( $email, $code, $lang = 'ja', $store = '' ) {
@@ -831,6 +844,39 @@ class BV_Mailer {
 			'otp' => $code, 'company' => $company, 'company_legal' => $s['company_name'],
 		) );
 		return self::send( $email, $m['subject'], $m['body'], '', $store );
+	}
+
+	/**
+	 * 予約に関する管理者・スタッフ宛の通知
+	 * 以前は返信先をお客様にしていたが、そのまま返信すると管理画面のリンクなど
+	 * 社内向けの内容がお客様に届いてしまうため、返信先は店舗のままにする。
+	 * お客様へのご連絡は、管理画面・スタッフポータルの「お客様へメッセージを送る」から行う。
+	 */
+	protected static function send_admin_notice( $r, $to, $subject, $body, $cc = '' ) {
+		/* 保存済みの文面に古い「返信するとお客様へ…」の案内が残っていても消す */
+		$body = preg_replace( '/\R*※このメールに返信すると、お客様へ直接返信できます。/u', '', (string) $body );
+		$body = rtrim( $body ) . "\n\n――――――――――\n"
+			. "※お客様へのご連絡は、このメールに返信せず、管理画面またはスタッフポータルの予約詳細にある「お客様へメッセージを送る」からお送りください。\n"
+			. "　店舗のアドレスから送信され、管理画面のリンクなど社内向けの内容はお客様に届きません。\n"
+			. "　（このメールに返信しても店舗宛に届き、お客様には届きません）\n"
+			. 'スタッフポータル：' . BV_Staff_Portal::detail_url( $r );
+		return self::send( $to, $subject, $body, $cc, $r->store );
+	}
+
+	/** スタッフが入力したメッセージをお客様へ送る（店舗の差出人・返信先は店舗） */
+	public static function send_customer_message( $r, $subject, $message ) {
+		$lang = ( 'en' === $r->lang ) ? 'en' : 'ja';
+		$vars = self::reservation_vars( $r );
+		$vars['message'] = $message;
+		$m = self::render( self::get_template( 'staff_message_' . $lang ), $vars );
+		$subj = $m['subject'];
+		if ( '' !== trim( (string) $subject ) ) {
+			$company = BV_Util::store_company( $r->store, $lang );
+			$subj = ( 'en' === $lang )
+				? '[' . $company . '] ' . $subject . ' (Ref: ' . $r->code . ')'
+				: '【' . $company . '】' . $subject . '（予約番号 ' . $r->code . '）';
+		}
+		return self::send( $r->email, $subj, $m['body'], '', $r->store );
 	}
 
 	/** 汎用（問い合わせ確認など）：店舗の差出人で送る */
@@ -1158,7 +1204,7 @@ class BV_Mailer {
 
 		$m = self::render( self::get_template( 'admin_change_done_ja' ), $vars );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		return self::send( $s['admin_email'], $m['subject'], $m['body'], $cc, $r->store, $r->email );
+		return self::send_admin_notice( $r, $s['admin_email'], $m['subject'], $m['body'], $cc );
 	}
 
 	/**
@@ -1233,6 +1279,6 @@ class BV_Mailer {
 			: '';
 		$m = self::render( self::fix_deadline_tpl( self::get_template( 'admin_autocancel_ja' ) ), $vars );
 		$cc = trim( $s['admin_cc'] . ',' . $s['staff_notify'], ',' );
-		return self::send( $s['admin_email'], $m['subject'], $m['body'], $cc, $r->store, $r->email );
+		return self::send_admin_notice( $r, $s['admin_email'], $m['subject'], $m['body'], $cc );
 	}
 }

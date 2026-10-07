@@ -144,6 +144,19 @@ class BV_Staff_Portal {
 		}
 	}
 
+	/**
+	 * 予約詳細のURL（管理者通知メールに載せる）
+	 * 店舗限定ポータルの対象店舗なら、そのポータルのURLにする。
+	 */
+	public static function detail_url( $r ) {
+		$qk = 'bv_staff';
+		$groups = BV_Util::store_groups();
+		foreach ( self::scoped_portals() as $k => $def ) {
+			if ( ! empty( $groups[ $def['group'] ] ) && in_array( $r->store, $groups[ $def['group'] ]['stores'], true ) ) { $qk = $k; break; }
+		}
+		return add_query_arg( array( 'view' => 'detail', 'id' => (int) $r->id ), home_url( '/?' . $qk . '=1' ) );
+	}
+
 	protected static function base( $view = '' ) {
 		$url = home_url( '/?' . self::query_key() . '=1' );
 		return $view ? add_query_arg( 'view', $view, $url ) : $url;
@@ -707,6 +720,44 @@ class BV_Staff_Portal {
 		$r = BV_DB::get_reservation( $id );
 		if ( ! $r || ! self::in_scope( $r ) ) { self::header( '予約詳細' ); echo '<p class="warn">予約が見つかりません。</p>'; self::footer(); return; }
 
+		/*
+		 * 追加請求・返金・お客様へのメッセージ（管理画面と同じ処理を共通クラスで行う）
+		 * 再読み込みで二重に実行されないよう、処理後は結果を一時保存してリダイレクトする。
+		 */
+		$op = null;
+		if ( isset( $_POST['bv_staff_addon'] ) && check_admin_referer( 'bv_staff_addon_' . $id ) ) {
+			$P  = wp_unslash( $_POST );
+			$do = sanitize_key( $P['bv_staff_addon'] );
+			if ( 'charge' === $do )        $op = BV_Ops::charge_addon( $r, (int) ( $P['addon_amount'] ?? 0 ), $P['addon_note'] ?? '', 'staff' );
+			elseif ( 'resend' === $do )    $op = BV_Ops::resend_addon( $r );
+			elseif ( 'sync' === $do )      $op = BV_Ops::sync_addon( $r );
+			elseif ( 'mark_paid' === $do ) $op = BV_Ops::mark_addon_paid( $r, 'staff' );
+			elseif ( 'cancel' === $do )    $op = BV_Ops::cancel_addon( $r, 'staff' );
+		}
+		if ( isset( $_POST['bv_staff_refund'] ) && check_admin_referer( 'bv_staff_refund_' . $id ) ) {
+			$P  = wp_unslash( $_POST );
+			$op = BV_Ops::refund( $r, $P['refund_mode'] ?? '', $P['refund_manual'] ?? '', $P['refund_memo'] ?? '', 'staff' );
+		}
+		if ( isset( $_POST['bv_staff_message'] ) && check_admin_referer( 'bv_staff_message_' . $id ) ) {
+			$P  = wp_unslash( $_POST );
+			$op = BV_Ops::message_customer( $r, $P['msg_subject'] ?? '', $P['msg_body'] ?? '', 'staff' );
+		}
+		if ( $op ) {
+			$tok = wp_generate_password( 12, false );
+			set_transient( 'bv_staff_op_' . $tok, $op, 300 );
+			wp_safe_redirect( add_query_arg( array( 'id' => $id, 'op' => $tok ), self::base( 'detail' ) ) );
+			exit;
+		}
+		$op_msg = '';
+		if ( ! empty( $_GET['op'] ) ) {
+			$tok = preg_replace( '/[^A-Za-z0-9]/', '', (string) wp_unslash( $_GET['op'] ) );
+			$got = $tok ? get_transient( 'bv_staff_op_' . $tok ) : false;
+			if ( is_array( $got ) ) {
+				delete_transient( 'bv_staff_op_' . $tok );
+				$op_msg = '<p class="' . ( $got['ok'] ? 'ok' : 'warn' ) . '">' . esc_html( $got['msg'] ) . '</p>';
+			}
+		}
+
 		/* 現金・振込の受領 */
 		if ( isset( $_POST['bv_staff_cash'] ) && check_admin_referer( 'bv_staff_cash_' . $id ) ) {
 			$P = wp_unslash( $_POST );
@@ -905,6 +956,27 @@ class BV_Staff_Portal {
 					$shuttle_changed = true;
 				}
 			}
+			/* 日時・補償・オプション・金額の変更を管理メモに残す（差額請求の理由の下書きにも使う） */
+			$chg = array();
+			if ( $upd['pickup_dt'] !== $r->pickup_dt || $upd['return_dt'] !== $r->return_dt ) {
+				$chg[] = '貸出期間の日時 ' . substr( $r->pickup_dt, 0, 16 ) . '〜' . substr( $r->return_dt, 0, 16 )
+					. ' → ' . substr( $upd['pickup_dt'], 0, 16 ) . '〜' . substr( $upd['return_dt'], 0, 16 );
+			}
+			if ( $upd['coverage'] !== $r->coverage ) {
+				$chg[] = '補償 ' . BV_Util::label( BV_Util::coverages(), $r->coverage ) . ' → ' . BV_Util::label( BV_Util::coverages(), $upd['coverage'] );
+			}
+			if ( isset( $upd['vehicle_class'] ) ) $chg[] = '車両クラス変更';
+			foreach ( BV_Util::equipment() as $ek => $ev ) {
+				$o = isset( $r->{ 'opt_' . $ek } ) ? (int) $r->{ 'opt_' . $ek } : 0;
+				if ( $o !== (int) $upd[ 'opt_' . $ek ] ) $chg[] = $ev['ja'] . ' ' . $o . '→' . (int) $upd[ 'opt_' . $ek ];
+			}
+			if ( isset( $upd['price_total'] ) && (int) $upd['price_total'] !== (int) $r->price_total ) {
+				$chg[] = '合計 ' . BV_Util::money( (int) $r->price_total ) . ' → ' . BV_Util::money( (int) $upd['price_total'] );
+			}
+			if ( $chg ) {
+				$upd['admin_memo'] = trim( $upd['admin_memo'] . "\n[変更 " . current_time( 'Y-m-d H:i' ) . '（スタッフポータル）] ' . implode( '／', $chg ) );
+			}
+
 			BV_DB::update_reservation( $id, $upd );
 			$r = BV_DB::get_reservation( $id );
 			if ( 'cancelled' === $r->status && 'cancelled' !== $prev_status ) {
@@ -929,7 +1001,7 @@ class BV_Staff_Portal {
 				if ( $res['refunded'] > 0 ) {
 					$cancel_msg .= '<br>返金 ' . esc_html( BV_Util::money( (int) $res['refunded'] ) ) . ' を自動処理しました。';
 				} elseif ( $c['refund'] > 0 ) {
-					$cancel_msg .= '<br><strong>返金 ' . esc_html( BV_Util::money( (int) $c['refund'] ) ) . ' が必要です。管理画面から手続きしてください。</strong>';
+					$cancel_msg .= '<br><strong>返金 ' . esc_html( BV_Util::money( (int) $c['refund'] ) ) . ' が必要です。Square決済でない場合は、現金・振込などでご返金ください。</strong>';
 				}
 				$cancel_msg .= '<br>お客様へキャンセル確認メールを送信しました。</p>';
 			}
@@ -937,9 +1009,10 @@ class BV_Staff_Portal {
 
 		self::header( '予約詳細 ' . $r->code );
 		if ( isset( $_POST['bv_staff_save'] ) ) {
-			echo '<p class="ok">保存しました。' . ( ! empty( $class_changed ) ? '<br>' . esc_html( $class_changed ) . '料金が変わる場合は「保存時に料金を再計算する」にチェックして再保存してください。' : '' ) . '</p>';
+			echo '<p class="ok">保存しました。' . ( ( $r->paid_at && 0 !== BV_Util::balance( $r ) ) ? '<br>お支払い済みの金額と差があります。下の「お支払いの過不足」「返金」から差額の請求・返金ができます。' : '' ) . ( ! empty( $class_changed ) ? '<br>' . esc_html( $class_changed ) . '料金が変わる場合は「保存時に料金を再計算する」にチェックして再保存してください。' : '' ) . '</p>';
 		}
 		echo $cancel_msg;
+		echo $op_msg;
 		$statuses = BV_Util::statuses(); $classes = BV_Util::classes(); $stores = self::stores_for_select();
 		$vehicles = self::filter_vehicles( BV_DB::get_vehicles() );
 
@@ -979,6 +1052,9 @@ class BV_Staff_Portal {
 		echo '<tr><th>合計</th><td>' . esc_html( BV_Util::money( $r->price_total ) ) . '</td></tr>';
 		echo '<tr><th>要望</th><td>' . esc_html( $r->request_note ) . '</td></tr>';
 		echo '</table></div>';
+
+		/* ---- 免許証・本人確認書類（署名付きの短期リンク。ポータルにログイン中のみ開ける） ---- */
+		self::license_card( $r );
 
 		/* ---- お支払いの受領（現金・振込・店頭端末など） ---- */
 		if ( ! $r->paid_at && 'cancelled' !== $r->status ) {
@@ -1082,6 +1158,10 @@ class BV_Staff_Portal {
 			echo '</div>';
 		}
 
+		self::balance_card( $r );
+		self::refund_card( $r );
+		self::message_card( $r );
+
 		echo '<div class="card"><h3 style="margin-top:0">編集</h3><form method="post">';
 		wp_nonce_field( 'bv_staff_save_' . $id );
 		echo '<input type="hidden" name="bv_staff_save" value="1">';
@@ -1152,7 +1232,7 @@ class BV_Staff_Portal {
 		if ( ! in_array( $r->status, array( 'cancelled', 'returned' ), true ) ) {
 			echo '<div class="card"><h3 style="margin-top:0">キャンセル</h3>';
 			if ( $r->paid_at ) {
-				echo '<p class="warn">この予約は<strong>支払済み</strong>です（' . esc_html( date( 'Y-m-d H:i', strtotime( $r->paid_at ) ) ) . '）。キャンセル後、返金が必要な場合は管理画面から手続きしてください。</p>';
+				echo '<p class="warn">この予約は<strong>支払済み</strong>です（' . esc_html( date( 'Y-m-d H:i', strtotime( $r->paid_at ) ) ) . '）。キャンセル後に追加の返金が必要な場合は、上の「返金」から手続きできます。</p>';
 			}
 			echo '<form method="post" onsubmit="return confirm(\'予約 ' . esc_js( $r->code ) . ' をキャンセルします。よろしいですか？\')">';
 			wp_nonce_field( 'bv_staff_cancel_' . $id );
@@ -1179,6 +1259,170 @@ class BV_Staff_Portal {
 			echo '<div class="card"><p class="warn">この予約はキャンセル済みです。</p></div>';
 		}
 		self::footer();
+	}
+
+	/* ---------- 予約詳細の各欄（管理画面と同等の操作） ---------- */
+
+	/** 操作ボタン用の小さなフォーム */
+	protected static function op_form_open( $r, $kind, $confirm = '' ) {
+		echo '<form method="post" style="margin:0 0 8px"' . ( $confirm ? ' onsubmit="return confirm(\'' . esc_js( $confirm ) . '\')"' : '' ) . '>';
+		wp_nonce_field( 'bv_staff_' . $kind . '_' . (int) $r->id );
+	}
+
+	/** 免許証・本人確認書類 */
+	protected static function license_card( $r ) {
+		$files = $r->license_files ? ( json_decode( $r->license_files, true ) ?: array() ) : array();
+		echo '<div class="card"><h3 style="margin-top:0">免許証・本人確認書類</h3>';
+		if ( ! $files ) {
+			echo '<p class="note" style="margin:0">アップロードされた書類はありません。来店時に原本をご確認ください。</p></div>';
+			return;
+		}
+		echo '<div style="display:flex;flex-wrap:wrap;gap:10px">';
+		foreach ( $files as $k => $u ) {
+			$url = BV_Files::url( $u, 'staff' );
+			echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noreferrer" style="display:block;text-align:center;font-size:13px">';
+			if ( BV_Files::is_image( $u ) ) {
+				echo '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $k ) . '" referrerpolicy="no-referrer" style="display:block;max-width:150px;max-height:110px;border:1px solid #dcdcde;border-radius:6px;margin-bottom:4px">';
+			}
+			echo esc_html( $k ) . '</a>';
+		}
+		echo '</div>';
+		echo '<p class="note" style="margin:8px 0 0">タップすると拡大表示します。閲覧リンクは一定時間で失効し、スタッフポータルにログインしている間だけ開けます。画面の撮影・保存はしないでください。</p>';
+		echo '</div>';
+	}
+
+	/** お支払いの過不足と差額の追加請求 */
+	protected static function balance_card( $r ) {
+		if ( 'cancelled' === $r->status ) return;
+		$bal = BV_Util::balance( $r );
+		if ( ! ( $r->paid_at || 'paid' === $r->addon_status || $bal !== (int) $r->price_total ) ) return;
+
+		echo '<div class="card" style="border-left:5px solid ' . ( $bal > 0 ? '#dba617' : '#2271b1' ) . '">';
+		echo '<h3 style="margin-top:0">お支払いの過不足</h3>';
+		echo '<p style="margin:0 0 8px">現在の合計 <strong>' . esc_html( BV_Util::money( (int) $r->price_total ) ) . '</strong>／収納済み <strong>' . esc_html( BV_Util::money( BV_Util::paid_net( $r ) ) ) . '</strong>';
+		if ( (int) $r->refund_amount > 0 ) echo '<br><span class="note">返金 ' . esc_html( BV_Util::money( (int) $r->refund_amount ) ) . ' を差し引いた額です</span>';
+		echo '</p>';
+		if ( $bal > 0 ) {
+			echo '<p style="margin:0 0 10px;color:#b32d2e;font-size:17px">不足 <strong>' . esc_html( BV_Util::money( $bal ) ) . '</strong>（追加請求が必要です）</p>';
+		} elseif ( $bal < 0 ) {
+			echo '<p style="margin:0 0 10px;color:#2271b1;font-size:17px">過払い <strong>' . esc_html( BV_Util::money( -$bal ) ) . '</strong>（下の「返金」から返金してください）</p>';
+		} else {
+			echo '<p style="margin:0 0 10px;color:#00a32a">過不足はありません。</p>';
+		}
+
+		if ( BV_Util::has_pending_addon( $r ) ) {
+			echo '<p class="warn" style="margin:0 0 10px"><strong>追加請求 ' . esc_html( BV_Util::money( (int) $r->addon_amount ) ) . ' を請求中です（入金待ち）。</strong>'
+				. ( $r->addon_note ? '<br>理由：' . esc_html( $r->addon_note ) : '' ) . '</p>';
+			$btn = function ( $do, $label, $color, $confirm = '' ) use ( $r ) {
+				self::op_form_open( $r, 'addon', $confirm );
+				echo '<button name="bv_staff_addon" value="' . esc_attr( $do ) . '" style="background:' . esc_attr( $color ) . ';width:100%">' . esc_html( $label ) . '</button></form>';
+			};
+			$btn( 'sync', 'Squareで入金を確認', '#2271b1' );
+			$btn( 'resend', '追加請求のメールを再送', '#646970' );
+			$btn( 'mark_paid', '現金などで受領済みにする', '#00a32a', '現金などで受領済みとして、追加請求の入金を記録します。よろしいですか？' );
+			$btn( 'cancel', '追加請求を取り消す', '#b32d2e', 'この追加請求を取り消します。発行済みの決済リンクは使えなくなります。よろしいですか？' );
+		} elseif ( $bal > 0 ) {
+			if ( ! is_email( $r->email ) ) {
+				echo '<p class="note" style="margin:0">メールアドレスが登録されていないため、決済リンクを送信できません。店頭で受領してください。</p>';
+			} else {
+				self::op_form_open( $r, 'addon', '差額の決済リンクをお客様へメールで送ります。よろしいですか？' );
+				echo '<label>請求額（円）</label><input type="number" name="addon_amount" min="1" step="1" value="' . (int) $bal . '">';
+				echo '<label>理由</label><input type="text" name="addon_note" maxlength="120" placeholder="例：返却日を1日延長／補償プランをBに変更" value="' . esc_attr( self::guess_addon_note( $r ) ) . '">';
+				echo '<button name="bv_staff_addon" value="charge" style="background:#dba617;width:100%">差額の決済リンクを作成してお客様へ送る</button></form>';
+				echo '<p class="note" style="margin:4px 0 0">お客様には差額だけを請求します。お支払い済みの分を重ねて請求することはありません。</p>';
+			}
+		} elseif ( 'paid' === $r->addon_status && (int) $r->addon_amount > 0 ) {
+			echo '<p class="note" style="margin:0">直近の追加請求 ' . esc_html( BV_Util::money( (int) $r->addon_amount ) ) . ' は入金済みです'
+				. ( $r->addon_paid_at ? '（' . esc_html( date( 'Y-m-d H:i', strtotime( $r->addon_paid_at ) ) ) . '）' : '' ) . '。</p>';
+		}
+		echo '</div>';
+	}
+
+	/** 追加請求の「理由」の下書き（管理メモの直近の変更から推測） */
+	protected static function guess_addon_note( $r ) {
+		$lines = array_reverse( array_filter( array_map( 'trim', explode( "\n", (string) $r->admin_memo ) ) ) );
+		foreach ( $lines as $line ) {
+			if ( false !== strpos( $line, '日時' ) || false !== strpos( $line, '期間' ) ) return '貸出期間の変更';
+			if ( false !== strpos( $line, '補償' ) ) return '補償プランの変更';
+			if ( false !== strpos( $line, 'クラス' ) ) return '車両クラスの変更';
+		}
+		return '';
+	}
+
+	/** 返金（Square決済分。上限は実際に収納した額から返金済みを引いた額） */
+	protected static function refund_card( $r ) {
+		if ( ! $r->paid_at ) return;
+		$base = BV_Ops::refund_base( $r );
+		$done = (int) $r->refund_amount;
+		$left = BV_Ops::refund_left( $r );
+
+		echo '<div class="card" style="border-left:5px solid #2271b1"><h3 style="margin-top:0">返金</h3>';
+		echo '<p style="margin:0 0 8px">お預かり額 <strong>' . esc_html( BV_Util::money( $base ) ) . '</strong>';
+		if ( $done > 0 ) echo '／返金済み <strong style="color:#2271b1">' . esc_html( BV_Util::money( $done ) ) . '</strong>';
+		echo '<br>返金可能額 <strong style="color:#b32d2e">' . esc_html( BV_Util::money( $left ) ) . '</strong></p>';
+
+		if ( $left < 1 ) {
+			echo '<p class="note" style="margin:0">全額返金済みのため、これ以上返金できません。</p></div>';
+			return;
+		}
+		if ( ! $r->square_payment_id ) {
+			echo '<p class="warn" style="margin:0">この予約には決済IDが記録されていないため、システムからは返金できません（現金・振込などのお支払い）。現金・振込でご返金ください。</p></div>';
+			return;
+		}
+
+		$bal = BV_Util::balance( $r );
+		if ( $bal < 0 ) {
+			$over = min( -$bal, $left );
+			self::op_form_open( $r, 'refund', '過払い分 ' . BV_Util::money( $over ) . ' を返金します。よろしいですか？' );
+			echo '<input type="hidden" name="refund_mode" value="manual"><input type="hidden" name="refund_manual" value="' . (int) $over . '">';
+			echo '<input type="hidden" name="refund_memo" value="変更にともなう差額返金">';
+			echo '<button name="bv_staff_refund" value="1" style="background:#2271b1;width:100%">過払い分（差額）' . esc_html( BV_Util::money( $over ) ) . ' を返金する</button></form>';
+		}
+
+		echo '<p style="margin:10px 0 4px;font-size:13px;font-weight:600">割合で返金（お預かり額に対する割合）</p><div style="display:flex;flex-wrap:wrap;gap:6px">';
+		foreach ( array( 100, 80, 70, 50 ) as $pct ) {
+			$amt = (int) round( $base * $pct / 100 );
+			if ( $amt > $left ) continue;
+			self::op_form_open( $r, 'refund', BV_Util::money( $amt ) . ' を返金します（' . $pct . '%）。よろしいですか？' );
+			echo '<button name="bv_staff_refund" value="1" style="background:#646970;padding:10px 14px">' . $pct . '%（' . esc_html( BV_Util::money( $amt ) ) . '）</button>';
+			echo '<input type="hidden" name="refund_mode" value="pct' . $pct . '"></form>';
+		}
+		echo '</div>';
+
+		$cc = BV_Util::cancel_charge( $r );
+		if ( (int) $cc['refund'] > 0 && (int) $cc['refund'] <= $left ) {
+			self::op_form_open( $r, 'refund', 'キャンセルポリシー（' . $cc['label_ja'] . '／キャンセル料 ' . $cc['pct'] . '%）を適用し、' . BV_Util::money( (int) $cc['refund'] ) . ' を返金します。よろしいですか？' );
+			echo '<input type="hidden" name="refund_mode" value="policy">';
+			echo '<button name="bv_staff_refund" value="1" style="background:#646970;width:100%">キャンセルポリシーどおりに返金（' . esc_html( BV_Util::money( (int) $cc['refund'] ) ) . '）</button></form>';
+		}
+
+		self::op_form_open( $r, 'refund', '入力した金額を返金します。よろしいですか？' );
+		echo '<input type="hidden" name="refund_mode" value="manual">';
+		echo '<label>金額を指定して返金（円）</label><input type="number" name="refund_manual" min="1" max="' . (int) $left . '" step="1" required placeholder="例: 5000">';
+		echo '<input type="text" name="refund_memo" maxlength="120" placeholder="メモ（例：返却日を1日短縮した差額）">';
+		echo '<button name="bv_staff_refund" value="1" style="background:#2271b1;width:100%">この金額を返金する</button></form>';
+		echo '<p class="note" style="margin:4px 0 0">Squareに返金を依頼します。お客様のカードへの返金反映には数日かかる場合があります。返金は管理メモに記録されます。</p>';
+		echo '</div>';
+	}
+
+	/** お客様へメッセージ（変更申請への返信など） */
+	protected static function message_card( $r ) {
+		echo '<div class="card" style="border-left:5px solid #8c5ad3"><h3 style="margin-top:0">お客様へメッセージを送る</h3>';
+		$req = BV_Ops::latest_change_request( $r );
+		if ( $req ) {
+			echo '<p style="margin:0 0 10px;background:#f6f7f7;border-radius:6px;padding:8px 10px"><strong>直近の変更申請</strong>（' . esc_html( $req['at'] ) . '）<br>'
+				. '<span style="white-space:pre-wrap">' . esc_html( $req['text'] ) . '</span></p>';
+		}
+		if ( ! is_email( $r->email ) ) {
+			echo '<p class="note" style="margin:0">メールアドレスが登録されていないため送信できません。お電話でご連絡ください。</p></div>';
+			return;
+		}
+		self::op_form_open( $r, 'message', 'お客様（' . $r->email . '）へメッセージを送信します。よろしいですか？' );
+		echo '<label>件名（空欄なら「ご予約についてのご連絡」）</label><input type="text" name="msg_subject" maxlength="100">';
+		echo '<label>本文</label><textarea name="msg_body" rows="6" required placeholder="例：ご希望の返却日の延長を承りました。差額のお支払いリンクを別途お送りしますので、ご確認ください。"></textarea>';
+		echo '<button name="bv_staff_message" value="1" style="background:#8c5ad3;width:100%">お客様へ送信</button></form>';
+		echo '<p class="note" style="margin:4px 0 0">店舗のアドレスから' . esc_html( 'en' === $r->lang ? '英語' : '日本語' ) . 'の定型文で送ります。本文の後に予約番号・日時・予約確認ページのリンクが自動で付きます（管理画面のリンクは付きません）。お客様の返信は店舗のアドレスに届きます。送信内容は管理メモに残ります。</p>';
+		echo '</div>';
 	}
 
 	/* ---------- 予約追加 ---------- */

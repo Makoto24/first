@@ -356,6 +356,16 @@ class BV_Util {
 	 * コルチナ乗鞍店・白馬駅前店は共通、信濃大町駅前店・大町温泉郷店は共通、
 	 * 松本島内店・松本信州大学前店は共通。
 	 */
+	/**
+	 * ETCユニットを申し込まれたお客様への注意書き
+	 * 予約フォーム・スタッフ画面・お客様宛メールで同じ文言を使う。
+	 */
+	public static function etc_notice( $lang = 'ja' ) {
+		return ( 'en' === $lang )
+			? 'We do not rent out ETC cards. Please bring your own ETC card. If the expressway is used improperly (e.g. passing through an ETC gate without a valid card or without paying the toll), a penalty will be charged in accordance with our company rules.'
+			: 'ETCカードのレンタルは行っておりません。お客様のETCカードをご持参ください。高速道路を不正に通行した場合は、当社規定の違約金を請求いたします。';
+	}
+
 	public static function store_groups() {
 		return array(
 			'hakuba'    => array(
@@ -425,8 +435,8 @@ class BV_Util {
 			),
 			'etc'         => array(
 				'ja' => 'ETCユニット', 'en' => 'ETC Unit',
-				'note_ja' => 'ETCカードのレンタルは行っておりません。お客様のETCカードをご持参ください',
-				'note_en' => 'ETC cards are NOT available for rent. Please bring your own ETC card',
+				'note_ja' => self::etc_notice( 'ja' ),
+				'note_en' => self::etc_notice( 'en' ),
 				'price' => (int) $p['opt_etc'], 'max' => 1,
 			),
 		);

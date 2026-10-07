@@ -1830,7 +1830,7 @@ class BV_Admin_Pages {
 		echo '<hr><h2>メールテンプレート（日本語・英語）</h2><form method="post">';
 		wp_nonce_field( 'bvrm_templates' );
 		echo '<input type="hidden" name="bvrm_save_templates" value="1">';
-		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。<br>追加料金のメールでは <code>{addon_amount}</code>（追加請求額）<code>{addon_link}</code>（差額の決済リンク）<code>{addon_reason}</code>（請求理由）<code>{paid_amount}</code>（収納済み額）<code>{balance_text}</code>（過不足）が使えます。<br>返却後のお礼・口コミ依頼メールでは <code>{review_link}</code>（店舗ごとの口コミ投稿URL）<code>{coupon_link}</code>（クーポンの受け取りリンク）<code>{coupon_amount}</code>（割引額）、お礼クーポンの送付メールではさらに <code>{coupon_code}</code> <code>{coupon_expires}</code> が使えます。</p>';
+		echo '<p class="description">使用可能なプレースホルダー: {name} {code} {store} <strong>{store_access}</strong>（店舗名＋来店場所の説明）{class}（定員つき）<strong>{vehicle}</strong>（割当車両名＋ナンバー／未割当なら「未割当」）<strong>{plate}</strong>（ナンバーのみ）{pickup} {return}（曜日つき）{days} <strong>{coverage}</strong> <strong>{equipment}</strong> <strong>{shuttle_text}</strong> {total} {breakdown} {pay_link} {pay_block} <strong>{deadline}</strong>（お支払い期限の案内）{manage_link} {shuttle_note} {otp} <strong>{company}</strong>（＝予約店舗のメール表示名）<strong>{company_legal}</strong>（＝法人名）<br>車両調整の問い合わせメールでは <code>{message}</code>（問い合わせ内容）<code>{email}</code> <code>{phone}</code> <code>{lang}</code>、変更申請メールでは <code>{change_request}</code>（変更希望内容）、キャンセル・変更の管理者通知では <code>{payment_status}</code>、自動キャンセル通知では <code>{deadline_hours}</code>、キャンセル通知では <code>{cancel_policy}</code>（ポリシー全文）<code>{cancel_tier}</code>（適用区分）<code>{cancel_pct}</code>（%）<code>{cancel_fee}</code>（キャンセル料）<code>{refund_note}</code>（返金のご案内）、支払リマインドでは <code>{deadline_note}</code>（期限までの残り時間の案内）も使えます。<code>{cancel_policy}</code> はすべてのメールで使えます。<br>追加料金のメールでは <code>{addon_amount}</code>（追加請求額）<code>{addon_link}</code>（差額の決済リンク）<code>{addon_reason}</code>（請求理由）<code>{paid_amount}</code>（収納済み額）<code>{balance_text}</code>（過不足）が使えます。<br>返却後のお礼・口コミ依頼メールでは <code>{review_link}</code>（店舗ごとの口コミ投稿URL）<code>{coupon_link}</code>（クーポンの受け取りリンク）<code>{coupon_amount}</code>（割引額）、お礼クーポンの送付メールではさらに <code>{coupon_code}</code> <code>{coupon_expires}</code> が使えます。<br>スタッフからのご連絡メールでは <code>{message}</code>（管理画面・スタッフポータルで入力した本文）が使えます。予約に関する管理者通知の末尾には、お客様への連絡方法の案内とスタッフポータルのリンクが自動で付きます（返信先はお客様ではなく店舗になります）。</p>';
 		$names = array(
 			'provisional_ja' => '仮予約（日本語）', 'provisional_en' => '仮予約（英語）',
 			'paid_ja' => '支払完了（日本語）', 'paid_en' => '支払完了（英語）',
@@ -1851,9 +1851,9 @@ class BV_Admin_Pages {
 			'autocancel_ja'   => '自動キャンセル通知（日本語）',
 			'autocancel_en'   => '自動キャンセル通知（英語）',
 			'admin_autocancel_ja' => '管理者通知（自動キャンセル）',
-			'admin_cancel_ja' => '管理者通知（キャンセル・返信先はお客様）',
-			'admin_change_ja'    => '管理者通知（変更申請・返信先はお客様）',
-			'admin_shuttle_ja'     => '管理者通知（送迎リクエスト・返信先はお客様）',
+			'admin_cancel_ja' => '管理者通知（キャンセル）',
+			'admin_change_ja'    => '管理者通知（変更申請）',
+			'admin_shuttle_ja'     => '管理者通知（送迎リクエスト）',
 			'shuttle_quote_ja'     => '送迎の承認・お支払い案内（日本語）',
 			'shuttle_quote_en'     => '送迎の承認・お支払い案内（英語）',
 			'shuttle_paid_ja'      => '送迎確定（日本語）',
@@ -1870,6 +1870,8 @@ class BV_Admin_Pages {
 			'addon_paid_ja'       => '追加料金の入金確認（日本語）',
 			'addon_paid_en'       => '追加料金の入金確認（英語）',
 			'admin_addon_paid_ja' => '管理者通知（追加料金の入金）',
+			'staff_message_ja'    => 'スタッフからのご連絡（日本語・管理画面／スタッフポータルから送信）',
+			'staff_message_en'    => 'スタッフからのご連絡（英語・管理画面／スタッフポータルから送信）',
 			'review_request_ja'   => '返却後のお礼・口コミ依頼（日本語）',
 			'review_request_en'   => '返却後のお礼・口コミ依頼（英語）',
 			'review_coupon_ja'    => '口コミのお礼クーポン送付（日本語）',
