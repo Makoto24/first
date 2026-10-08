@@ -55,10 +55,24 @@ class BVCB_Admin {
 			$new['daily_limit'] = max( 0, (int) ( $P['daily_limit'] ?? 500 ) );
 			$new['log_enabled'] = ! empty( $P['log_enabled'] ) ? 1 : 0;
 			$new['log_days']    = min( 365, max( 1, (int) ( $P['log_days'] ?? 30 ) ) );
+			$new['notify_mode'] = in_array( $P['notify_mode'] ?? '', array( 'off', 'each', 'daily' ), true ) ? $P['notify_mode'] : 'off';
+			$new['notify_to']   = sanitize_textarea_field( (string) ( $P['notify_to'] ?? '' ) );
+			$new['notify_idle'] = min( 240, max( 5, (int) ( $P['notify_idle'] ?? 15 ) ) );
+			$new['notify_hour'] = min( 23, max( 0, (int) ( $P['notify_hour'] ?? 8 ) ) );
 			BVCB_Settings::save( $new );
 			BVCB_Central::flush();
-			self::notice( '設定を保存しました。' );
+			BVCB_Notify::maybe_schedule();
+			$msg = '設定を保存しました。';
+			if ( 'off' !== $new['notify_mode'] && ! BVCB_Notify::recipients() ) $msg .= '（メール通知：通知先のメールアドレスが正しくないため、送られません）';
+			if ( 'off' !== $new['notify_mode'] && empty( $new['log_enabled'] ) ) $msg .= '（メール通知：会話の記録がオフのため、送られません）';
+			self::notice( $msg );
 			wp_safe_redirect( self::url( 'settings' ) );
+			exit;
+		}
+
+		if ( 'notify_test' === $action ) {
+			self::notice( BVCB_Notify::send_test() );
+			wp_safe_redirect( self::url( 'settings' ) . '#bvcb-notify' );
 			exit;
 		}
 
@@ -197,9 +211,28 @@ class BVCB_Admin {
 			. '<p><input type="number" name="log_days" min="1" max="365" style="width:80px" value="' . (int) $o['log_days'] . '"> 日を過ぎたら自動で削除する</p>'
 			. '<p class="description">IPアドレスは記録しません。お客様が個人情報を書き込む可能性があるため、保存期間は短めをおすすめします。</p></td></tr>';
 
+		$modes = array( 'off' => '送らない', 'each' => '会話が終わるごとに送る', 'daily' => '毎日まとめて1通で送る' );
+		echo '<tr id="bvcb-notify"><th>会話のメール通知</th><td>';
+		foreach ( $modes as $k => $v ) {
+			echo '<label style="display:block"><input type="radio" name="notify_mode" value="' . esc_attr( $k ) . '"' . checked( $o['notify_mode'], $k, false ) . '> ' . esc_html( $v ) . '</label>';
+		}
+		echo '<p>通知先：<textarea name="notify_to" rows="2" class="large-text" placeholder="例：info@example.com, staff@example.com">' . esc_textarea( $o['notify_to'] ) . '</textarea></p>'
+			. '<p>「会話が終わるごと」：最後のやり取りから <input type="number" name="notify_idle" min="5" max="240" style="width:70px" value="' . (int) $o['notify_idle'] . '"> 分たったら1件ずつ送る</p>'
+			. '<p>「毎日まとめて」：毎日 <input type="number" name="notify_hour" min="0" max="23" style="width:60px" value="' . (int) $o['notify_hour'] . '"> 時ごろ（日本時間）に、前回以降の会話をまとめて送る</p>'
+			. '<p class="description">お客様の質問とチャットの回答、空車確認の結果、エラーが届きます。1回の質問ごとには送りません。'
+			. '会話の記録（上の「会話ログ」）がオンのときだけ送られます。通知を始める前の会話は送りません。'
+			. 'メールにはお客様の入力内容がそのまま含まれるため、社内のアドレスだけにしてください。'
+			. '送信はWordPressのメール機能を使い、サイトへのアクセスをきっかけに10分おきに確認します（アクセスが少ない時間帯は遅れることがあります）。</p></td></tr>';
+
 		echo '</tbody></table>';
 		submit_button( '設定を保存' );
 		echo '</form>';
+
+		echo '<form method="post" style="margin-top:-10px">';
+		wp_nonce_field( 'bvcb_notify_test' );
+		echo '<input type="hidden" name="bvcb_action" value="notify_test">';
+		submit_button( '通知メールをテスト送信（いちばん新しい会話）', 'secondary', 'submit', false );
+		echo '<p class="description">保存済みの通知先に送ります。先に設定を保存してください。</p></form>';
 	}
 
 	protected static function tab_knowledge() {

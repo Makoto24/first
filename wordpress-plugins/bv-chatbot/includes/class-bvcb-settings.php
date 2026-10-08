@@ -60,6 +60,11 @@ class BVCB_Settings {
 			'daily_limit'    => 500, /* 1日あたりのClaude API呼び出しの上限（費用の歯止め） */
 			'log_enabled'    => 1,
 			'log_days'       => 30,
+			/* 会話のメール通知：off／each（会話が終わるごと）／daily（毎朝まとめて） */
+			'notify_mode'    => 'off',
+			'notify_to'      => '',
+			'notify_idle'    => 15,  /* 最後のやり取りから何分たったら「会話が終わった」とみなすか */
+			'notify_hour'    => 8,   /* まとめて送る時刻（日本時間） */
 		);
 	}
 
@@ -79,6 +84,7 @@ class BVCB_Settings {
 		if ( ! isset( self::models()[ $o['model'] ] ) ) $o['model'] = 'claude-opus-5-5';
 		if ( ! isset( self::efforts()[ $o['effort'] ] ) ) $o['effort'] = 'low';
 		if ( ! is_array( $o['stores'] ) ) $o['stores'] = array();
+		if ( ! in_array( $o['notify_mode'], array( 'off', 'each', 'daily' ), true ) ) $o['notify_mode'] = 'off';
 		return $o;
 	}
 
