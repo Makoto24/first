@@ -35,6 +35,7 @@ class BVCB_Claude {
 		$p .= "これらは当社自身の情報なので、お客様には当社のスタッフとして自分の言葉で、言い切る形で伝えてください。\n\n";
 		$p .= "# 回答のしかた\n";
 		$p .= "- お客様と同じ言語で答える（日本語の質問には日本語、英語の質問には英語。その他の言語もその言語で）。\n";
+		$p .= "- 日本語で答えるときは、文の途中に英単語を混ぜない（店名・URL・ETCなどの固有名詞は除く）。\n";
 		$p .= "- チャットなので短く、要点から。見出し・表・太字などのMarkdown記号は使わず、普通の文章と箇条書き（・）で書く。URLはそのまま書く。\n";
 		$p .= "- 【Q&A集】と【店舗・料金の情報】に書かれていないことは推測で答えない。その場合は「スタッフが確認してご案内しますので、お問い合わせください」のように伝え、問い合わせ先を案内する。\n";
 		$p .= "- 情報の出どころや仕組みには触れない。「Q&A集」「資料」「記載がない」「〜とのご案内です」「〜とされています」「システム上」のような、他人の資料を読み上げる言い方はしない。\n";
@@ -418,7 +419,8 @@ class BVCB_Claude {
 		for ( $round = 0; $round <= self::MAX_ROUNDS; $round++ ) {
 			$last = ( $round === self::MAX_ROUNDS ) || ( $calls >= self::MAX_TOOL_CALLS );
 			if ( ! BVCB_Log::within_daily_limit() ) return $fail( '', '本日のClaude API呼び出しの上限に達しました。' );
-			$resp = self::call( self::build_body( $o['model'], $o['effort'], $system, $tools, $messages, $last ) );
+			$body = self::build_body( $o['model'], $o['effort'], $system, $tools, $messages, $last );
+			$resp = self::call( $body );
 			if ( is_wp_error( $resp ) ) return $fail( '', $resp->get_error_message() );
 
 			$stop = isset( $resp['stop_reason'] ) ? $resp['stop_reason'] : '';
@@ -445,6 +447,14 @@ class BVCB_Claude {
 			$messages[] = array( 'role' => 'user', 'content' => $results );
 		}
 
+		/* 日本語の文中に英単語が紛れ込む乱れ（例：「スperhaps確認」）があれば、1回だけ作り直す */
+		if ( self::garbled( self::text_of( $resp ) ) && BVCB_Log::within_daily_limit() ) {
+			$retry = self::call( $body );
+			if ( ! is_wp_error( $retry ) && 'refusal' !== ( $retry['stop_reason'] ?? '' ) && 'tool_use' !== ( $retry['stop_reason'] ?? '' )
+				&& '' !== self::text_of( $retry ) && ! self::garbled( self::text_of( $retry ) ) ) {
+				$resp = $retry;
+			}
+		}
 		$text = self::hide_codes( self::text_of( $resp ), $config );
 		if ( '' === $text ) return $fail( '', '回答が空でした（stop_reason: ' . ( $resp['stop_reason'] ?? '' ) . '）。' );
 		$note = '';
@@ -475,6 +485,15 @@ class BVCB_Claude {
 			return false !== strpos( $m[1], '_' ) ? $names[ $m[1] ] : $m[1];
 		}, $text );
 		return $text;
+	}
+
+	/**
+	 * 日本語の途中に小文字の英単語が挟まっている（例：「スperhaps確認」）か
+	 * URL・メール・「ETC」「SUV」のような大文字の略語は対象外。
+	 */
+	public static function garbled( $text ) {
+		$jp = '[\x{3041}-\x{30FF}\x{4E00}-\x{9FFF}]';
+		return (bool) preg_match( '/' . $jp . '[a-z]{3,}' . $jp . '/u', (string) $text );
 	}
 
 	public static function sorry( $lang ) {
