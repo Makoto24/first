@@ -12,13 +12,15 @@
 			open: 'お問い合わせ', close: '閉じる', send: '送信', placeholder: 'ご質問を入力してください',
 			reset: '新しい会話', thinking: '回答を作成しています…',
 			note: 'AIによる自動応答です。正確な内容は予約フォームや店舗でご確認ください。個人情報（免許証番号・カード番号など）は入力しないでください。',
-			error: '通信できませんでした。時間をおいてお試しください。'
+			error: '通信できませんでした。時間をおいてお試しください。',
+			chips: ['空車を確認したい', '料金を知りたい', '営業時間と場所', 'キャンセルについて']
 		},
 		en: {
 			open: 'Questions?', close: 'Close', send: 'Send', placeholder: 'Type your question',
 			reset: 'New chat', thinking: 'Writing a reply…',
 			note: 'Automated replies by AI. Please confirm details on the booking form or with our staff. Do not enter personal information (license or card numbers).',
-			error: 'Could not connect. Please try again later.'
+			error: 'Could not connect. Please try again later.',
+			chips: ['Check availability', 'Prices', 'Opening hours & location', 'Cancellation']
 		}
 	};
 
@@ -72,6 +74,17 @@
 		return l === 'en' ? 'en' : 'ja';
 	}
 
+	/* ---- スマホ向けの判定 ---- */
+
+	/** 指で操作する端末（スマホ・タブレット）。キーボードが画面を覆うので、自動でフォーカスしない */
+	function isTouch() {
+		return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+	}
+	/** 右下のボタンから開いたチャットを全画面にする幅 */
+	function isSmall() {
+		return !!(window.matchMedia && window.matchMedia('(max-width: 600px)').matches);
+	}
+
 	/* ---- チャット本体 ---- */
 
 	function Chat(host, mode) {
@@ -95,9 +108,10 @@
 			'<div class="bvcb-head"><span class="bvcb-title"></span>' +
 			'<button type="button" class="bvcb-reset"></button>' +
 			(this.mode === 'floating' ? '<button type="button" class="bvcb-close" aria-label=""></button>' : '') + '</div>' +
-			'<div class="bvcb-log" aria-live="polite"></div>' +
-			'<form class="bvcb-form"><textarea rows="2" maxlength="1000"></textarea><button type="submit" class="bvcb-send"></button></form>' +
-			'<div class="bvcb-note"></div>';
+			'<div class="bvcb-log" aria-live="polite"><div class="bvcb-note"></div></div>' +
+			'<div class="bvcb-chips"></div>' +
+			'<form class="bvcb-form"><textarea rows="1" maxlength="1000" enterkeyhint="send"></textarea>' +
+			'<button type="submit" class="bvcb-send"></button></form>';
 		panel.querySelector('.bvcb-title').textContent = CFG.botName || '';
 		panel.querySelector('.bvcb-reset').textContent = T.reset;
 		panel.querySelector('.bvcb-send').textContent = T.send;
@@ -106,6 +120,15 @@
 		this.panel = panel;
 		this.log = panel.querySelector('.bvcb-log');
 		this.input = panel.querySelector('textarea');
+		this.chips = panel.querySelector('.bvcb-chips');
+		T.chips.forEach(function (c) {
+			var b = document.createElement('button');
+			b.type = 'button';
+			b.className = 'bvcb-chip';
+			b.textContent = c;
+			b.addEventListener('click', function () { self.input.value = c; self.send(); });
+			self.chips.appendChild(b);
+		});
 
 		if (this.mode === 'floating') {
 			var btn = document.createElement('button');
@@ -116,7 +139,11 @@
 			var cl = panel.querySelector('.bvcb-close');
 			cl.textContent = '×';
 			cl.setAttribute('aria-label', T.close);
-			cl.addEventListener('click', function () { self.toggle(false); });
+			cl.addEventListener('click', function () { self.close(); });
+			/* スマホの「戻る」でチャットを閉じる（ページは移動しない） */
+			window.addEventListener('popstate', function () { if (!self.panel.hidden) self.toggle(false); });
+			/* Escキーで閉じる */
+			panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') self.close(); });
 			this.launcher = btn;
 			this.host.appendChild(btn);
 			panel.hidden = true;
@@ -124,6 +151,7 @@
 		this.host.appendChild(panel);
 
 		panel.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); self.send(); });
+		this.input.addEventListener('input', function () { self.grow(); });
 		this.input.addEventListener('keydown', function (e) {
 			/* Enterで送信、Shift+Enterで改行（日本語入力の確定中は送らない） */
 			if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); self.send(); }
@@ -131,18 +159,74 @@
 		panel.querySelector('.bvcb-reset').addEventListener('click', function () {
 			self.state = { lang: self.lang, token: '', msgs: [] };
 			save(self.state);
-			self.log.innerHTML = '';
+			self.log.querySelectorAll('.bvcb-msg').forEach(function (m) { m.remove(); });
+			self.updateChips();
 			self.start();
 		});
 
 		this.state.msgs.forEach(function (m) { self.add(m.who, m.text, false); });
+		this.updateChips();
 		if (this.mode !== 'floating') this.start();
 	};
 
 	Chat.prototype.toggle = function (open) {
 		this.panel.hidden = !open;
 		this.launcher.hidden = open;
-		if (open) { this.start(); this.input.focus(); }
+		var full = open && isSmall();
+		/* 全画面のあいだは、後ろのページがスクロールしないようにする */
+		document.documentElement.classList.toggle('bvcb-lock', full);
+		this.fitViewport(full);
+		if (open) {
+			if (isSmall() && !(window.history.state && window.history.state.bvcb)) {
+				try { window.history.pushState({ bvcb: 1 }, ''); } catch (e) { /* 履歴が使えなくても動く */ }
+			}
+			this.start();
+			this.log.scrollTop = this.log.scrollHeight;
+			if (!isTouch()) this.input.focus();
+		}
+	};
+
+	/** ×ボタン：戻る用の履歴を積んでいれば、それを消費して閉じる */
+	Chat.prototype.close = function () {
+		if (window.history.state && window.history.state.bvcb) window.history.back();
+		else this.toggle(false);
+	};
+
+	/**
+	 * スマホでキーボードが出たとき、見えている範囲（visualViewport）に合わせて高さを変え、
+	 * 入力欄がキーボードの後ろに隠れないようにする
+	 */
+	Chat.prototype.fitViewport = function (on) {
+		var vv = window.visualViewport, self = this;
+		if (!vv) return;
+		if (!this._fit) {
+			this._fit = function () {
+				self.panel.style.height = vv.height + 'px';
+				self.panel.style.top = vv.offsetTop + 'px';
+			};
+		}
+		vv.removeEventListener('resize', this._fit);
+		vv.removeEventListener('scroll', this._fit);
+		if (on) {
+			vv.addEventListener('resize', this._fit);
+			vv.addEventListener('scroll', this._fit);
+			this._fit();
+		} else {
+			this.panel.style.height = '';
+			this.panel.style.top = '';
+		}
+	};
+
+	/** 入力欄を内容に合わせて1〜5行で伸ばす */
+	Chat.prototype.grow = function () {
+		var t = this.input;
+		t.style.height = 'auto';
+		t.style.height = Math.min(t.scrollHeight, 120) + 'px';
+	};
+
+	/** 最初の質問を送るまでは、よくある質問のボタンを出す */
+	Chat.prototype.updateChips = function () {
+		this.chips.hidden = this.state.msgs.some(function (m) { return m.who === 'user'; });
 	};
 
 	/** 会話IDの取得と、最初のあいさつ */
@@ -165,7 +249,12 @@
 		d.className = 'bvcb-msg bvcb-' + who;
 		d.innerHTML = format(text);
 		this.log.appendChild(d);
-		this.log.scrollTop = this.log.scrollHeight;
+		/* 長い回答は、読み始めの位置（回答の先頭）を見せる */
+		if (who === 'bot' && d.offsetHeight > this.log.clientHeight * 0.6) {
+			this.log.scrollTop = Math.max(0, d.offsetTop - 12);
+		} else {
+			this.log.scrollTop = this.log.scrollHeight;
+		}
 		if (remember) {
 			this.state.msgs.push({ who: who, text: String(text) });
 			if (this.state.msgs.length > 60) this.state.msgs = this.state.msgs.slice(-60);
@@ -179,9 +268,15 @@
 		if (!q || this.busy) return;
 		this.busy = true;
 		this.input.value = '';
+		this.grow();
 		this.add('user', q, true);
-		var wait = this.add('bot', this.T.thinking, false);
+		this.updateChips();
+		/* スマホでは送信後にキーボードを閉じて、回答を広く見せる */
+		if (isTouch()) this.input.blur();
+		var wait = this.add('bot', '', false);
 		wait.classList.add('bvcb-wait');
+		wait.setAttribute('aria-label', this.T.thinking);
+		wait.innerHTML = '<span class="bvcb-dot"></span><span class="bvcb-dot"></span><span class="bvcb-dot"></span>';
 
 		var go = function () {
 			return api('chat', { token: self.state.token, message: q, lang: self.lang });
@@ -202,7 +297,7 @@
 			self.add('bot', self.T.error, false);
 		}).then(function () {
 			self.busy = false;
-			self.input.focus();
+			if (!isTouch()) self.input.focus();
 		});
 	};
 
