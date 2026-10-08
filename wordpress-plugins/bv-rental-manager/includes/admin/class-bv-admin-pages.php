@@ -1141,6 +1141,12 @@ class BV_Admin_Pages {
 				$ct = sanitize_text_field( $P[ 'store_close_' . $sk ] ?? '' ); $new[ 'store_close_' . $sk ] = preg_match( '/^\d{2}:\d{2}$/', $ct ) ? $ct : '';
 				$new[ 'store_access_ja_' . $sk ]  = sanitize_text_field( $P[ 'store_access_ja_' . $sk ] ?? '' );
 				$new[ 'store_access_en_' . $sk ]  = sanitize_text_field( $P[ 'store_access_en_' . $sk ] ?? '' );
+				$new[ 'store_address_ja_' . $sk ] = sanitize_text_field( $P[ 'store_address_ja_' . $sk ] ?? '' );
+				$new[ 'store_address_en_' . $sk ] = sanitize_text_field( $P[ 'store_address_en_' . $sk ] ?? '' );
+				$new[ 'store_map_url_' . $sk ]    = esc_url_raw( trim( $P[ 'store_map_url_' . $sk ] ?? '' ) );
+				$new[ 'store_tel_' . $sk ]        = sanitize_text_field( $P[ 'store_tel_' . $sk ] ?? '' );
+				$new[ 'store_guide_ja_' . $sk ]   = sanitize_textarea_field( $P[ 'store_guide_ja_' . $sk ] ?? '' );
+				$new[ 'store_guide_en_' . $sk ]   = sanitize_textarea_field( $P[ 'store_guide_en_' . $sk ] ?? '' );
 				$new[ 'store_company_ja_' . $sk ] = sanitize_text_field( $P[ 'store_company_ja_' . $sk ] ?? '' );
 				$new[ 'store_company_en_' . $sk ] = sanitize_text_field( $P[ 'store_company_en_' . $sk ] ?? '' );
 				$locs = isset( $P[ 'store_locations_' . $sk ] ) ? array_map( 'sanitize_key', (array) $P[ 'store_locations_' . $sk ] ) : array();
@@ -1389,6 +1395,14 @@ class BV_Admin_Pages {
 			echo '</p>';
 			echo '<p><label style="display:inline-block;width:190px;vertical-align:top">来店場所の説明（日本語）</label><input type="text" name="store_access_ja_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_access_ja_' . $sk ] ) . '" placeholder="例：竹のや旅館内、JR信濃大町駅より徒歩2分"></p>';
 			echo '<p><label style="display:inline-block;width:190px;vertical-align:top">来店場所の説明（英語）</label><input type="text" name="store_access_en_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_access_en_' . $sk ] ) . '" placeholder="e.g. Inside Takenoya Ryokan, 2 min walk from JR Shinano-Omachi Sta."></p>';
+			$lab = '<label style="display:inline-block;width:190px;vertical-align:top">';
+			echo '<p>' . $lab . '住所（日本語）</label><input type="text" name="store_address_ja_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_address_ja_' . $sk ] ?? '' ) . '" placeholder="例：長野県北安曇郡白馬村北城5949-1"></p>';
+			echo '<p>' . $lab . '住所（英語）</label><input type="text" name="store_address_en_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_address_en_' . $sk ] ?? '' ) . '" placeholder="e.g. 5949-1 Hokujo, Hakuba-mura, Nagano"></p>';
+			echo '<p>' . $lab . 'GoogleマップのURL</label><input type="url" name="store_map_url_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_map_url_' . $sk ] ?? '' ) . '" placeholder="https://maps.app.goo.gl/..."></p>';
+			echo '<p>' . $lab . '電話（お客様向け）</label><input type="text" name="store_tel_' . esc_attr( $sk ) . '" class="regular-text" style="width:480px" value="' . esc_attr( $s[ 'store_tel_' . $sk ] ?? '' ) . '" placeholder="例：050-0000-0000（AI音声受付・スタッフが折り返し）"></p>';
+			echo '<p>' . $lab . '店舗のご案内（日本語）</label><textarea name="store_guide_ja_' . esc_attr( $sk ) . '" rows="3" style="width:480px" placeholder="例：休業日は不定休（冬季は無休）。店舗前に3台分の駐車場あり。スキー場のチケット売り場の隣です。">' . esc_textarea( $s[ 'store_guide_ja_' . $sk ] ?? '' ) . '</textarea></p>';
+			echo '<p>' . $lab . '店舗のご案内（英語）</label><textarea name="store_guide_en_' . esc_attr( $sk ) . '" rows="3" style="width:480px">' . esc_textarea( $s[ 'store_guide_en_' . $sk ] ?? '' ) . '</textarea>'
+				. '<br><span class="description" style="margin-left:190px">住所・地図・電話・ご案内は、問い合わせチャットボットが店舗の場所や休業日を聞かれたときに使います（お客様に公開される情報だけを書いてください）。</span></p>';
 			echo '<p><label style="display:inline-block;width:190px">差出人アドレス</label><input type="email" name="store_from_email_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_from_email_' . $sk ] ) . '" placeholder="info@example.com"></p>';
 			echo '<p><label style="display:inline-block;width:190px">差出人名</label><input type="text" name="store_from_name_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_from_name_' . $sk ] ) . '" placeholder="' . esc_attr( $store['ja'] ) . '"></p>';
 			echo '<p><label style="display:inline-block;width:190px">返信先（任意）</label><input type="email" name="store_reply_to_' . esc_attr( $sk ) . '" class="regular-text" value="' . esc_attr( $s[ 'store_reply_to_' . $sk ] ) . '" placeholder="差出人と別にする場合のみ"></p>';

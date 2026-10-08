@@ -146,11 +146,23 @@
 			panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') self.close(); });
 			this.launcher = btn;
 			this.host.appendChild(btn);
+			/* 全画面のとき、チャットの後ろに敷く覆い（キーボードの開閉中に後ろのページが見えないように） */
+			this.cover = document.createElement('div');
+			this.cover.className = 'bvcb-cover';
+			this.cover.hidden = true;
+			this.host.appendChild(this.cover);
 			panel.hidden = true;
 		}
 		this.host.appendChild(panel);
 
 		panel.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); self.send(); });
+		/*
+		 * ボタンを押した瞬間に入力欄からフォーカスが外れると、キーボードが閉じて画面の高さが変わり、
+		 * 指を離したときにボタンの位置がずれて押せないことがある。押した瞬間はフォーカスを動かさない。
+		 */
+		panel.addEventListener('mousedown', function (e) {
+			if (e.target.closest && e.target.closest('button')) e.preventDefault();
+		});
 		this.input.addEventListener('input', function () { self.grow(); });
 		this.input.addEventListener('keydown', function (e) {
 			/* Enterで送信、Shift+Enterで改行（日本語入力の確定中は送らない） */
@@ -175,6 +187,7 @@
 		var full = open && isSmall();
 		/* 全画面のあいだは、後ろのページがスクロールしないようにする */
 		this.lockPage(full);
+		if (this.cover) this.cover.hidden = !full;
 		this.fitViewport(full);
 		if (open) {
 			if (isSmall() && !(window.history.state && window.history.state.bvcb)) {
@@ -228,7 +241,9 @@
 		if (!this._fit) {
 			this._fit = function () {
 				if (self.panel.hidden) return;
-				var keyboard = vv.height < window.innerHeight - 80;
+				/* キーボードを閉じている途中（入力欄から離れた直後）は、縮める通知が来ても全画面のままにする */
+				var closing = self._closingUntil && Date.now() < self._closingUntil;
+				var keyboard = !closing && document.activeElement === self.input && vv.height < window.innerHeight - 80;
 				if (keyboard) {
 					self.panel.style.height = vv.height + 'px';
 					self.panel.style.top = vv.offsetTop + 'px';
@@ -245,8 +260,12 @@
 				self._t2 = setTimeout(self._fit, 350);
 				self._t3 = setTimeout(self._fit, 800);
 			};
-			this.input.addEventListener('focus', this._settle);
-			this.input.addEventListener('blur', this._settle);
+			this.input.addEventListener('focus', function () { self._closingUntil = 0; self._settle(); });
+			this.input.addEventListener('blur', function () {
+				/* キーボードが閉じ始めたら、すぐに全画面へ戻す（iPhoneの遅れて届く通知を待たない） */
+				self._closingUntil = Date.now() + 900;
+				self._settle();
+			});
 		}
 		vv.removeEventListener('resize', this._fit);
 		vv.removeEventListener('scroll', this._fit);

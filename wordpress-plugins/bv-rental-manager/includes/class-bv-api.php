@@ -229,6 +229,8 @@ class BV_API {
 				'student_classes'  => array_values( BV_Util::store_student_classes( $k ) ),
 				'shuttle'          => BV_Util::store_allows_shuttle( $k ) ? 1 : 0,
 				'terms_url'        => BV_Util::store_terms_url( $k ),
+				/* 店舗の案内（住所・地図・電話・来店場所の説明・ご案内）。チャットボットが使う */
+				'profile'          => BV_Util::store_profile( $k ),
 			);
 		}
 		return $out;

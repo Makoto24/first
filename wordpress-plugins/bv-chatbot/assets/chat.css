@@ -49,6 +49,8 @@
 	.bvcb-floating-panel .bvcb-head{padding-top:calc(8px + env(safe-area-inset-top))}
 	.bvcb-inline .bvcb-panel{height:75vh;height:75dvh;min-height:420px}
 }
+.bvcb-cover{position:fixed;left:0;right:0;top:-50vh;height:200vh;background:#f6f7f7;z-index:99990}
+.bvcb-cover[hidden]{display:none}
 /* 全画面のあいだ、後ろのページを動かさない */
 html.bvcb-lock,html.bvcb-lock body{overflow:hidden !important;overscroll-behavior:none}
 html.bvcb-lock body{position:fixed !important;left:0;right:0;width:100%}

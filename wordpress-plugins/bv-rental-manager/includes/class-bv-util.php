@@ -689,6 +689,12 @@ class BV_Util {
 			$defaults[ 'store_close_' . $sk ]      = '';
 			$defaults[ 'store_access_ja_' . $sk ] = ''; /* 来店場所の説明（日本語） */
 			$defaults[ 'store_access_en_' . $sk ] = ''; /* 同（英語） */
+			$defaults[ 'store_address_ja_' . $sk ] = ''; /* 住所（チャットボットの案内用） */
+			$defaults[ 'store_address_en_' . $sk ] = '';
+			$defaults[ 'store_map_url_' . $sk ]    = ''; /* GoogleマップのURL */
+			$defaults[ 'store_tel_' . $sk ]        = ''; /* お問い合わせ電話（説明つき可） */
+			$defaults[ 'store_guide_ja_' . $sk ]   = ''; /* 店舗のご案内（休業日・駐車場・目印など自由記述） */
+			$defaults[ 'store_guide_en_' . $sk ]   = '';
 			$defaults[ 'store_company_ja_' . $sk ] = ''; /* メール件名・署名に使う表示名（日本語） */
 			$defaults[ 'store_company_en_' . $sk ] = '';
 			$defaults[ 'store_locations_' . $sk ]            = array(); /* 貸出可能な車両の場所（空ならグループ既定） */
@@ -816,6 +822,22 @@ class BV_Util {
 		if ( empty( $st[ $store ]['location'] ) ) return '';
 		$loc = $st[ $store ]['location'];
 		return isset( self::locations()[ $loc ] ) ? $loc : '';
+	}
+
+	/**
+	 * 店舗の案内情報（チャットボット用・公開してよい情報だけ）
+	 * 住所・地図・電話・来店場所の説明・自由記述のご案内
+	 */
+	public static function store_profile( $store ) {
+		$s = self::settings();
+		$g = function ( $k ) use ( $s, $store ) { return trim( (string) ( $s[ $k . $store ] ?? '' ) ); };
+		return array(
+			'address_ja' => $g( 'store_address_ja_' ), 'address_en' => $g( 'store_address_en_' ),
+			'access_ja'  => $g( 'store_access_ja_' ),  'access_en'  => $g( 'store_access_en_' ),
+			'map_url'    => $g( 'store_map_url_' ),
+			'tel'        => $g( 'store_tel_' ),
+			'guide_ja'   => $g( 'store_guide_ja_' ),   'guide_en'   => $g( 'store_guide_en_' ),
+		);
 	}
 
 	/** その店舗の利用規約（貸渡約款）のURL（未設定なら空） */

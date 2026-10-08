@@ -85,6 +85,15 @@ class BVCB_Claude {
 			$si = isset( $info[ $k ] ) ? $info[ $k ] : array();
 			$t .= '■ ' . ( $st['ja'] ?? $k ) . '（英語名：' . ( $st['en'] ?? '' ) . '／店舗コード：' . $k . "）\n";
 			if ( ! empty( $si['open'] ) ) $t .= '  営業時間：' . $si['open'] . '〜' . $si['close'] . "\n";
+			/* 店舗の案内（中央サイトの「店舗設定」で入力した住所・地図・電話・ご案内） */
+			$pf = isset( $si['profile'] ) && is_array( $si['profile'] ) ? $si['profile'] : array();
+			$line = function ( $v ) { return trim( preg_replace( '/\s*\n\s*/u', ' ／ ', (string) $v ) ); };
+			if ( ! empty( $pf['address_ja'] ) ) $t .= '  住所：' . $line( $pf['address_ja'] ) . ( ! empty( $pf['address_en'] ) ? '（英語表記：' . $line( $pf['address_en'] ) . '）' : '' ) . "\n";
+			if ( ! empty( $pf['access_ja'] ) )  $t .= '  場所・アクセス：' . $line( $pf['access_ja'] ) . ( ! empty( $pf['access_en'] ) ? '（英語：' . $line( $pf['access_en'] ) . '）' : '' ) . "\n";
+			if ( ! empty( $pf['map_url'] ) )    $t .= '  地図：' . $pf['map_url'] . "\n";
+			if ( ! empty( $pf['tel'] ) )        $t .= '  電話：' . $line( $pf['tel'] ) . "\n";
+			if ( ! empty( $pf['guide_ja'] ) )   $t .= '  店舗のご案内：' . $line( $pf['guide_ja'] ) . "\n";
+			if ( ! empty( $pf['guide_en'] ) )   $t .= '  店舗のご案内（英語）：' . $line( $pf['guide_en'] ) . "\n";
 			if ( ! empty( $si['hourly'] ) ) $t .= '  料金：時間貸し（カーシェア型）' . self::hourly_text( $config, $si ) . "\n";
 			if ( ! empty( $si['classes'] ) ) {
 				$cl = array();
