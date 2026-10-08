@@ -51,3 +51,4 @@
 }
 /* 全画面のあいだ、後ろのページを動かさない */
 html.bvcb-lock,html.bvcb-lock body{overflow:hidden !important;overscroll-behavior:none}
+html.bvcb-lock body{position:fixed !important;left:0;right:0;width:100%}

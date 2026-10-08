@@ -174,11 +174,14 @@
 		this.launcher.hidden = open;
 		var full = open && isSmall();
 		/* 全画面のあいだは、後ろのページがスクロールしないようにする */
-		document.documentElement.classList.toggle('bvcb-lock', full);
+		this.lockPage(full);
 		this.fitViewport(full);
 		if (open) {
 			if (isSmall() && !(window.history.state && window.history.state.bvcb)) {
-				try { window.history.pushState({ bvcb: 1 }, ''); } catch (e) { /* 履歴が使えなくても動く */ }
+				try {
+					if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+					window.history.pushState({ bvcb: 1 }, '');
+				} catch (e) { /* 履歴が使えなくても動く */ }
 			}
 			this.start();
 			this.log.scrollTop = this.log.scrollHeight;
@@ -193,24 +196,66 @@
 	};
 
 	/**
+	 * 後ろのページを固定する。iPhoneは overflow:hidden だけでは入力時にページが動くため、
+	 * body を今のスクロール位置のまま固定し、閉じたときに元の位置へ戻す。
+	 */
+	Chat.prototype.lockPage = function (on) {
+		var html = document.documentElement, body = document.body;
+		if (on && !this._lockedY && !html.classList.contains('bvcb-lock')) {
+			this._lockedY = window.pageYOffset || 0;
+			html.classList.add('bvcb-lock');
+			body.style.top = -this._lockedY + 'px';
+		} else if (!on && html.classList.contains('bvcb-lock')) {
+			var y = this._lockedY || 0;
+			html.classList.remove('bvcb-lock');
+			body.style.top = '';
+			this._lockedY = 0;
+			window.scrollTo(0, y);
+			/* 「戻る」で閉じたとき、ブラウザのスクロール位置の復元に上書きされないよう、もう一度戻す */
+			setTimeout(function () { window.scrollTo(0, y); }, 0);
+		}
+	};
+
+	/**
 	 * スマホでキーボードが出たとき、見えている範囲（visualViewport）に合わせて高さを変え、
-	 * 入力欄がキーボードの後ろに隠れないようにする
+	 * 入力欄がキーボードの後ろに隠れないようにする。
+	 * キーボードが閉じたら画面いっぱいに戻す。iPhoneはキーボードが閉じきる前に最後の通知が来ることがあるため、
+	 * 少し時間をおいて何度か測り直す（送信直後に背景のページが見えてしまう崩れの対策）。
 	 */
 	Chat.prototype.fitViewport = function (on) {
 		var vv = window.visualViewport, self = this;
 		if (!vv) return;
 		if (!this._fit) {
 			this._fit = function () {
-				self.panel.style.height = vv.height + 'px';
-				self.panel.style.top = vv.offsetTop + 'px';
+				if (self.panel.hidden) return;
+				var keyboard = vv.height < window.innerHeight - 80;
+				if (keyboard) {
+					self.panel.style.height = vv.height + 'px';
+					self.panel.style.top = vv.offsetTop + 'px';
+				} else {
+					self.panel.style.height = '';
+					self.panel.style.top = '';
+					if (window.pageYOffset) window.scrollTo(0, 0);
+				}
 			};
+			this._settle = function () {
+				clearTimeout(self._t1); clearTimeout(self._t2); clearTimeout(self._t3);
+				self._fit();
+				self._t1 = setTimeout(self._fit, 100);
+				self._t2 = setTimeout(self._fit, 350);
+				self._t3 = setTimeout(self._fit, 800);
+			};
+			this.input.addEventListener('focus', this._settle);
+			this.input.addEventListener('blur', this._settle);
 		}
 		vv.removeEventListener('resize', this._fit);
 		vv.removeEventListener('scroll', this._fit);
+		window.removeEventListener('orientationchange', this._settle);
 		if (on) {
 			vv.addEventListener('resize', this._fit);
 			vv.addEventListener('scroll', this._fit);
-			this._fit();
+			window.addEventListener('orientationchange', this._settle);
+			this._settle();
 		} else {
 			this.panel.style.height = '';
 			this.panel.style.top = '';
