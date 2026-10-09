@@ -795,6 +795,8 @@ class BV_Staff_Portal {
 			$msg = ''; $err = false;
 
 			$parts = self::shuttle_fee_input( $r, $P );
+			/* 開いたままの古い画面から「承認」が押されても、二重にリンクを作らず送り直しとして扱う */
+			if ( 'approve' === $do && 'quoted' === $r->shuttle_status ) $do = 'requote';
 
 			if ( 'approve' === $do ) {
 				if ( is_wp_error( $parts ) ) {
@@ -820,10 +822,48 @@ class BV_Staff_Portal {
 							$msg = '送迎を承認し、' . BV_Util::shuttle_fee_text( $r ) . 'の決済リンクをお客様へ送信しました。';
 					}
 				}
+			} elseif ( 'requote' === $do ) {
+				/* 承認済み（お支払い待ち）の送迎：金額を変えて決済リンクを作り直す */
+				$paid_msg = '';
+				if ( $r->shuttle_order_id ) {
+					$sync = BV_Square::sync_payment_status( $r, 'shuttle' );
+					if ( is_string( $sync ) && 0 !== strpos( $sync, 'Square上ではまだ' ) ) $paid_msg = $sync;
+				}
+				if ( 'quoted' !== $r->shuttle_status ) {
+					$msg = 'この送迎はお支払い待ちではないため、送り直せません。'; $err = true;
+				} elseif ( $paid_msg ) {
+					$msg = 'お客様はすでに以前のリンクでお支払い済みでした。' . $paid_msg . '（金額は変更していません）'; $err = true;
+				} elseif ( is_wp_error( $parts ) ) {
+					$msg = $parts->get_error_message(); $err = true;
+				} elseif ( $parts['total'] < 1 ) {
+					$msg = '0円では決済リンクを作成できません。無料の場合は「対応済み・入金済みとして確定する」をお使いください。'; $err = true;
+				} else {
+					$old_text = BV_Util::shuttle_fee_text( $r );
+					$del = BV_Square::delete_shuttle_payment_link( $r );
+					BV_DB::update_reservation( $id, array(
+						'shuttle_fee'         => $parts['total'],
+						'shuttle_fee_pickup'  => $parts['pickup'],
+						'shuttle_fee_dropoff' => $parts['dropoff'],
+					) );
+					$r = BV_DB::get_reservation( $id );
+					$link = BV_Square::create_shuttle_payment_link( $r );
+					if ( is_wp_error( $link ) ) {
+						$msg = '決済リンクの生成に失敗しました：' . $link->get_error_message(); $err = true;
+					} else {
+						BV_DB::update_reservation( $id, array( 'shuttle_link' => $link['url'], 'shuttle_order_id' => $link['order_id'] ) );
+						$r = BV_DB::get_reservation( $id );
+						BV_Mailer::send_shuttle_quote( $r );
+						BV_DB::update_reservation( $id, array( 'admin_memo' => trim( (string) $r->admin_memo . "\n[送迎料金変更 " . current_time( 'Y-m-d H:i' ) . '（スタッフポータル）] ' . $old_text . ' → ' . BV_Util::shuttle_fee_text( $r ) ) ) );
+						$msg = '送迎料金を ' . BV_Util::shuttle_fee_text( $r ) . ' に変更し、新しい決済リンクをお客様へ送信しました。';
+						$msg .= is_wp_error( $del )
+							? '（ご注意：' . $del->get_error_message() . 'Squareの管理画面で古いリンクを削除してください）'
+							: '以前のリンクは無効にしました。';
+					}
+				}
 			} elseif ( 'resend' === $do ) {
 				if ( $r->shuttle_link ) {
 					BV_Mailer::send_shuttle_quote( $r );
-					$msg = '決済リンクを再送しました。';
+					$msg = 'お支払いのリマインドを送りました（同じ決済リンク）。';
 				} else {
 					$msg = '決済リンクがまだ発行されていません。'; $err = true;
 				}
@@ -1096,8 +1136,16 @@ class BV_Staff_Portal {
 					echo '<button name="bv_staff_shuttle" value="reopen" style="background:#646970">回答待ちに戻す（取り消し）</button></form>';
 				}
 			} else {
-				if ( 'quoted' === $sh_st ) {
-					echo '<p class="note" style="margin:0 0 10px">' . esc_html( BV_Util::shuttle_fee_text( $r ) ) . 'の決済リンクを送信済みです。お支払い待ちです。</p>';
+				$quoted = ( 'quoted' === $sh_st );
+				if ( $quoted ) {
+					echo '<p class="note" style="margin:0 0 10px">承認済みです。' . esc_html( BV_Util::shuttle_fee_text( $r ) ) . 'の決済リンクを送信済みで、お支払い待ちです。</p>';
+					if ( $r->shuttle_link ) {
+						echo '<form method="post" onsubmit="return confirm(\'同じ決済リンクで、お支払いのリマインドをお客様へ送ります。よろしいですか？\')">';
+						wp_nonce_field( 'bv_staff_shuttle_' . $id );
+						echo '<button name="bv_staff_shuttle" value="resend" style="background:#2271b1;width:100%">お支払いのリマインドを送る</button></form>';
+					}
+					echo '<p style="margin:16px 0 6px;font-weight:600;font-size:13px">金額を変更してリンクを送り直す</p>';
+					echo '<p class="note" style="margin:0 0 8px">新しい金額の決済リンクを作ってお客様へ送ります。以前のリンクは無効になります（すでにお支払い済みだった場合は変更しません）。</p>';
 				}
 				$cur = BV_Util::shuttle_fee_parts( $r );
 
@@ -1132,7 +1180,11 @@ class BV_Staff_Portal {
 					$fee_select( 'fee_dropoff', '送迎料金（お送り・片道）', $cur['dropoff'] );
 				}
 
-				echo '<button name="bv_staff_shuttle" value="approve" style="background:#00a32a;width:100%">承認して決済リンクを送る</button>';
+				if ( $quoted ) {
+					echo '<button name="bv_staff_shuttle" value="requote" style="background:#dba617;color:#1d2327;width:100%" onclick="return confirm(\'選んだ金額で新しい決済リンクを作り、お客様へ送ります。以前のリンクは無効になります。よろしいですか？\')">金額を変更してリンクを送り直す</button>';
+				} else {
+					echo '<button name="bv_staff_shuttle" value="approve" style="background:#00a32a;width:100%">承認して決済リンクを送る</button>';
+				}
 
 				echo '<div style="border-top:1px solid #e2e4e7;margin:14px 0 0;padding-top:12px">';
 				echo '<p style="margin:0 0 6px;font-weight:600;font-size:13px">決済リンクを使わずに確定する</p>';
@@ -1144,11 +1196,6 @@ class BV_Staff_Portal {
 				echo '</form>';
 
 				echo '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">';
-				if ( 'quoted' === $sh_st && $r->shuttle_link ) {
-					echo '<form method="post" style="flex:1;min-width:130px">';
-					wp_nonce_field( 'bv_staff_shuttle_' . $id );
-					echo '<button name="bv_staff_shuttle" value="resend" style="background:#646970;width:100%">リンクを再送</button></form>';
-				}
 				echo '<form method="post" style="flex:1;min-width:130px" onsubmit="return confirm(\'送迎不可としてお客様へご連絡します。よろしいですか？\')">';
 				wp_nonce_field( 'bv_staff_shuttle_' . $id );
 				echo '<button name="bv_staff_shuttle" value="decline" style="background:#b32d2e;width:100%">お断りの連絡をする</button></form>';

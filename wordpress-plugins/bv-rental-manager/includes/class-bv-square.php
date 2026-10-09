@@ -120,10 +120,27 @@ class BV_Square {
 		);
 		$json = self::request( 'POST', '/v2/online-checkout/payment-links', $body );
 		if ( is_wp_error( $json ) ) return $json;
+		/* 金額を変えて送り直すときに古いリンクを無効にできるよう、リンクIDを控えておく */
+		$link_id = isset( $json['payment_link']['id'] ) ? (string) $json['payment_link']['id'] : '';
+		if ( $link_id ) update_option( 'bvrm_shuttle_link_id_' . (int) $r->id, $link_id, false );
 		return array(
 			'url'      => self::pick_url( $json ),
 			'order_id' => isset( $json['payment_link']['order_id'] ) ? $json['payment_link']['order_id'] : '',
+			'id'       => $link_id,
 		);
+	}
+
+	/**
+	 * 送迎料金の古い決済リンクを無効にする（金額を変えて送り直すとき）
+	 * @return true|WP_Error リンクIDが控えられていない（以前の版で発行した）場合も WP_Error
+	 */
+	public static function delete_shuttle_payment_link( $r ) {
+		$id = (string) get_option( 'bvrm_shuttle_link_id_' . (int) $r->id, '' );
+		if ( '' === $id ) return new WP_Error( 'no_link_id', '以前のリンクのIDが記録されていないため、無効にできませんでした。' );
+		$json = self::request( 'DELETE', '/v2/online-checkout/payment-links/' . rawurlencode( $id ) );
+		if ( is_wp_error( $json ) ) return $json;
+		delete_option( 'bvrm_shuttle_link_id_' . (int) $r->id );
+		return true;
 	}
 
 	/**
