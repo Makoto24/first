@@ -227,7 +227,7 @@ class BV_Admin {
 
 		/* 貸渡簿の保存期間中の予約は削除させない */
 		if ( 'delete_reservation' === $action && $r && BV_Ledger::is_protected( $r ) ) {
-			set_transient( 'bvrm_notice', '予約 ' . $r->code . ' は貸渡簿として保存期間（' . (int) BV_Ledger::years() . '年）中のため削除できません。', 120 );
+			set_transient( 'bvrm_notice', '予約 ' . $r->code . ' は貸渡簿として保存期間中（' . BV_Ledger::keep_until( $r ) . ' まで）のため削除できません。', 120 );
 			wp_safe_redirect( admin_url( 'admin.php?page=bvrm-reservations&edit=' . $r->id ) );
 			exit;
 		}
@@ -1127,7 +1127,7 @@ class BV_Admin {
 				$rd = wp_nonce_url( admin_url( 'admin.php?page=bvrm-reservations&bvrm_read_license=' . (int) $r->id ), 'bvrm_read_license_' . (int) $r->id );
 				echo '<p><a class="button" href="' . esc_url( $rd ) . '" onclick="return confirm(\'免許証の画像をもう一度読み取ります（手で直した番号も読み取り結果で置き換わります）。保存していない変更は失われます。よろしいですか？\')">免許証を読み取り直す</a></p>';
 			}
-			echo '<p class="description">免許の種類・番号はアップロードされた免許証から自動で読み取ります。保存期間（' . (int) BV_Ledger::years() . '年）中の貸渡済みの予約は削除できません。</p></td></tr>';
+			echo '<p class="description">免許の種類・番号はアップロードされた免許証から自動で読み取ります。貸渡済みの予約は、年度単位の保存期間中は削除できません' . ( in_array( $r->status, BV_Ledger::STATUSES, true ) ? '（この予約は ' . esc_html( BV_Ledger::keep_until( $r ) ) . ' まで）' : '' ) . '。</p></td></tr>';
 		}
 
 		echo '<tr><th>装備オプション</th><td>';

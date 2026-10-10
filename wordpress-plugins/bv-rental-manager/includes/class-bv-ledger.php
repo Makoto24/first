@@ -22,16 +22,31 @@ class BV_Ledger {
 		add_action( 'admin_init', array( __CLASS__, 'handle_admin_read' ) );
 	}
 
-	/** 保存年数（設定。既定2年） */
+	/** 保存する年度数（設定。既定2年度） */
 	public static function years() {
 		return max( 1, (int) ( BV_Util::settings()['ledger_years'] ?? 2 ) );
+	}
+
+	/** 年度（4月1日〜翌年3月31日）。2026年5月 → 2026、2027年3月 → 2026 */
+	public static function fiscal_year( $dt ) {
+		$ts = strtotime( (string) $dt );
+		$y  = (int) date( 'Y', $ts );
+		return ( (int) date( 'n', $ts ) >= 4 ) ? $y : $y - 1;
+	}
+
+	/**
+	 * 保存期限（この日まで削除できない）
+	 * 貸渡日の属する年度の翌年度から数えて、設定した年度数ぶん保存する。
+	 * 例（2年度）：2026年5月の貸渡 → 2026年度 → 2027年度・2028年度を保存 → 2029-03-31 まで
+	 */
+	public static function keep_until( $r ) {
+		return ( self::fiscal_year( $r->pickup_dt ) + self::years() + 1 ) . '-03-31';
 	}
 
 	/** この予約は貸渡簿として保存期間中か（削除できない） */
 	public static function is_protected( $r ) {
 		if ( ! $r || ! in_array( (string) $r->status, self::STATUSES, true ) ) return false;
-		$base = $r->returned_at ?: $r->return_dt;
-		return strtotime( (string) $base ) > current_time( 'timestamp' ) - self::years() * YEAR_IN_SECONDS;
+		return current_time( 'timestamp' ) <= strtotime( self::keep_until( $r ) . ' 23:59:59' );
 	}
 
 	/* ---------- 記載事項 ---------- */
@@ -207,11 +222,17 @@ class BV_Ledger {
 
 	/* ---------- 管理画面：貸渡簿の一覧・CSV ---------- */
 
-	protected static function query( $month, $store ) {
+	/** 表示する期間（月 または 年度） → array( from, to, ラベル ) */
+	protected static function range( $month, $fy ) {
+		if ( $fy ) return array( $fy . '-04-01 00:00:00', ( $fy + 1 ) . '-04-01 00:00:00', $fy . '年度（' . $fy . '年4月〜' . ( $fy + 1 ) . '年3月）' );
+		$from = $month . '-01 00:00:00';
+		return array( $from, date( 'Y-m-d H:i:s', strtotime( $from . ' +1 month' ) ), $month );
+	}
+
+	protected static function query( $month, $store, $fy = 0 ) {
 		global $wpdb;
 		$t = BV_DB::table( 'reservations' );
-		$from = $month . '-01 00:00:00';
-		$to   = date( 'Y-m-d H:i:s', strtotime( $from . ' +1 month' ) );
+		list( $from, $to ) = self::range( $month, $fy );
 		$sql = "SELECT * FROM {$t} WHERE status IN ('in_use','returned') AND pickup_dt >= %s AND pickup_dt < %s";
 		$args = array( $from, $to );
 		if ( $store && isset( BV_Util::stores()[ $store ] ) ) { $sql .= ' AND store = %s'; $args[] = $store; }
@@ -222,21 +243,27 @@ class BV_Ledger {
 	protected static function filters() {
 		$month = isset( $_GET['month'] ) && preg_match( '/^\d{4}-\d{2}$/', (string) $_GET['month'] ) ? (string) $_GET['month'] : date( 'Y-m', current_time( 'timestamp' ) );
 		$store = isset( $_GET['store'] ) ? sanitize_key( wp_unslash( $_GET['store'] ) ) : '';
-		return array( $month, $store );
+		$fy = isset( $_GET['fy'] ) && preg_match( '/^\d{4}$/', (string) $_GET['fy'] ) ? (int) $_GET['fy'] : 0;
+		return array( $month, $store, $fy );
 	}
 
 	public static function page() {
 		if ( ! current_user_can( 'manage_options' ) ) return;
-		list( $month, $store ) = self::filters();
-		$rows = self::query( $month, $store );
+		list( $month, $store, $fy ) = self::filters();
+		$rows = self::query( $month, $store, $fy );
+		$cur_fy = self::fiscal_year( current_time( 'mysql' ) );
 		echo '<div class="wrap"><h1>貸渡簿</h1>';
-		echo '<p class="description">法令で保存が義務付けられた記載事項の一覧です（貸出・返却済みの予約）。保存期間は ' . (int) self::years() . ' 年で、期間中の予約は削除できません。'
+		echo '<p class="description">法令で保存が義務付けられた記載事項の一覧です（貸出・返却済みの予約）。年度（4月1日〜3月31日）ごとに、貸渡日の年度の翌年度から ' . (int) self::years() . ' 年度分保存します。'
+			. '保存期間中の予約は削除できません（いま削除できないのは ' . (int) ( $cur_fy - self::years() - 1 ) . '年度以降の貸渡です）。'
 			. '免許の種類・番号は、お客様がアップロードした免許証から自動で読み取ります。読み取れなかったもの・足りない項目は赤で表示しますので、予約詳細またはスタッフポータルで補ってください。</p>';
 		echo '<form method="get" style="margin:12px 0"><input type="hidden" name="page" value="bvrm-ledger">';
-		echo '<input type="month" name="month" value="' . esc_attr( $month ) . '"> <select name="store"><option value="">全店舗</option>';
+		echo '<input type="month" name="month" value="' . esc_attr( $month ) . '"> または <select name="fy"><option value="">年度で表示…</option>';
+		for ( $y = $cur_fy; $y >= $cur_fy - self::years() - 1; $y-- ) echo '<option value="' . (int) $y . '"' . selected( $fy, $y, false ) . '>' . (int) $y . '年度</option>';
+		echo '</select> <select name="store"><option value="">全店舗</option>';
 		foreach ( BV_Util::stores() as $k => $st ) echo '<option value="' . esc_attr( $k ) . '"' . selected( $store, $k, false ) . '>' . esc_html( $st['ja'] ) . '</option>';
 		echo '</select> <button class="button">表示</button> ';
-		$csv = wp_nonce_url( add_query_arg( array( 'page' => 'bvrm-ledger', 'month' => $month, 'store' => $store, 'bvrm_ledger_csv' => 1 ), admin_url( 'admin.php' ) ), 'bvrm_ledger_csv' );
+		$csv = wp_nonce_url( add_query_arg( array( 'page' => 'bvrm-ledger', 'month' => $month, 'fy' => $fy ?: '', 'store' => $store, 'bvrm_ledger_csv' => 1 ), admin_url( 'admin.php' ) ), 'bvrm_ledger_csv' );
+		echo '<p style="margin:0 0 8px"><strong>' . esc_html( self::range( $month, $fy )[2] ) . '</strong></p>';
 		echo '<a class="button button-primary" href="' . esc_url( $csv ) . '">CSVで出力（Excel対応）</a></form>';
 
 		$pending = BV_License_Reader::pending_count();
@@ -272,11 +299,11 @@ class BV_Ledger {
 	public static function handle_csv() {
 		if ( empty( $_GET['bvrm_ledger_csv'] ) || ! current_user_can( 'manage_options' ) ) return;
 		check_admin_referer( 'bvrm_ledger_csv' );
-		list( $month, $store ) = self::filters();
-		$rows = self::query( $month, $store );
+		list( $month, $store, $fy ) = self::filters();
+		$rows = self::query( $month, $store, $fy );
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=UTF-8' );
-		header( 'Content-Disposition: attachment; filename="kashiwatashibo-' . $month . ( $store ? '-' . $store : '' ) . '.csv"' );
+		header( 'Content-Disposition: attachment; filename="kashiwatashibo-' . ( $fy ? $fy . 'nendo' : $month ) . ( $store ? '-' . $store : '' ) . '.csv"' );
 		echo "\xEF\xBB\xBF";
 		$out = fopen( 'php://output', 'w' );
 		fputcsv( $out, self::csv_header() );

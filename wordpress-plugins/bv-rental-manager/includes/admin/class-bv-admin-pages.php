@@ -1567,8 +1567,9 @@ class BV_Admin_Pages {
 		echo '</select></p>'
 			. '<p class="description">Anthropicの管理画面（console.anthropic.com → API Keys）で作成したキー。チャットボットと同じキーでも構いません。このサイトにだけ保存し、画面には表示しません。'
 			. '1件あたりの費用はおおむね数円です。読み取った番号は「貸渡簿」と予約詳細で確認・修正できます。</p></td></tr>';
-		echo '<tr><th>貸渡簿の保存期間</th><td><input type="number" name="ledger_years" min="1" max="20" style="width:70px" value="' . (int) ( $s['ledger_years'] ?? 2 ) . '"> 年'
-			. '<p class="description">貸出・返却済みの予約は、この期間（返却から）削除できなくなります。法令で定められた保存期間に合わせてください（一般に2年。詳しくは所管の運輸支局にご確認ください）。</p></td></tr>';
+		echo '<tr><th>貸渡簿の保存期間</th><td><input type="number" name="ledger_years" min="1" max="20" style="width:70px" value="' . (int) ( $s['ledger_years'] ?? 2 ) . '"> 年度分'
+			. '<p class="description">年度（4月1日〜3月31日）単位で数えます。貸渡日の属する年度の翌年度から、この年度数ぶん保存し、その間は貸出・返却済みの予約を削除できません。'
+			. '例（2年度分）：2026年5月の貸渡（2026年度）→ 2027年度・2028年度を保存 → 2029年3月31日まで削除不可。</p></td></tr>';
 		echo '</table>';
 
 		submit_button( '設定を保存' );
