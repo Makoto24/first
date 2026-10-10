@@ -738,6 +738,10 @@ class BV_Staff_Portal {
 			$P  = wp_unslash( $_POST );
 			$op = BV_Ops::refund( $r, $P['refund_mode'] ?? '', $P['refund_manual'] ?? '', $P['refund_memo'] ?? '', 'staff' );
 		}
+		if ( isset( $_POST['bv_staff_docs'] ) && check_admin_referer( 'bv_staff_docs_' . $id ) ) {
+			$n  = BV_Files::delete_documents( $r, 'staff' );
+			$op = array( 'ok' => true, 'msg' => $n ? '本人確認書類（' . $n . 'ファイル）を削除しました。' : '削除する書類はありませんでした。' );
+		}
 		if ( isset( $_POST['bv_staff_message'] ) && check_admin_referer( 'bv_staff_message_' . $id ) ) {
 			$P  = wp_unslash( $_POST );
 			$op = BV_Ops::message_customer( $r, $P['msg_subject'] ?? '', $P['msg_body'] ?? '', 'staff' );
@@ -1334,7 +1338,10 @@ class BV_Staff_Portal {
 			echo esc_html( $k ) . '</a>';
 		}
 		echo '</div>';
-		echo '<p class="note" style="margin:8px 0 0">タップすると拡大表示します。閲覧リンクは一定時間で失効し、スタッフポータルにログインしている間だけ開けます。画面の撮影・保存はしないでください。</p>';
+		echo '<p class="note" style="margin:8px 0 0">タップすると拡大表示します。閲覧リンクは一定時間で失効し、スタッフポータルにログインしている間だけ開けます。画面の撮影・保存はしないでください。返却・キャンセルの1日後に自動で削除されます。</p>';
+		echo '<div style="margin-top:10px">';
+		self::op_form_open( $r, 'docs', 'このお客様の本人確認書類を削除します（同じメールアドレスの他の予約からも外れます）。元に戻せません。よろしいですか？' );
+		echo '<button name="bv_staff_docs" value="1" style="background:#b32d2e;width:100%">書類を今すぐ削除する</button></form></div>';
 		echo '</div>';
 	}
 

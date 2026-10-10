@@ -466,6 +466,16 @@ class BV_Members {
 					}
 				}
 
+				/* 提出した本人確認書類をお客様ご自身で削除する */
+				if ( 'delete_docs' === $action ) {
+					$n = BV_Files::delete_documents( $r, 'customer' );
+					$r = BV_DB::get_reservation( $r->id );
+					$msg = $n
+						? $L( 'ご提出の書類を削除しました。ご来店時に運転免許証の原本をお持ちください。', 'Your submitted documents have been deleted. Please bring your original driver\'s license when you visit.' )
+						: $L( '削除する書類はありませんでした。', 'There were no documents to delete.' );
+					$is_err = false;
+				}
+
 				if ( 'profile' === $action ) {
 					/* 免許証・パスポート画像の再アップロード */
 					$uploaded = self::handle_license_upload( $r );
@@ -806,6 +816,18 @@ class BV_Members {
 			}
 			echo '<p class="note">' . esc_html( $L( '※JPG・PNG・WEBP・PDF、1ファイル10MBまで。', '* JPG, PNG, WEBP or PDF. Max 10MB per file.' ) ) . '</p>';
 			echo '<button>' . esc_html( $L( '会員情報・書類を更新する', 'Update profile & documents' ) ) . '</button></form>';
+
+			/* 書類の削除（更新フォームとは別のフォーム） */
+			$has_docs = false;
+			foreach ( $cur_files as $v ) if ( is_string( $v ) && '' !== $v ) $has_docs = true;
+			if ( $has_docs ) {
+				echo '<form method="post" style="margin-top:14px" onsubmit="return confirm(\'' . esc_js( $L( 'ご提出の免許証などの書類を削除します。元に戻せません。よろしいですか？', 'This will permanently delete your submitted documents. Continue?' ) ) . '\')">';
+				wp_nonce_field( 'bv_manage_' . $r->code );
+				echo '<input type="hidden" name="bv_token" value="' . esc_attr( $token ) . '"><input type="hidden" name="bv_action" value="delete_docs">';
+				echo '<button class="ghost" style="color:#b32d2e;border-color:#b32d2e">' . esc_html( $L( 'ご提出の書類（免許証など）を削除する', 'Delete my submitted documents' ) ) . '</button>';
+				echo '<p class="note">' . esc_html( $L( '書類はご返却またはキャンセルの1日後に自動で削除されます。それより前に削除することもできます（削除後はご来店時に原本を確認します）。', 'Documents are deleted automatically one day after return or cancellation. You can also delete them now (we will check your original license at the counter).' ) ) . '</p>';
+				echo '</form>';
+			}
 
 			echo '<p><a class="home" href="' . esc_url( $home_url ) . '">' . esc_html( $L( 'ホームに戻る', 'Back to Home' ) ) . '</a></p>';
 		}

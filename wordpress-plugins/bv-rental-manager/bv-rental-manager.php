@@ -3,14 +3,14 @@
  * Plugin Name: BV Rental Manager（Be Village レンタカー統合管理）
  * Plugin URI:  https://be-village.com
  * Description: レンタカー予約・車両・顧客・売上・業績の一元管理。地域サイトの予約フォームプラグインとREST APIで連携。Square決済、スタッフポータル、予約ガント、貸渡実績報告書出力対応。
- * Version:     1.41.0
+ * Version:     1.42.0
  * Author:      Be Village株式会社
  * Text Domain: bv-rental
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVRM_VERSION', '1.41.0' );
+define( 'BVRM_VERSION', '1.42.0' );
 define( 'BVRM_FILE', __FILE__ );
 define( 'BVRM_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BVRM_URL', plugin_dir_url( __FILE__ ) );
@@ -64,10 +64,17 @@ register_deactivation_hook( __FILE__, function () {
 } );
 add_action( 'bvrm_daily_tasks', array( 'BV_Mailer', 'send_payment_reminders' ) );
 
-/* 日次の後片付け：期限切れ認証コードの削除と、保持期間を過ぎた本人確認書類の削除 */
+/* 日次の後片付け：期限切れ認証コードの削除（本人確認書類の削除は15分ごとの処理で行う） */
 add_action( 'bvrm_daily_tasks', function () {
 	BV_DB::purge_expired_otp( 1 );
-	BV_Files::purge_expired_documents();
+} );
+
+/* 本人確認書類の保持期間を「返却・キャンセルから1日」にする（以前の「削除しない」設定から一度だけ切り替える） */
+add_action( 'init', function () {
+	if ( get_option( 'bvrm_doc_retention_v2' ) ) return;
+	$s = BV_Util::settings();
+	if ( (int) ( $s['doc_retention_days'] ?? 0 ) < 1 ) BV_Util::update_settings( array( 'doc_retention_days' => 1 ) );
+	update_option( 'bvrm_doc_retention_v2', 1, false );
 } );
 
 /*
@@ -80,6 +87,8 @@ add_action( 'init', function () {
 	}
 } );
 add_action( 'bvrm_pending_tasks', function () {
+	/* 返却・キャンセルから保持期間（既定1日）を過ぎた本人確認書類の削除 */
+	BV_Files::purge_expired_documents();
 	BV_Mailer::send_payment_reminders();
 	BV_Mailer::auto_cancel_expired();
 	BV_Mailer::send_pickup_reminders();

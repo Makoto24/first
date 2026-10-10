@@ -16,6 +16,7 @@ class BV_Admin {
 		add_action( 'admin_init', array( __CLASS__, 'handle_mark_paid' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_refund' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_message' ) );
+		add_action( 'admin_init', array( __CLASS__, 'handle_delete_docs' ) );
 		add_action( 'admin_init', array( 'BV_Admin_Pages', 'handle_vehicle_save' ) );
 		add_action( 'admin_init', array( 'BV_Admin_Pages', 'handle_vehicle_delete' ) );
 		add_action( 'wp_ajax_bvrm_gantt', array( __CLASS__, 'ajax_gantt' ) );
@@ -148,6 +149,19 @@ class BV_Admin {
 		$res = BV_Ops::message_customer( $r, $P['msg_subject'] ?? '', $P['msg_body'] ?? '', 'admin' );
 		set_transient( 'bvrm_notice', $res['msg'], 120 );
 		wp_safe_redirect( admin_url( 'admin.php?page=bvrm-reservations&edit=' . $id ) . '#bvrm-message' );
+		exit;
+	}
+
+	/** 本人確認書類の削除（予約詳細の「免許証等」のリンクから） */
+	public static function handle_delete_docs() {
+		if ( empty( $_GET['bvrm_del_docs'] ) || ! current_user_can( 'manage_options' ) ) return;
+		$id = (int) $_GET['bvrm_del_docs'];
+		check_admin_referer( 'bvrm_del_docs_' . $id );
+		$r = BV_DB::get_reservation( $id );
+		if ( ! $r ) return;
+		$n = BV_Files::delete_documents( $r, 'admin' );
+		set_transient( 'bvrm_notice', $n ? '本人確認書類（' . $n . 'ファイル）を削除しました。' : '削除する書類はありませんでした。', 120 );
+		wp_safe_redirect( admin_url( 'admin.php?page=bvrm-reservations&edit=' . $id ) );
 		exit;
 	}
 
@@ -1084,7 +1098,10 @@ class BV_Admin {
 				foreach ( $files as $k => $u ) {
 					echo '<a href="' . esc_url( BV_Files::url( $u, 'adm' ) ) . '" target="_blank" rel="noreferrer">' . esc_html( $k ) . '</a> ';
 				}
-				echo '<p class="description">閲覧リンクは2時間で失効し、管理者としてログインしている間だけ開けます。</p>';
+				echo '<p class="description">閲覧リンクは2時間で失効し、管理者としてログインしている間だけ開けます。返却・キャンセルの1日後に自動で削除されます。</p>';
+				/* 本体フォームの中なのでボタンではなくリンクで削除する */
+				$del = wp_nonce_url( admin_url( 'admin.php?page=bvrm-reservations&bvrm_del_docs=' . (int) $r->id ), 'bvrm_del_docs_' . (int) $r->id );
+				echo '<p><a href="' . esc_url( $del ) . '" class="button" style="color:#b32d2e;border-color:#b32d2e" onclick="return confirm(\'このお客様の本人確認書類を削除します（同じメールアドレスの他の予約からも外れます）。元に戻せません。よろしいですか？\')">書類を今すぐ削除する</a></p>';
 				echo '</td></tr>';
 			}
 		}

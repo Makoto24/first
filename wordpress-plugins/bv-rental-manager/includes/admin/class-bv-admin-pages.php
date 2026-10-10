@@ -1541,7 +1541,8 @@ class BV_Admin_Pages {
 				: '<span style="color:#dba617">未作成（次回のアップロード時に自動で作成されます）</span>' )
 			. '<p class="description">アップロードされた免許証等は公開領域には置かず、ここに保存します。画面に表示されるリンクは2時間で失効し、管理者・スタッフは配信時にもログイン状態を確認します。</p></td></tr>';
 		echo '<tr><th>保持日数</th><td><input type="number" name="doc_retention_days" min="0" max="3650" style="width:90px" value="' . (int) ( $s['doc_retention_days'] ?? 0 ) . '"> 日'
-			. '<p class="description">返却済・キャンセルの予約について、返却日からこの日数が過ぎたら本人確認書類を自動削除します（1日1回判定）。<strong>0なら削除しません。</strong>進行中の予約で同じ画像が使われている場合は削除しません。</p></td></tr>';
+			. '<p class="description">返却済・キャンセルになってからこの日数が過ぎたら、本人確認書類を自動で削除します（15分ごとに判定。既定は1日）。0なら自動では削除しません。'
+			. '同じお客様の進行中の予約で同じ画像を使っている場合は、その予約が終わるまで残します。個別の削除は予約詳細の「免許証等」から行えます。</p></td></tr>';
 		echo '</table>';
 
 		submit_button( '設定を保存' );

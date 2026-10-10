@@ -322,8 +322,43 @@ class BV_Files {
 	}
 
 	/**
-	 * 保持期間を過ぎた本人確認書類を削除する（設定でオンのときだけ動く）
-	 * 返却済／キャンセルから指定日数を過ぎた予約が対象。
+	 * 本人確認書類を今すぐ削除する（お客様ご自身・管理画面・スタッフポータルから）
+	 * 同じメールアドレスの予約は書類を共有しているため、その方の予約すべてから外し、ファイルも消す。
+	 * @param string $by customer / admin / staff
+	 * @return int 削除したファイル数
+	 */
+	public static function delete_documents( $r, $by = 'admin' ) {
+		global $wpdb;
+		$t = BV_DB::table( 'reservations' );
+		$rows = array( $r );
+		if ( is_email( (string) $r->email ) ) {
+			$rows = $wpdb->get_results( $wpdb->prepare(
+				"SELECT id, license_files FROM {$t} WHERE email = %s AND license_files != '' AND license_files != '[]'", $r->email
+			) );
+			$rows[] = $r;
+		}
+		$keys = array();
+		$ids  = array();
+		foreach ( $rows as $row ) {
+			$d = json_decode( (string) $row->license_files, true );
+			if ( ! is_array( $d ) || ! $d ) continue;
+			foreach ( $d as $v ) if ( is_string( $v ) && self::is_key( $v ) ) $keys[ $v ] = true;
+			$ids[ (int) $row->id ] = true;
+		}
+		foreach ( array_keys( $keys ) as $k ) self::delete( $k );
+		foreach ( array_keys( $ids ) as $id ) $wpdb->update( $t, array( 'license_files' => '' ), array( 'id' => $id ) );
+		if ( $ids ) {
+			$who = array( 'customer' => 'お客様ご自身', 'admin' => '管理画面', 'staff' => 'スタッフポータル' );
+			$cur = BV_DB::get_reservation( $r->id );
+			BV_DB::update_reservation( $r->id, array( 'admin_memo' => trim( (string) ( $cur ? $cur->admin_memo : '' ) . "\n[本人確認書類を削除 " . current_time( 'Y-m-d H:i' ) . '（' . ( $who[ $by ] ?? $by ) . '）] ' . count( $keys ) . 'ファイル' ) ) );
+		}
+		return count( $keys );
+	}
+
+	/**
+	 * 保持期間を過ぎた本人確認書類を削除する
+	 * 返却済／キャンセルになってから指定日数（既定1日）を過ぎた予約が対象。
+	 * 返却日時（実際に返却を記録した時刻）、なければ最後に更新した時刻（キャンセルした時刻など）から数える。
 	 * @return int 削除した予約件数
 	 */
 	public static function purge_expired_documents() {
@@ -338,7 +373,7 @@ class BV_Files {
 		$rows = $wpdb->get_results( $wpdb->prepare(
 			"SELECT id, license_files FROM {$t}
 			  WHERE license_files != '' AND license_files != '[]'
-			    AND status IN ('returned','cancelled') AND return_dt < %s
+			    AND status IN ('returned','cancelled') AND COALESCE( returned_at, updated_at, return_dt ) < %s
 			  LIMIT 200",
 			$cut
 		) );
