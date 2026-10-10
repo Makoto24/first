@@ -3,14 +3,14 @@
  * Plugin Name: BV Rental Manager（Be Village レンタカー統合管理）
  * Plugin URI:  https://be-village.com
  * Description: レンタカー予約・車両・顧客・売上・業績の一元管理。地域サイトの予約フォームプラグインとREST APIで連携。Square決済、スタッフポータル、予約ガント、貸渡実績報告書出力対応。
- * Version:     1.43.0
+ * Version:     1.44.0
  * Author:      Be Village株式会社
  * Text Domain: bv-rental
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'BVRM_VERSION', '1.43.0' );
+define( 'BVRM_VERSION', '1.44.0' );
 define( 'BVRM_FILE', __FILE__ );
 define( 'BVRM_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BVRM_URL', plugin_dir_url( __FILE__ ) );
@@ -31,6 +31,8 @@ require_once BVRM_DIR . 'includes/class-bv-report.php';
 require_once BVRM_DIR . 'includes/class-bv-staff-portal.php';
 require_once BVRM_DIR . 'includes/class-bv-review.php';
 require_once BVRM_DIR . 'includes/class-bv-ops.php';
+require_once BVRM_DIR . 'includes/class-bv-license-reader.php';
+require_once BVRM_DIR . 'includes/class-bv-ledger.php';
 if ( is_admin() ) {
 	require_once BVRM_DIR . 'includes/admin/class-bv-admin.php';
 }
@@ -48,7 +50,8 @@ add_action( 'plugins_loaded', function () {
 	BV_Print::init();
 	BV_Staff_Portal::init();
 	BV_Review::init();
-	if ( is_admin() ) BV_Admin::init();
+	BV_License_Reader::init();
+	if ( is_admin() ) { BV_Admin::init(); BV_Ledger::init(); }
 } );
 
 /* 支払いリマインダー用 cron */
@@ -87,7 +90,8 @@ add_action( 'init', function () {
 	}
 } );
 add_action( 'bvrm_pending_tasks', function () {
-	/* 返却・キャンセルから保持期間（既定1日）を過ぎた本人確認書類の削除 */
+	/* 免許証の自動読み取り（貸渡簿用）を先に済ませてから、保持期間を過ぎた画像を消す */
+	BV_License_Reader::batch( 3 );
 	BV_Files::purge_expired_documents();
 	BV_Mailer::send_payment_reminders();
 	BV_Mailer::auto_cancel_expired();

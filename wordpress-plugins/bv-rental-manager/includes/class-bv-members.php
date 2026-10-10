@@ -98,6 +98,16 @@ class BV_Members {
 				'UPDATE ' . BV_DB::table( 'reservations' ) . " SET license_files = %s WHERE email = %s AND status IN ('pending','confirmed','in_use')",
 				wp_json_encode( $files ), $r->email
 			) );
+			/* 書類が変わったので、免許の種類・番号を読み直す（貸渡簿用） */
+			$ids = $wpdb->get_col( $wpdb->prepare(
+				'SELECT id FROM ' . BV_DB::table( 'reservations' ) . ' WHERE license_files = %s AND email = %s', wp_json_encode( $files ), $r->email
+			) );
+			foreach ( array_unique( array_merge( array( (int) $r->id ), array_map( 'intval', (array) $ids ) ) ) as $rid ) {
+				$cur = BV_DB::get_reservation( $rid );
+				/* スタッフが手で入力した番号はそのまま */
+				if ( $cur && 'manual' !== $cur->license_source ) BV_DB::update_reservation( $rid, array( 'license_read_at' => null, 'license_source' => '', 'license_read_note' => '' ) );
+			}
+			BV_License_Reader::queue( (int) $r->id );
 			$s = BV_Util::settings();
 			$subject = '【書類更新】' . BV_Util::label( BV_Util::stores(), $r->store, 'ja' ) . ' ' . $r->code . ' ' . trim( $r->sei . ' ' . $r->mei ) . '様';
 			$body = "お客様が免許証等の画像を更新しました。\n\n"
@@ -829,7 +839,8 @@ class BV_Members {
 				$auto = $days > 0
 					? $L( '書類はご返却またはキャンセルの' . $days . '日後に自動で消去されます。', 'Documents are erased automatically ' . $days . ' day' . ( $days > 1 ? 's' : '' ) . ' after return or cancellation. ' )
 					: '';
-				echo '<p class="note">' . esc_html( $auto . $L( 'それより前にご自身で削除することもできます（削除後はご来店時に原本を確認します）。', 'You can also delete them yourself at any time (we will then check your original license at the counter).' ) ) . '</p>';
+				echo '<p class="note">' . esc_html( $auto . $L( 'それより前にご自身で削除することもできます（削除後はご来店時に原本を確認します）。', 'You can also delete them yourself at any time (we will then check your original license at the counter). ' )
+					. $L( '法令で保存が義務付けられた貸渡簿の記載事項（氏名・住所・免許の種類と番号など）は、画像とは別に法定の期間保存します。', 'Items we must keep in our rental register by law (name, address, license type and number, etc.) are kept separately for the legally required period.' ) ) . '</p>';
 				echo '</form>';
 			}
 

@@ -738,6 +738,15 @@ class BV_Staff_Portal {
 			$P  = wp_unslash( $_POST );
 			$op = BV_Ops::refund( $r, $P['refund_mode'] ?? '', $P['refund_manual'] ?? '', $P['refund_memo'] ?? '', 'staff' );
 		}
+		/* 貸渡簿の記載事項（運転者・免許・事故・貸出時メーター） */
+		if ( isset( $_POST['bv_staff_ledger'] ) && check_admin_referer( 'bv_staff_ledger_' . $id ) ) {
+			$op = ( 'read' === $_POST['bv_staff_ledger'] )
+				? ( function () use ( $id ) {
+					BV_DB::update_reservation( $id, array( 'license_source' => '', 'license_read_at' => null ) );
+					return BV_License_Reader::read_reservation( $id );
+				} )()
+				: BV_Ledger::save( $r, wp_unslash( $_POST ), 'staff' );
+		}
 		if ( isset( $_POST['bv_staff_docs'] ) && check_admin_referer( 'bv_staff_docs_' . $id ) ) {
 			$n  = BV_Files::delete_documents( $r, 'staff' );
 			$op = array( 'ok' => true, 'msg' => $n ? '本人確認書類（' . $n . 'ファイル）を削除しました。' : '削除する書類はありませんでした。' );
@@ -1099,6 +1108,7 @@ class BV_Staff_Portal {
 
 		/* ---- 免許証・本人確認書類（署名付きの短期リンク。ポータルにログイン中のみ開ける） ---- */
 		self::license_card( $r );
+		self::ledger_card( $r );
 
 		/* ---- お支払いの受領（現金・振込・店頭端末など） ---- */
 		if ( ! $r->paid_at && 'cancelled' !== $r->status ) {
@@ -1342,6 +1352,23 @@ class BV_Staff_Portal {
 		echo '<div style="margin-top:10px">';
 		self::op_form_open( $r, 'docs', 'このお客様の本人確認書類を削除します（同じメールアドレスの他の予約からも外れます）。元に戻せません。よろしいですか？' );
 		echo '<button name="bv_staff_docs" value="1" style="background:#b32d2e;width:100%">書類を今すぐ削除する</button></form></div>';
+		echo '</div>';
+	}
+
+	/** 貸渡簿の記載事項（運転者・免許の種類と番号・事故・貸出時メーター） */
+	protected static function ledger_card( $r ) {
+		if ( 'cancelled' === $r->status ) return;
+		$miss = in_array( $r->status, BV_Ledger::STATUSES, true ) ? BV_Ledger::missing( $r ) : array();
+		echo '<div class="card"' . ( $miss ? ' style="border-left:5px solid #d63638"' : '' ) . '><h3 style="margin-top:0">貸渡簿の記載事項</h3>';
+		if ( $miss ) echo '<p class="warn" style="margin:0 0 10px">足りない項目：' . esc_html( implode( '、', $miss ) ) . '</p>';
+		self::op_form_open( $r, 'ledger' );
+		echo BV_Ledger::fields_html( $r );
+		echo '<button name="bv_staff_ledger" value="save" style="width:100%;margin-top:10px">記載事項を保存</button></form>';
+		if ( BV_License_Reader::enabled() && $r->license_files && '[]' !== $r->license_files ) {
+			self::op_form_open( $r, 'ledger', '免許証の画像をもう一度読み取ります（手で直した番号も読み取り結果で置き換わります）。よろしいですか？' );
+			echo '<button name="bv_staff_ledger" value="read" style="background:#646970;width:100%">免許証を読み取り直す</button></form>';
+		}
+		echo '<p class="note" style="margin:8px 0 0">免許の種類・番号はアップロードされた免許証から自動で読み取ります。来店時に原本と照らし合わせ、違っていれば直してください。</p>';
 		echo '</div>';
 	}
 
@@ -1678,12 +1705,24 @@ class BV_Staff_Portal {
 				 */
 				$prev = $v ? (int) $v->mileage : 0;
 				$trip = ( $prev > 0 && $odo > $prev ) ? $odo - $prev : 0;
+				/* 事故に関する事項（貸渡簿）：「なし」か「あり＋内容」のどちらかを必ず記録する */
+				$acc = (string) ( $P['accident'] ?? '' );
+				$acc_note = sanitize_textarea_field( (string) ( $P['accident_note'] ?? '' ) );
+				if ( ! in_array( $acc, array( 'none', 'yes' ), true ) || ( 'yes' === $acc && '' === trim( $acc_note ) ) ) {
+					self::header( '返却処理' );
+					echo '<p class="warn">' . ( 'yes' === $acc ? '事故ありの場合は、事故の内容を入力してください。' : '事故の有無を選んでください（貸渡簿の記載事項です）。' ) . '</p>';
+					echo '<a class="btn" href="' . esc_url( add_query_arg( 'res', (int) $r->id, self::base( 'return' ) ) ) . '">返却処理に戻る</a>';
+					self::footer();
+					return;
+				}
 				BV_DB::update_reservation( $r->id, array(
+					'pickup_odometer' => $prev,
+					'accident_note' => 'yes' === $acc ? $acc_note : '',
 					'status' => 'returned',
 					'return_odometer' => $odo,
 					'return_location' => sanitize_key( $P['return_location'] ),
 					'fuel_full' => ! empty( $P['fuel_full'] ) ? 1 : 0,
-					'no_accident' => ! empty( $P['no_accident'] ) ? 1 : 0,
+					'no_accident' => 'none' === $acc ? 1 : 0,
 					'return_memo' => sanitize_textarea_field( $P['return_memo'] ),
 					'trip_distance' => $trip,
 					'returned_at' => current_time( 'mysql' ),
@@ -1745,7 +1784,10 @@ class BV_Staff_Portal {
 		}
 		echo '</select>';
 		echo '<p style="margin:0 0 6px"><label style="font-weight:normal"><input type="checkbox" name="fuel_full" value="1"> ガソリン満タン確認（任意）</label></p>';
-		echo '<p style="margin:0 0 12px"><label style="font-weight:normal"><input type="checkbox" name="no_accident" value="1"> 無事故確認（任意）</label></p>';
+		echo '<label>事故の有無（貸渡簿の記載事項・必須）</label><p style="margin:0 0 6px">'
+			. '<label style="font-weight:normal;display:inline;margin-right:18px"><input type="radio" name="accident" value="none" required> 事故なし</label>'
+			. '<label style="font-weight:normal;display:inline"><input type="radio" name="accident" value="yes"> 事故あり</label></p>';
+		echo '<textarea name="accident_note" rows="2" placeholder="事故ありの場合：日時・場所・内容・相手方・警察への届出など"></textarea>';
 		echo '<label>メモ</label><textarea name="return_memo" rows="3" placeholder="傷・忘れ物・清掃など"></textarea>';
 		if ( ! empty( BV_Util::settings()['review_mail_enabled'] ) ) {
 			echo '<p style="margin:0 0 12px"><label style="font-weight:normal"><input type="checkbox" name="skip_review_mail" value="1"> お礼＋口コミ依頼メールを送らない</label>'

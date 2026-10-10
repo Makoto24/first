@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class BV_DB {
 
-	const DB_VERSION = '1.9.0';
+	const DB_VERSION = '1.10.0';
 
 	public static function table( $name ) {
 		global $wpdb;
@@ -130,6 +130,17 @@ class BV_DB {
 			return_memo TEXT,
 			trip_distance INT DEFAULT 0,
 			returned_at DATETIME NULL,
+			pickup_odometer INT UNSIGNED DEFAULT 0,
+			accident_note TEXT,
+			driver_same TINYINT(1) DEFAULT 1,
+			driver_name VARCHAR(160) DEFAULT '',
+			driver_address TEXT,
+			license_type VARCHAR(160) DEFAULT '',
+			license_number VARCHAR(40) DEFAULT '',
+			license_expiry DATE NULL,
+			license_source VARCHAR(20) DEFAULT '',
+			license_read_at DATETIME NULL,
+			license_read_note VARCHAR(255) DEFAULT '',
 			admin_memo TEXT,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NULL,

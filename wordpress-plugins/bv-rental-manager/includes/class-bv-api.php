@@ -213,6 +213,8 @@ class BV_API {
 			'min_driver_age' => BV_Util::min_driver_age(),
 			/* 本人確認書類を返却・キャンセルから何日で自動消去するか（0＝自動消去しない）。予約フォームの安心表示に使う */
 			'doc_retention_days' => max( 0, (int) ( $s['doc_retention_days'] ?? 1 ) ),
+			/* 免許証の記載事項をAIで読み取るか（予約フォームの個人情報の案内に使う） */
+			'license_ocr' => BV_License_Reader::enabled() ? 1 : 0,
 		);
 	}
 
@@ -625,6 +627,8 @@ class BV_API {
 			'price_breakdown' => wp_json_encode( $quote ),
 			'price_total' => (int) $quote['total'],
 		) ) );
+		/* 免許証の種類・番号を、数秒後にバックグラウンドで読み取る（貸渡簿用） */
+		if ( $id && $files ) BV_License_Reader::queue( $id );
 
 		if ( $quote['discount'] > 0 && ! empty( $quote_args['coupon_code'] ) ) {
 			global $wpdb;

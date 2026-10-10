@@ -42,6 +42,8 @@
 			privacyStore: 'ご提出いただいた免許証などの画像は、外部から閲覧できない場所に保管し、ご予約の確認のために当社スタッフだけが確認します。メールで送ることはありません。',
 			privacyAuto: 'ご返却またはキャンセルの{days}日後に、自動で消去されます。',
 			privacySelf: 'ご予約確認ページから、いつでもご自身で削除することもできます。',
+			privacyLedger: 'なお、法令で保存が義務付けられた貸渡簿の記載事項（氏名・住所・免許の種類と番号など）は、画像とは別に法定の期間保存します。',
+			privacyOcr: '免許の種類と番号の読み取りには、AI（Anthropic社のClaude）を利用します。',
 			licenseOptional: '（変更する場合のみ）',
 			firstTimeTitle: '初めての方・パスワードをお持ちでない方',
 			emailFirst: '最初にメールアドレスの認証を行います。認証コードをお送りします。',
@@ -136,7 +138,9 @@
 			privacyTitle: 'How we protect your personal information',
 			privacyStore: 'Your uploaded documents are stored in a private area that cannot be accessed from outside, and are viewed only by our staff to check your booking. We never send them by email. ',
 			privacyAuto: 'They are automatically erased {days} day(s) after you return the car or cancel. ',
-			privacySelf: 'You can also delete them yourself at any time from your booking page.',
+			privacySelf: 'You can also delete them yourself at any time from your booking page. ',
+			privacyLedger: 'Please note that the items we are required by law to keep in our rental register (name, address, license type and number, etc.) are kept separately from the images for the legally required period. ',
+			privacyOcr: 'We use AI (Claude by Anthropic) to read the license type and number from your document.',
 			licenseOptional: ' (only if changed)',
 			firstTimeTitle: 'First-time customers / no password',
 			emailFirst: 'First, we verify your email address. We will send you a verification code.',
@@ -1029,7 +1033,8 @@
 	function privacyNoticeHtml() {
 		var cfg = state.config || {};
 		var days = (cfg.doc_retention_days === undefined || cfg.doc_retention_days === null) ? 1 : parseInt(cfg.doc_retention_days, 10);
-		var body = T.privacyStore + (days > 0 ? T.privacyAuto.replace('{days}', String(days)) : '') + T.privacySelf;
+		var body = T.privacyStore + (days > 0 ? T.privacyAuto.replace('{days}', String(days)) : '') + T.privacySelf
+			+ T.privacyLedger + (cfg.license_ocr ? T.privacyOcr : '');
 		return '<div class="bvbf-privacy"><strong>&#128274; ' + T.privacyTitle + '</strong><br>' + body + '</div>';
 	}
 

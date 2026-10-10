@@ -1166,6 +1166,13 @@ class BV_Admin_Pages {
 				? ( ! empty( $s['square_skip_sig'] ) ? (int) ( $s['square_skip_sig_at'] ?? time() ) : time() )
 				: 0;
 			$new['doc_retention_days'] = max( 0, min( 3650, (int) ( $P['doc_retention_days'] ?? 0 ) ) );
+			/* 免許証の自動読み取り（APIキーは画面に出さない。空欄なら前の値のまま） */
+			$new['license_ocr']  = ! empty( $P['license_ocr'] ) ? 1 : 0;
+			$new['claude_model'] = isset( BV_License_Reader::models()[ $P['claude_model'] ?? '' ] ) ? $P['claude_model'] : 'claude-opus-5-5';
+			$ck = trim( (string) ( $P['claude_api_key'] ?? '' ) );
+			if ( '' !== $ck ) $new['claude_api_key'] = sanitize_text_field( $ck );
+			if ( ! empty( $P['clear_claude_api_key'] ) ) $new['claude_api_key'] = '';
+			$new['ledger_years'] = max( 1, min( 20, (int) ( $P['ledger_years'] ?? 2 ) ) );
 			$new['min_driver_age']     = max( 0, min( 99, (int) ( $P['min_driver_age'] ?? 0 ) ) );
 			update_option( 'bvrm_data_enabled', ! empty( $P['data_api_enabled'] ) ? 1 : 0 );
 			$new['review_mail_enabled']  = ! empty( $P['review_mail_enabled'] ) ? 1 : 0;
@@ -1238,6 +1245,12 @@ class BV_Admin_Pages {
 			if ( $new['autocancel_enabled'] && (int) $new['pay_deadline_hours'] !== (int) $new['autocancel_hours'] ) {
 				echo '<div class="notice notice-warning"><p><strong>ご確認ください：</strong>メール文面のお支払い期限（' . (int) $new['pay_deadline_hours'] . '時間）と、実際の自動キャンセル（' . (int) $new['autocancel_hours'] . '時間）が違います。お客様への案内と実際の動作を揃えることをおすすめします。</p></div>';
 			}
+		}
+		/* 免許証の読み取りを今すぐ実行する（既存の画像のまとめ読み） */
+		if ( isset( $_POST['bvrm_read_licenses'] ) && check_admin_referer( 'bvrm_read_licenses' ) ) {
+			if ( function_exists( 'set_time_limit' ) ) @set_time_limit( 300 );
+			$n = BV_License_Reader::batch( 10 );
+			echo '<div class="notice notice-success"><p>免許証を ' . (int) $n . ' 件読み取りました。残り ' . (int) BV_License_Reader::pending_count() . ' 件（15分ごとにも自動で読み取ります）。結果は「貸渡簿」で確認できます。</p></div>';
 		}
 		/* 既存の免許証画像を非公開領域へ移行する */
 		if ( isset( $_POST['bvrm_migrate_docs'] ) && check_admin_referer( 'bvrm_migrate_docs' ) ) {
@@ -1542,7 +1555,20 @@ class BV_Admin_Pages {
 			. '<p class="description">アップロードされた免許証等は公開領域には置かず、ここに保存します。画面に表示されるリンクは2時間で失効し、管理者・スタッフは配信時にもログイン状態を確認します。</p></td></tr>';
 		echo '<tr><th>保持日数</th><td><input type="number" name="doc_retention_days" min="0" max="3650" style="width:90px" value="' . (int) ( $s['doc_retention_days'] ?? 0 ) . '"> 日'
 			. '<p class="description">返却済・キャンセルになってからこの日数が過ぎたら、本人確認書類を自動で削除します（15分ごとに判定。既定は1日）。0なら自動では削除しません。'
-			. '同じお客様の進行中の予約で同じ画像を使っている場合は、その予約が終わるまで残します。個別の削除は予約詳細の「免許証等」から行えます。</p></td></tr>';
+			. '同じお客様の進行中の予約で同じ画像を使っている場合は、その予約が終わるまで残します。個別の削除は予約詳細の「免許証等」から行えます。'
+			. '免許証の自動読み取りがまだのものは、読み取りが済んでから消します（読み取れない状態が続いても、最長で保持日数＋6日で消します）。</p></td></tr>';
+		$has_key = '' !== trim( (string) ( $s['claude_api_key'] ?? '' ) );
+		echo '<tr><th>免許証の自動読み取り<br><span style="font-weight:normal;font-size:12px">（貸渡簿）</span></th><td>'
+			. '<label><input type="checkbox" name="license_ocr" value="1"' . checked( ! empty( $s['license_ocr'] ), true, false ) . '> アップロードされた免許証から、免許の種類・番号・有効期限を自動で読み取る</label>'
+			. '<p><input type="password" name="claude_api_key" class="regular-text" autocomplete="new-password" placeholder="' . ( $has_key ? '設定済み（変更するときだけ入力）' : 'Claude APIキー（sk-ant-…）' ) . '">'
+			. ( $has_key ? ' <label><input type="checkbox" name="clear_claude_api_key" value="1"> 削除する</label>' : '' ) . '</p>'
+			. '<p><select name="claude_model">';
+		foreach ( BV_License_Reader::models() as $mk => $ml ) echo '<option value="' . esc_attr( $mk ) . '"' . selected( $s['claude_model'] ?? 'claude-opus-5-5', $mk, false ) . '>' . esc_html( $ml ) . '</option>';
+		echo '</select></p>'
+			. '<p class="description">Anthropicの管理画面（console.anthropic.com → API Keys）で作成したキー。チャットボットと同じキーでも構いません。このサイトにだけ保存し、画面には表示しません。'
+			. '1件あたりの費用はおおむね数円です。読み取った番号は「貸渡簿」と予約詳細で確認・修正できます。</p></td></tr>';
+		echo '<tr><th>貸渡簿の保存期間</th><td><input type="number" name="ledger_years" min="1" max="20" style="width:70px" value="' . (int) ( $s['ledger_years'] ?? 2 ) . '"> 年'
+			. '<p class="description">貸出・返却済みの予約は、この期間（返却から）削除できなくなります。法令で定められた保存期間に合わせてください（一般に2年。詳しくは所管の運輸支局にご確認ください）。</p></td></tr>';
 		echo '</table>';
 
 		submit_button( '設定を保存' );
@@ -1553,6 +1579,15 @@ class BV_Admin_Pages {
 		$legacy = (int) $wpdb->get_var(
 			"SELECT COUNT(*) FROM " . BV_DB::table( 'reservations' ) . " WHERE license_files LIKE '%http%'"
 		);
+		echo '<h3>免許証の読み取り（既存の画像）</h3>';
+		$pend = BV_License_Reader::pending_count();
+		echo '<p>まだ読み取っていない免許証：<strong>' . (int) $pend . '件</strong>' . ( BV_License_Reader::enabled() ? '（15分ごとに3件ずつ自動で読み取ります）' : '（自動読み取りがオフか、APIキーが未設定です）' ) . '</p>';
+		if ( $pend && BV_License_Reader::enabled() ) {
+			echo '<form method="post">';
+			wp_nonce_field( 'bvrm_read_licenses' );
+			submit_button( '今すぐ読み取る（最大10件）', 'secondary', 'bvrm_read_licenses', false );
+			echo '</form>';
+		}
 		echo '<h3>既存の画像の移行</h3>';
 		if ( $legacy > 0 ) {
 			echo '<div class="notice notice-warning inline"><p>公開領域（<code>wp-content/uploads</code>直下）に置かれたままの本人確認書類が、<strong>' . (int) $legacy . '件</strong>の予約に残っています。URLを知っていれば誰でも開ける状態のため、移行をおすすめします。</p></div>';

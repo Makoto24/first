@@ -329,6 +329,10 @@ class BV_Files {
 	 */
 	public static function delete_documents( $r, $by = 'admin' ) {
 		global $wpdb;
+		/* 貸渡簿に必要な免許の種類・番号を、消す前に読み取っておく */
+		if ( ! $r->license_read_at && $r->license_files && '[]' !== $r->license_files && BV_License_Reader::enabled() ) {
+			BV_License_Reader::read_reservation( $r->id );
+		}
 		$t = BV_DB::table( 'reservations' );
 		$rows = array( $r );
 		if ( is_email( (string) $r->email ) ) {
@@ -370,13 +374,20 @@ class BV_Files {
 		$t = BV_DB::table( 'reservations' );
 		$cut = date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - $days * DAY_IN_SECONDS );
 
+		/*
+		 * 貸渡簿のため、免許証をまだ読み取っていない画像は読み取りを待つ（15分ごとに読み取る）。
+		 * 読み取りが止まっていても（APIの障害など）、保持期間＋6日（既定で計7日）を過ぎたら消す。
+		 */
+		$wait = BV_License_Reader::enabled()
+			? $wpdb->prepare( ' AND ( license_read_at IS NOT NULL OR COALESCE( returned_at, updated_at, return_dt ) < %s )',
+				date( 'Y-m-d H:i:s', current_time( 'timestamp' ) - ( $days + 6 ) * DAY_IN_SECONDS ) )
+			: '';
 		$rows = $wpdb->get_results( $wpdb->prepare(
 			"SELECT id, license_files FROM {$t}
 			  WHERE license_files != '' AND license_files != '[]'
-			    AND status IN ('returned','cancelled') AND COALESCE( returned_at, updated_at, return_dt ) < %s
-			  LIMIT 200",
+			    AND status IN ('returned','cancelled') AND COALESCE( returned_at, updated_at, return_dt ) < %s",
 			$cut
-		) );
+		) . $wait . ' LIMIT 200' );
 		if ( ! $rows ) return 0;
 
 		/* 進行中の予約でまだ使われているキーは消さない */

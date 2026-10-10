@@ -46,6 +46,7 @@ class BV_Admin {
 		add_submenu_page( 'bvrm', 'クーポン', 'クーポン', 'manage_options', 'bvrm-coupons', array( 'BV_Admin_Pages', 'coupons' ) );
 		add_submenu_page( 'bvrm', '料金カレンダー', '料金カレンダー', 'manage_options', 'bvrm-rates', array( 'BV_Admin_Pages', 'rates' ) );
 		add_submenu_page( 'bvrm', '貸渡実績報告書', '貸渡実績報告書', 'manage_options', 'bvrm-report', array( 'BV_Admin_Pages', 'report' ) );
+		add_submenu_page( 'bvrm', '貸渡簿', '貸渡簿', 'manage_options', 'bvrm-ledger', array( 'BV_Ledger', 'page' ) );
 		add_submenu_page( 'bvrm', '設定', '設定', 'manage_options', 'bvrm-settings', array( 'BV_Admin_Pages', 'settings' ) );
 	}
 
@@ -224,6 +225,12 @@ class BV_Admin {
 		$id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
 		$r  = $id ? BV_DB::get_reservation( $id ) : null;
 
+		/* 貸渡簿の保存期間中の予約は削除させない */
+		if ( 'delete_reservation' === $action && $r && BV_Ledger::is_protected( $r ) ) {
+			set_transient( 'bvrm_notice', '予約 ' . $r->code . ' は貸渡簿として保存期間（' . (int) BV_Ledger::years() . '年）中のため削除できません。', 120 );
+			wp_safe_redirect( admin_url( 'admin.php?page=bvrm-reservations&edit=' . $r->id ) );
+			exit;
+		}
 		/* 予約の完全削除 */
 		if ( 'delete_reservation' === $action && $r ) {
 			global $wpdb;
@@ -972,6 +979,11 @@ class BV_Admin {
 					set_transient( 'bvrm_notice', '保存し、お礼＋口コミ依頼メールを送信しました。', 60 );
 				}
 			}
+			/* 貸渡簿の記載事項（運転者・免許・事故・貸出時メーター） */
+			if ( ! empty( $P['ledger_present'] ) && $r ) {
+				$lr = BV_Ledger::save( BV_DB::get_reservation( $r->id ), $P, 'admin' );
+				if ( ! $lr['ok'] ) set_transient( 'bvrm_notice', '保存しました。ただし貸渡簿の記載事項は保存できませんでした：' . $lr['msg'], 60 );
+			}
 			/* ガントから作成した場合は、同じ表示位置のガントへ戻る */
 			if ( ! empty( $P['pf_gstart'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $P['pf_gstart'] ) ) {
 				set_transient( 'bvrm_notice', '予約 ' . $r->code . ' を作成しました。', 60 );
@@ -1104,6 +1116,18 @@ class BV_Admin {
 				echo '<p><a href="' . esc_url( $del ) . '" class="button" style="color:#b32d2e;border-color:#b32d2e" onclick="return confirm(\'このお客様の本人確認書類を削除します（同じメールアドレスの他の予約からも外れます）。元に戻せません。よろしいですか？\')">書類を今すぐ削除する</a></p>';
 				echo '</td></tr>';
 			}
+		}
+
+		if ( $r ) {
+			$miss = in_array( $r->status, BV_Ledger::STATUSES, true ) ? BV_Ledger::missing( $r ) : array();
+			echo '<tr id="bvrm-ledger"><th>貸渡簿の記載事項</th><td><input type="hidden" name="ledger_present" value="1">';
+			if ( $miss ) echo '<p style="color:#b32d2e;margin:0 0 8px">足りない項目：' . esc_html( implode( '、', $miss ) ) . '</p>';
+			echo BV_Ledger::fields_html( $r );
+			if ( BV_License_Reader::enabled() && $r->license_files && '[]' !== $r->license_files ) {
+				$rd = wp_nonce_url( admin_url( 'admin.php?page=bvrm-reservations&bvrm_read_license=' . (int) $r->id ), 'bvrm_read_license_' . (int) $r->id );
+				echo '<p><a class="button" href="' . esc_url( $rd ) . '" onclick="return confirm(\'免許証の画像をもう一度読み取ります（手で直した番号も読み取り結果で置き換わります）。保存していない変更は失われます。よろしいですか？\')">免許証を読み取り直す</a></p>';
+			}
+			echo '<p class="description">免許の種類・番号はアップロードされた免許証から自動で読み取ります。保存期間（' . (int) BV_Ledger::years() . '年）中の貸渡済みの予約は削除できません。</p></td></tr>';
 		}
 
 		echo '<tr><th>装備オプション</th><td>';
