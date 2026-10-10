@@ -211,6 +211,8 @@ class BV_API {
 			),
 			/* 運転者の下限年齢（0＝制限なし）。フォーム側でも入力時に確認する */
 			'min_driver_age' => BV_Util::min_driver_age(),
+			/* 本人確認書類を返却・キャンセルから何日で自動消去するか（0＝自動消去しない）。予約フォームの安心表示に使う */
+			'doc_retention_days' => max( 0, (int) ( $s['doc_retention_days'] ?? 1 ) ),
 		);
 	}
 

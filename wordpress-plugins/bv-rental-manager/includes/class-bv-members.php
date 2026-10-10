@@ -825,7 +825,11 @@ class BV_Members {
 				wp_nonce_field( 'bv_manage_' . $r->code );
 				echo '<input type="hidden" name="bv_token" value="' . esc_attr( $token ) . '"><input type="hidden" name="bv_action" value="delete_docs">';
 				echo '<button class="ghost" style="color:#b32d2e;border-color:#b32d2e">' . esc_html( $L( 'ご提出の書類（免許証など）を削除する', 'Delete my submitted documents' ) ) . '</button>';
-				echo '<p class="note">' . esc_html( $L( '書類はご返却またはキャンセルの1日後に自動で削除されます。それより前に削除することもできます（削除後はご来店時に原本を確認します）。', 'Documents are deleted automatically one day after return or cancellation. You can also delete them now (we will check your original license at the counter).' ) ) . '</p>';
+				$days = (int) ( BV_Util::settings()['doc_retention_days'] ?? 1 );
+				$auto = $days > 0
+					? $L( '書類はご返却またはキャンセルの' . $days . '日後に自動で消去されます。', 'Documents are erased automatically ' . $days . ' day' . ( $days > 1 ? 's' : '' ) . ' after return or cancellation. ' )
+					: '';
+				echo '<p class="note">' . esc_html( $auto . $L( 'それより前にご自身で削除することもできます（削除後はご来店時に原本を確認します）。', 'You can also delete them yourself at any time (we will then check your original license at the counter).' ) ) . '</p>';
 				echo '</form>';
 			}
 

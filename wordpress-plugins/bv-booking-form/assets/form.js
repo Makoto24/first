@@ -38,6 +38,10 @@
 			welcomeBack: 'ようこそ %s 様。ご登録情報を読み込みました。',
 			prefilled: '前回のご登録情報を自動入力しました。変更がある場合は修正してください。',
 			licenseOnFile: '免許証画像はご登録済みです。変更がなければアップロード不要です。',
+			privacyTitle: '個人情報の取り扱いについて',
+			privacyStore: 'ご提出いただいた免許証などの画像は、外部から閲覧できない場所に保管し、ご予約の確認のために当社スタッフだけが確認します。メールで送ることはありません。',
+			privacyAuto: 'ご返却またはキャンセルの{days}日後に、自動で消去されます。',
+			privacySelf: 'ご予約確認ページから、いつでもご自身で削除することもできます。',
 			licenseOptional: '（変更する場合のみ）',
 			firstTimeTitle: '初めての方・パスワードをお持ちでない方',
 			emailFirst: '最初にメールアドレスの認証を行います。認証コードをお送りします。',
@@ -129,6 +133,10 @@
 			welcomeBack: 'Welcome back, %s. Your saved details have been loaded.',
 			prefilled: 'Your saved details have been filled in. Please edit if anything has changed.',
 			licenseOnFile: 'Your ID documents are already on file. No need to upload again unless they have changed.',
+			privacyTitle: 'How we protect your personal information',
+			privacyStore: 'Your uploaded documents are stored in a private area that cannot be accessed from outside, and are viewed only by our staff to check your booking. We never send them by email. ',
+			privacyAuto: 'They are automatically erased {days} day(s) after you return the car or cancel. ',
+			privacySelf: 'You can also delete them yourself at any time from your booking page.',
 			licenseOptional: ' (only if changed)',
 			firstTimeTitle: 'First-time customers / no password',
 			emailFirst: 'First, we verify your email address. We will send you a verification code.',
@@ -1017,6 +1025,14 @@
 		});
 	}
 
+	/** 本人確認書類の取り扱い（保管・自動消去）のご案内。日数は中央サイトの設定に合わせる */
+	function privacyNoticeHtml() {
+		var cfg = state.config || {};
+		var days = (cfg.doc_retention_days === undefined || cfg.doc_retention_days === null) ? 1 : parseInt(cfg.doc_retention_days, 10);
+		var body = T.privacyStore + (days > 0 ? T.privacyAuto.replace('{days}', String(days)) : '') + T.privacySelf;
+		return '<div class="bvbf-privacy"><strong>&#128274; ' + T.privacyTitle + '</strong><br>' + body + '</div>';
+	}
+
 	function fileInput(id, label) {
 		return '<label>' + label + '</label><input type="file" id="' + id + '" accept="image/jpeg,image/png,image/webp,application/pdf">';
 	}
@@ -1061,6 +1077,7 @@
 		} else {
 			h += fileInput('bv-f1', T.licenseFront + fileLabelSuffix) + fileInput('bv-f2', T.licenseBack + fileLabelSuffix);
 		}
+		h += privacyNoticeHtml();
 		if (!m) {
 			h += '<label>' + T.memberPass + '</label><input type="password" id="bv-mpass" minlength="8" autocomplete="new-password">';
 			h += '<p class="bvbf-note">' + T.memberNote + '</p>';
