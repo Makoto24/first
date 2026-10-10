@@ -253,7 +253,8 @@ class BVCB_Notify {
 	protected static function send( $subject, $body ) {
 		$to = self::recipients();
 		if ( ! $to ) return false;
-		return (bool) wp_mail( $to, $subject, $body, array( 'Content-Type: text/plain; charset=UTF-8' ) );
+		/* お客様がチャットに書き込んだ免許証番号・カード番号などは伏せて送る */
+		return (bool) wp_mail( $to, BVCB_Settings::redact_sensitive( $subject ), BVCB_Settings::redact_sensitive( $body ), array( 'Content-Type: text/plain; charset=UTF-8' ) );
 	}
 
 	/** 設定画面の「テスト送信」：いちばん新しい会話を送る */

@@ -108,7 +108,8 @@ class BVCB_Chat {
 		$sid = self::verify_token( $req->get_param( 'token' ) );
 		if ( ! $sid ) return self::err( 'session', '会話の有効期限が切れました。もう一度お試しください。', 'Your chat session has expired. Please try again.', $lang, 401 );
 
-		$q = self::clean( (string) $req->get_param( 'message' ) );
+		/* 免許証番号・カード番号などは、AIにも記録にも渡さない */
+		$q = BVCB_Settings::redact_sensitive( self::clean( (string) $req->get_param( 'message' ) ) );
 		if ( '' === $q ) return self::err( 'empty', 'ご質問を入力してください。', 'Please type your question.', $lang );
 		if ( self::len( $q ) > self::MAX_LEN ) {
 			return self::err( 'too_long', 'ご質問は' . self::MAX_LEN . '文字以内でお願いします。', 'Please keep your question under ' . self::MAX_LEN . ' characters.', $lang );

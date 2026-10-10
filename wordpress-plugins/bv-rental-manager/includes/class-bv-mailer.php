@@ -232,6 +232,9 @@ class BV_Mailer {
 	 */
 	protected static function send( $to, $subject, $body, $cc = '', $store = '', $reply_to_override = '' ) {
 		$s = BV_Util::settings();
+		/* 免許証番号・カード番号・書類のリンクは、どのメールにも載せない */
+		$subject = BV_Util::redact_sensitive( $subject );
+		$body    = BV_Util::redact_sensitive( $body );
 		$from = $store ? BV_Util::store_from( $store )
 			: array( 'name' => $s['mail_from_name'], 'email' => $s['admin_email'], 'reply_to' => $s['admin_email'] );
 		if ( $reply_to_override && is_email( $reply_to_override ) ) {

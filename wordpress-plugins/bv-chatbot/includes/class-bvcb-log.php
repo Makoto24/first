@@ -57,7 +57,8 @@ class BVCB_Log {
 		$wpdb->insert( self::table(), array(
 			'sid'        => substr( preg_replace( '/[^A-Za-z0-9]/', '', (string) $sid ), 0, 32 ),
 			'role'       => substr( (string) $role, 0, 12 ),
-			'body'       => (string) $body,
+			/* お客様が免許証番号・カード番号を書き込んでも、記録には残さない */
+			'body'       => BVCB_Settings::redact_sensitive( (string) $body ),
 			'lang'       => ( 'en' === $lang ) ? 'en' : 'ja',
 			'created_at' => BVCB_Settings::now(),
 		) );
